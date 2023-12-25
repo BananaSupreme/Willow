@@ -16,6 +16,6 @@ internal class VadRegistrar : IServiceRegistrar, IConfigurationRegistrar
 
     public static void RegisterConfiguration(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<SileroSettings>(configuration.GetRequiredSection("Silero"));
+        services.Configure<SileroSettings>(configuration.GetSection("Silero"));
     }
 }

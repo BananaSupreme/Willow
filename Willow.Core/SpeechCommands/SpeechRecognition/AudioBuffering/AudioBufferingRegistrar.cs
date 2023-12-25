@@ -16,6 +16,6 @@ internal class AudioBufferingRegistrar : IServiceRegistrar, IConfigurationRegist
 
     public static void RegisterConfiguration(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<AudioBufferSettings>(configuration.GetRequiredSection("AudioBuffer"));
+        services.Configure<AudioBufferSettings>(configuration.GetSection("AudioBuffer"));
     }
 }

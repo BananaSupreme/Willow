@@ -526,8 +526,8 @@ public class TrieConstructionTests
         PreCompiledVoiceCommand[] commands =
         [
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "*wildCard" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one:two:three]:enter" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one:two]:enter" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two|three]:enter" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" },
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "#number" },
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "**phrase" },
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "?[*wildcard]:hit" },

@@ -1,60 +1,33 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using Willow.Core.Helpers;
 using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Abstractions;
+using Willow.WhisperServer.Settings;
 
 namespace Willow.WhisperServer;
 
-public static class WillowWhisperServerStartup
+// ReSharper disable once ClassNeverInstantiated.Global
+public sealed class WillowWhisperServerStartup : IServiceRegistrar, IConfigurationRegistrar
 {
-    private static WhisperEngine? _speechToTextEngine;
     public static void Register(IServiceCollection services, IConfiguration configuration)
     {
         RegisterServices(services);
-        Configure(services, configuration);
-    }
-    
-    public static void Start(IServiceProvider serviceProvider)
-    {
-        _speechToTextEngine = serviceProvider.GetRequiredService<ISpeechToTextEngine>() as WhisperEngine;
+        RegisterConfiguration(services, configuration);
     }
 
-    public static void Stop()
+    public static void RegisterServices(IServiceCollection services)
     {
-        _speechToTextEngine?.Dispose();
+        services.AddHostedService<WhisperEngine>();
+        services.AddSingleton(provider => (ISpeechToTextEngine)provider.GetServices<IHostedService>()
+                                                                       .OfType<WhisperEngine>()
+                                                                       .First());
     }
-    
-    private static void RegisterServices(IServiceCollection services)
+
+    public static void RegisterConfiguration(IServiceCollection services, IConfiguration configuration)
     {
-        var registrars = typeof(IServiceRegistrar).GetAllDeriving();
-        foreach (var registrar in registrars)
-        {
-            var registrationMethod = registrar.GetMethod(nameof(IServiceRegistrar.RegisterServices));
-            registrationMethod?.Invoke(null, [services]);
-        }
-    }
-    
-    private static void Configure(IServiceCollection services, IConfiguration configuration)
-    {
-        var registrars = typeof(IConfigurationRegistrar).GetAllDeriving();
-        foreach (var registrar in registrars)
-        {
-            var registrationMethod = registrar.GetMethod(nameof(IConfigurationRegistrar.RegisterConfiguration));
-            registrationMethod?.Invoke(null, [services, configuration]);
-        }
-    }
-    
-    private static Type[] GetAllDeriving(this Type type)
-    {
-        return typeof(WillowWhisperServerStartup).Assembly.GetTypes()
-                       .Where(t => t.IsConcrete())
-                       .Where(t => t.IsAssignableTo(type))
-                       .ToArray();
-    }
-    
-    private static bool IsConcrete(this Type type)
-    {
-        return !type.IsInterface && !type.IsAbstract;
+        services.Configure<WhisperModelSettings>(configuration.GetSection("WhisperModel"));
+        services.Configure<TranscriptionSettings>(configuration.GetSection("Transcription"));
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Willow.Core.Environment.Models;
 using Willow.Core.SpeechCommands.VoiceCommandParsing;
 using Willow.Core.SpeechCommands.VoiceCommandParsing.Abstractions;
+// ReSharper disable UnusedMethodReturnValue.Local
 
 namespace Willow.Core.SpeechCommands.VoiceCommandCompilation.Models;
 

@@ -1,6 +1,6 @@
-﻿namespace Willow.DeviceAutomation.InputDevices.Helpers;
+﻿namespace Willow.Core.Helpers;
 
-internal readonly struct DisposableLock : IDisposable
+public readonly struct DisposableLock : IDisposable
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
@@ -23,7 +23,7 @@ internal readonly struct DisposableLock : IDisposable
         _semaphore.Dispose();
     }
 
-    internal readonly struct SemaphoreReleaser : IDisposable
+    public readonly struct SemaphoreReleaser : IDisposable
     {
         private readonly SemaphoreSlim? _semaphore;
 

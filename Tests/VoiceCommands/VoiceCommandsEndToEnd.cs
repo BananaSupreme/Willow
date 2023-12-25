@@ -20,7 +20,6 @@ public class VoiceCommandsEndToEnd
         var services = new ServiceCollection();
         services.AddLogging();
         var config = new ConfigurationManager();
-        config.AddJsonFile("./VoiceCommands/test.json");
         WillowStartup.Register(services, config);
         _serviceProvider = services.CreateServiceProvider();
         WillowStartup.Start(_serviceProvider);

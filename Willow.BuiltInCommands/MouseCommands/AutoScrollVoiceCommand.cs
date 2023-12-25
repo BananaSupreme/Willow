@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 
+using Willow.Core.Helpers;
 using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Models;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
-using Willow.DeviceAutomation.InputDevices.Helpers;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
@@ -48,7 +48,7 @@ internal class AutoScrollVoiceCommand : IVoiceCommand
 
     private static async Task Start(string direction, IInputSimulator inputSimulator)
     {
-        using var unlocker = _lock.LockAsync();
+        using var unlocker = await _lock.LockAsync();
         
         if (_cts is not null)
         {
@@ -61,7 +61,7 @@ internal class AutoScrollVoiceCommand : IVoiceCommand
             while (!_cts.IsCancellationRequested)
             {
                 inputSimulator.Scroll(GetFromDirection(direction));
-                await Task.Delay(300);
+                await Task.Delay(100);
             }
         }
         finally
@@ -83,8 +83,8 @@ internal class AutoScrollVoiceCommand : IVoiceCommand
     {
         return direction switch
         {
-            _up => new(0, -10),
-            _down => new(0, 10),
+            _up => new(0, -1),
+            _down => new(0, 1),
             _ => throw new UnreachableException()
         };
     }

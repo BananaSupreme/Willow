@@ -25,6 +25,11 @@ internal class ActiveWindowDetectorWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await Task.Run(async () => await ExecuteInternalAsync(stoppingToken), stoppingToken);
+    }
+
+    private async Task ExecuteInternalAsync(CancellationToken stoppingToken)
+    {
         while (!stoppingToken.IsCancellationRequested)
         {
             _log.CheckingWindow();

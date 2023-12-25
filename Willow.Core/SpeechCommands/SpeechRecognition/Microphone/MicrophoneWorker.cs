@@ -18,7 +18,12 @@ internal sealed class MicrophoneWorker : BackgroundService
         _microphoneAccess = microphoneAccess;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        await Task.Run(() => ExecuteInternal(stoppingToken), stoppingToken);
+    }
+
+    private void ExecuteInternal(CancellationToken stoppingToken)
     {
         foreach (var recording in _microphoneAccess.StartRecording())
         {
@@ -33,6 +38,5 @@ internal sealed class MicrophoneWorker : BackgroundService
         }
 
         _microphoneAccess.StopRecording();
-        return Task.CompletedTask;
     }
 }

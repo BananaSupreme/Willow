@@ -5,6 +5,5 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("TestEntry")]
 [assembly: InternalsVisibleTo("Tests")]
-[assembly: InternalsVisibleTo("Willow.BuiltInCommands")]
-[assembly: InternalsVisibleTo("Willow.DeviceAutomation")]
+[assembly: InternalsVisibleTo("Benchmarks")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

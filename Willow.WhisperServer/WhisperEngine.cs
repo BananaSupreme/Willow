@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Python.Included;
+
+using Willow.Core.Helpers;
 using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Models;
 using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Abstractions;
 using Willow.WhisperServer.Extensions;
@@ -9,60 +13,97 @@ using Willow.WhisperServer.Settings;
 
 namespace Willow.WhisperServer;
 
-public sealed class WhisperEngine : IDisposable, ISpeechToTextEngine
+internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTextEngine, IHostedService
 {
+    private bool _isRunning;
+    private bool _disposed;
+    private bool _firstLoadDone;
+    private readonly DisposableLock _lock = new();
     private readonly ILogger<WhisperEngine> _log;
     private readonly IOptionsMonitor<WhisperModelSettings> _modelSettingsMonitor;
-    private readonly PyModule _scope;
-    private readonly nint _state;
     private readonly IOptionsMonitor<TranscriptionSettings> _transcriptionSettingsMonitor;
+    private PyModule? _scope;
+    private nint _state;
 
     public WhisperEngine(IOptionsMonitor<WhisperModelSettings> modelSettingsMonitor,
                          IOptionsMonitor<TranscriptionSettings> transcriptionSettingsMonitor,
-                         IOptions<PythonSettings> pythonSettings,
                          ILogger<WhisperEngine> log)
     {
         _modelSettingsMonitor = modelSettingsMonitor;
         _transcriptionSettingsMonitor = transcriptionSettingsMonitor;
         _log = log;
-
-        Runtime.PythonDLL = pythonSettings.Value.PathToPythonDll;
-        PythonEngine.Initialize();
-        _state = PythonEngine.BeginAllowThreads();
-        using var gil = Py.GIL();
-        _scope = Py.CreateScope();
-        Init();
     }
 
-    public void Dispose()
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _log.DisposingStarted();
-        PythonEngine.Shutdown();
-        PythonEngine.EndAllowThreads(_state);
-        _scope.Dispose();
-        _log.DisposingEnded();
-    }
+        using var _ = await _lock.LockAsync();
 
-    public async Task<string> TranscribeAudioAsync(AudioData audioData)
-    {
-        var result = await Task.Run(() => Transcribe(new(audioData)));
-        return result;
-    }
+        EnsureNotDisposed();
 
-    private void Init()
-    {
-        _scope.Exec(
-            """
-            from faster_whisper import WhisperModel
-            import io
-            """);
+        if (_isRunning)
+        {
+            return;
+        }
 
+        await InitPythonDependenciesAsync();
+        InitPythonEngine();
+        InitModule();
         InitializeModel();
         _modelSettingsMonitor.OnChange(_ =>
         {
             _log.ModelReinitializing();
             InitializeModel();
         });
+
+        _isRunning = true;
+    }
+
+    
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        using var locker = await _lock.LockAsync();
+
+        if (!_isRunning)
+        {
+            return;
+        }
+
+        using var gil = Py.GIL();
+        _scope?.Dispose();
+        RuntimeData.ClearStash();
+        _ = Runtime.TryCollectingGarbage(5);
+
+        _isRunning = false;
+    }
+
+    private async Task InitPythonDependenciesAsync()
+    {
+        await Installer.SetupPython();
+        await Installer.TryInstallPip();
+        await Installer.PipInstallModule("faster_whisper", "0.9.0");
+    }
+
+    private void InitPythonEngine()
+    {
+        if (_firstLoadDone)
+        {
+            return;
+        }
+
+        PythonEngine.Initialize();
+        _state = PythonEngine.BeginAllowThreads();
+        _firstLoadDone = true;
+    }
+
+    private void InitModule()
+    {
+        using var gil = Py.GIL();
+        _scope = Py.CreateScope();
+        _scope?.Exec(
+            """
+            from faster_whisper import WhisperModel
+            import io
+            """);
     }
 
     private void InitializeModel()
@@ -70,20 +111,55 @@ public sealed class WhisperEngine : IDisposable, ISpeechToTextEngine
         using var gil = Py.GIL();
         var modelSettings = _modelSettingsMonitor.CurrentValue;
         _log.ModelInitializing(modelSettings);
-        _scope.InitializeWhisperModel(modelSettings);
+        _scope?.InitializeWhisperModel(modelSettings);
         _log.ModelInitialized();
     }
 
-    public string Transcribe(TranscriptionParameters transcriptionParameters)
+    public async Task<string> TranscribeAudioAsync(AudioData audioData)
+    {
+        EnsureNotDisposed();
+        var result = await Task.Run(() => Transcribe(new(audioData)));
+        return result;
+    }
+
+    private string Transcribe(TranscriptionParameters transcriptionParameters)
     {
         using var gil = Py.GIL();
         var transcriptionSettings = _transcriptionSettingsMonitor.CurrentValue;
         _log.TranscriptionRequested(transcriptionSettings, transcriptionParameters);
-        var transcription = _scope.TranscribeAudio(transcriptionParameters, transcriptionSettings);
+        var transcription = _scope?.TranscribeAudio(transcriptionParameters, transcriptionSettings)
+                            ?? throw new InvalidOperationException("Transcribe was called without the start method");
         _log.AudioTranscribed();
         _log.TranscriptionDetails(transcription);
         return transcription;
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        await StopAsync(CancellationToken.None);
+        PythonEngine.Shutdown();
+        PythonEngine.EndAllowThreads(_state);
+    }
+
+    public void Dispose()
+    {
+        DisposeAsync().GetAwaiter().GetResult();
+    }
+    
+    private void EnsureNotDisposed()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(WhisperEngine));
+        }
+    }
+
 }
 
 internal static partial class WhisperEngineLoggingExtensions
@@ -128,12 +204,12 @@ internal static partial class WhisperEngineLoggingExtensions
     [LoggerMessage(
         EventId = 7,
         Level = LogLevel.Trace,
-        Message = "Disposing Started")]
-    public static partial void DisposingStarted(this ILogger log);
+        Message = "Whisper server stopping")]
+    public static partial void ServerStopping(this ILogger log);
 
     [LoggerMessage(
         EventId = 8,
         Level = LogLevel.Trace,
-        Message = "Disposing Ended")]
-    public static partial void DisposingEnded(this ILogger log);
+        Message = "Whisper server stopped")]
+    public static partial void ServerStopped(this ILogger log);
 }

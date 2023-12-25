@@ -1,7 +1,4 @@
-﻿using Desktop.Robot.Clicks;
-using Desktop.Robot.Extensions;
-
-using System.Numerics;
+﻿using System.Numerics;
 
 using Willow.DeviceAutomation.InputDevices.Abstractions;
 using Willow.DeviceAutomation.InputDevices.Enums;
