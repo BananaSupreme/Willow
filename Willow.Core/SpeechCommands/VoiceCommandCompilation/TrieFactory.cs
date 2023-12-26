@@ -1,7 +1,7 @@
 ﻿using Willow.Core.Environment.Models;
 using Willow.Core.Helpers;
-using Willow.Core.Helpers.Extensions;
-using Willow.Core.Helpers.Logging;
+using Willow.Core.Logging.Extensions;
+using Willow.Core.Logging.Loggers;
 using Willow.Core.SpeechCommands.VoiceCommandCompilation.Abstractions;
 using Willow.Core.SpeechCommands.VoiceCommandCompilation.Models;
 using Willow.Core.SpeechCommands.VoiceCommandParsing;
@@ -45,7 +45,7 @@ internal sealed class TrieFactory : ITrieFactory
         _log.CommandCompiled(new(nodeProcessors));
         var (currentNode, remainingProcessors) = Traverse(root, nodeProcessors, command.TagRequirements);
         BranchOut(currentNode, remainingProcessors, command.TagRequirements);
-        _log.TrieState(new(root));
+        _log.TrieState(root);
     }
 
     public ITrie? Get()
@@ -55,7 +55,7 @@ internal sealed class TrieFactory : ITrieFactory
             _log.CacheNull();
         }
 
-        _log.RetrievingTrie(new(_cache));
+        _log.RetrievingTrie(_cache);
         return _cache;
     }
 
@@ -110,7 +110,7 @@ internal static partial class LoggingExtensions
         Level = LogLevel.Information,
         Message = "Command processing started, commands to parse are: {commands}")]
     public static partial void ProcessingCommands(this ILogger logger,
-                                                  LoggingEnumerator<PreCompiledVoiceCommand> commands);
+                                                  EnumeratorLogger<PreCompiledVoiceCommand> commands);
 
     [LoggerMessage(
         EventId = 4,
@@ -122,7 +122,7 @@ internal static partial class LoggingExtensions
         EventId = 5,
         Level = LogLevel.Debug,
         Message = "Command compilation succeeded, resulted as: {nodeProcessors}")]
-    public static partial void CommandCompiled(this ILogger logger, LoggingEnumerator<INodeProcessor> nodeProcessors);
+    public static partial void CommandCompiled(this ILogger logger, EnumeratorLogger<INodeProcessor> nodeProcessors);
 
     [LoggerMessage(
         EventId = 6,

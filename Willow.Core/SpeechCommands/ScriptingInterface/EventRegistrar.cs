@@ -4,7 +4,7 @@ using System.Reflection;
 
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Helpers.Extensions;
-using Willow.Core.Helpers.Logging;
+using Willow.Core.Logging.Loggers;
 using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 
 namespace Willow.Core.SpeechCommands.ScriptingInterface;
@@ -67,11 +67,11 @@ internal static partial class LoggingExtensions
         EventId = 1,
         Level = LogLevel.Debug,
         Message = "Located event handlers: {eventHandlerNames}")]
-    public static partial void EventHandlersDetected(this ILogger logger, LoggingEnumerator<string> eventHandlerNames);
+    public static partial void EventHandlersDetected(this ILogger logger, EnumeratorLogger<string> eventHandlerNames);
 
     [LoggerMessage(
         EventId = 2,
         Level = LogLevel.Debug,
         Message = "Located interceptors: {interceptorNames}")]
-    public static partial void InterceptorsDetected(this ILogger logger, LoggingEnumerator<string> interceptorNames);
+    public static partial void InterceptorsDetected(this ILogger logger, EnumeratorLogger<string> interceptorNames);
 }

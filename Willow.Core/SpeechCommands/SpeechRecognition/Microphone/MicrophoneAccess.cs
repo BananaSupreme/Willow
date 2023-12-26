@@ -76,7 +76,7 @@ internal static partial class MicrophoneAccessLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,
-        Level = LogLevel.Debug,
+        Level = LogLevel.Information,
         Message =
             "Starting microphone recording. Microphone index: {microphoneIndex}, Microphone name: {microphoneName}, Recording window time: {recordingTime} ms.")]
     public static partial void RecordingStarted(this ILogger logger, int microphoneIndex, string microphoneName,

@@ -2,7 +2,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Willow.Core.Helpers.Extensions;
+namespace Willow.Core.Logging.Extensions;
 
 internal static class LoggerExtensions
 {

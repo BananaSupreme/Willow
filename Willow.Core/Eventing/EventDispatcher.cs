@@ -5,6 +5,7 @@ using System.Threading.Channels;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Helpers;
 using Willow.Core.Helpers.Extensions;
+using Willow.Core.Logging.Extensions;
 
 namespace Willow.Core.Eventing;
 

@@ -1,5 +1,6 @@
 ﻿using Willow.Core.Helpers;
-using Willow.Core.Helpers.Logging;
+using Willow.Core.Logging.Loggers;
+using Willow.Core.Logging.Settings;
 using Willow.Core.SpeechCommands.Tokenization.Abstractions;
 using Willow.Core.SpeechCommands.Tokenization.Consts;
 using Willow.Core.SpeechCommands.Tokenization.Models;
@@ -11,11 +12,15 @@ namespace Willow.Core.SpeechCommands.Tokenization;
 internal sealed class Tokenizer : ITokenizer
 {
     private readonly ILogger<Tokenizer> _log;
+    private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
     private readonly ISpecializedTokenProcessor[] _specializedTokenProcessors;
 
-    public Tokenizer(IEnumerable<ISpecializedTokenProcessor> specializedTokenProcessors, ILogger<Tokenizer> log)
+    public Tokenizer(IEnumerable<ISpecializedTokenProcessor> specializedTokenProcessors, 
+                     ILogger<Tokenizer> log,
+                     IOptionsMonitor<PrivacySettings> privacySettings)
     {
         _log = log;
+        _privacySettings = privacySettings;
         FallBackProcessor fallBackProcessor = new(log);
         _specializedTokenProcessors = [.. specializedTokenProcessors, fallBackProcessor];
     }
@@ -31,7 +36,7 @@ internal sealed class Tokenizer : ITokenizer
         var inputSpan = input.AsSpan();
         var tokens = new List<Token>();
 
-        _log.TokenProcessingStarted(input);
+        _log.TokenProcessingStarted(new(input, _privacySettings.CurrentValue.AllowLoggingTranscriptions));
         var index = inputSpan.IndexOfAny(CachedSearchValues.Alphanumeric);
         while (index > -1)
         {
@@ -40,8 +45,7 @@ internal sealed class Tokenizer : ITokenizer
             index = inputSpan.IndexOfAny(CachedSearchValues.Alphanumeric);
         }
 
-        _log.ProcessingCompleted(new(tokens));
-        _log.ProcessingCompletedNoTokens();
+        _log.ProcessingCompleted(new(tokens, _privacySettings.CurrentValue.AllowLoggingTranscriptions));
         return [.. tokens];
     }
 
@@ -52,7 +56,7 @@ internal sealed class Tokenizer : ITokenizer
             var (isSuccessful, token, charsProcessed) = specializedTokenProcessor.Process(inputSpan);
             if (isSuccessful)
             {
-                _log.TokenProcessed(token);
+                _log.TokenProcessed(new(token, _privacySettings.CurrentValue.AllowLoggingTranscriptions));
                 tokens.Add(token);
                 inputSpan = inputSpan[charsProcessed..];
                 break;
@@ -70,7 +74,7 @@ internal sealed class Tokenizer : ITokenizer
         {
             _log = log;
         }
-        
+
         public TokenProcessingResult Process(ReadOnlySpan<char> input)
         {
             var wordEnd = input.IndexOf(Chars.Space);
@@ -89,34 +93,29 @@ internal static partial class LoggingExtensions
         Level = LogLevel.Information,
         Message = "Input detected was empty")]
     public static partial void EmptyInput(this ILogger logger);
-    
+
     [LoggerMessage(
         EventId = 2,
         Level = LogLevel.Trace,
         Message = "Started processing tokens from input ({input})")]
-    public static partial void TokenProcessingStarted(this ILogger logger, string input);
-    
+    public static partial void TokenProcessingStarted(this ILogger logger, RedactingLogger<string> input);
+
     [LoggerMessage(
         EventId = 3,
         Level = LogLevel.Debug,
         Message = "Token processed successfully ({token})")]
-    public static partial void TokenProcessed(this ILogger logger, Token token);
-    
+    public static partial void TokenProcessed(this ILogger logger, RedactingLogger<Token> token);
+
     [LoggerMessage(
         EventId = 4,
         Level = LogLevel.Trace,
         Message = "Word token processed")]
     public static partial void ProcessedWord(this ILogger logger);
-    
+
     [LoggerMessage(
         EventId = 5,
-        Level = LogLevel.Debug,
-        Message = "Completed processing of the transcription: {implementations}")]
-    public static partial void ProcessingCompleted(this ILogger logger, LoggingEnumerator<Token> implementations);
-    
-    [LoggerMessage(
-        EventId = 6,
         Level = LogLevel.Information,
-        Message = "Completed processing of the transcription")]
-    public static partial void ProcessingCompletedNoTokens(this ILogger logger);
+        Message = "Completed processing of the transcription: {implementations}")]
+    public static partial void ProcessingCompleted(this ILogger logger,
+                                                   RedactingLogger<EnumeratorLogger<Token>> implementations);
 }

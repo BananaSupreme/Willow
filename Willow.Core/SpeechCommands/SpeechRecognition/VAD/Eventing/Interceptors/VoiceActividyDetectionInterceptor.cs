@@ -39,13 +39,13 @@ internal sealed class VoiceActivityDetectionInterceptor : IEventInterceptor<Audi
         else
         {
             var bufferedData = _audioBuffer.UnloadAllData();
-            _log.UnloadedDataFromBuffer(bufferedData);
             if (bufferedData.RawData.Length == 0)
             {
                 _log.NoSpeechDetected();
                 return;
             }
 
+            _log.UnloadedDataFromBuffer(bufferedData);
             //If this is true, so we ended here because the buffer ran out of space, we want to make sure we're not losing samples here
             if (result.IsSpeechDetected)
             {
@@ -95,7 +95,7 @@ internal static partial class VoicesActivityDetectionLoggingExtensions
 
     [LoggerMessage(
         EventId = 5,
-        Level = LogLevel.Debug,
+        Level = LogLevel.Information,
         Message = "Unloaded data from buffer for further processing. AudioData: {audioData}.")]
     public static partial void UnloadedDataFromBuffer(this ILogger logger, AudioData audioData);
 }

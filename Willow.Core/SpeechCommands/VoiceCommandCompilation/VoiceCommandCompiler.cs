@@ -1,4 +1,4 @@
-﻿using Willow.Core.Helpers.Logging;
+﻿using Willow.Core.Logging.Loggers;
 using Willow.Core.SpeechCommands.Tokenization.Consts;
 using Willow.Core.SpeechCommands.VoiceCommandCompilation.Abstractions;
 using Willow.Core.SpeechCommands.VoiceCommandCompilation.Exceptions;
@@ -22,7 +22,7 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
 
     public INodeProcessor[] Compile(PreCompiledVoiceCommand command)
     {
-        _log.CompilationStarted(command, new JsonLogger<IEnumerable<INodeCompiler>>(_internalParsers));
+        _log.CompilationStarted(command, new(_internalParsers.Select(x => x.GetType().Name)));
         if (string.IsNullOrWhiteSpace(command.InvocationPhrase))
         {
             throw new CommandCompilationException("Command string cannot be empty");
@@ -64,7 +64,7 @@ internal static partial class LoggingExtensions
         EventId = 1,
         Level = LogLevel.Information,
         Message = "Started compilation on command ({command}), compilers found: {nodeCompilers}")]
-    public static partial void CompilationStarted(this ILogger logger, PreCompiledVoiceCommand command, JsonLogger<IEnumerable<INodeCompiler>> nodeCompilers);
+    public static partial void CompilationStarted(this ILogger logger, PreCompiledVoiceCommand command, EnumeratorLogger<string> nodeCompilers);
 
     [LoggerMessage(
         EventId = 2,

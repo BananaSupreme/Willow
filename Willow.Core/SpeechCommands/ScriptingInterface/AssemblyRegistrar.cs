@@ -3,7 +3,7 @@
 using System.Reflection;
 
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Helpers.Logging;
+using Willow.Core.Logging.Loggers;
 using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Events;
 using Willow.Core.SpeechCommands.Tokenization.Abstractions;
@@ -64,5 +64,5 @@ internal static partial class LoggingExtensions
         EventId = 1,
         Level = LogLevel.Information,
         Message = "Processing assemblies: {assemblyNames}")]
-    public static partial void ProcessingAssemblies(this ILogger logger, LoggingEnumerator<string> assemblyNames);
+    public static partial void ProcessingAssemblies(this ILogger logger, EnumeratorLogger<string> assemblyNames);
 }

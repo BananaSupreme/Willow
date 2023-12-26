@@ -3,23 +3,27 @@
 using Willow.Core.CommandExecution.Abstraction;
 using Willow.Core.CommandExecution.Exceptions;
 using Willow.Core.CommandExecution.Models;
-using Willow.Core.Helpers.Extensions;
-using Willow.Core.Helpers.Logging;
+using Willow.Core.Logging.Extensions;
+using Willow.Core.Logging.Loggers;
+using Willow.Core.Logging.Settings;
 using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Models;
+using Willow.Core.SpeechCommands.Tokenization.Tokens.Abstractions;
 
 namespace Willow.Core.CommandExecution;
 
 internal class CommandStorage : ICommandStorage
 {
     private readonly ILogger<CommandStorage> _log;
+    private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
 
     private FrozenDictionary<Guid, Func<IVoiceCommand>> _storage =
         new Dictionary<Guid, Func<IVoiceCommand>>().ToFrozenDictionary();
 
-    public CommandStorage(ILogger<CommandStorage> log)
+    public CommandStorage(ILogger<CommandStorage> log, IOptionsMonitor<PrivacySettings> privacySettings)
     {
         _log = log;
+        _privacySettings = privacySettings;
     }
 
     public void SetAvailableCommands(ExecutableCommands[] commands)
@@ -34,8 +38,9 @@ internal class CommandStorage : ICommandStorage
         _log.LookingForCommand();
         if (_storage.TryGetValue(id, out var commandActivator))
         {
-            _log.CommandMatched();
             var command = commandActivator();
+            _log.CommandMatched(new(command.GetType().Name, _privacySettings.CurrentValue.AllowLoggingCommands),
+                new(new(context.Parameters), _privacySettings.CurrentValue.AllowLoggingCommands));
             await command.ExecuteAsync(context);
             return;
         }
@@ -51,7 +56,7 @@ internal static partial class LoggingExtensions
         EventId = 1,
         Level = LogLevel.Debug,
         Message = "Updated commands in storage: {commands}")]
-    public static partial void CommandsUpdated(this ILogger logger, LoggingEnumerator<Guid> commands);
+    public static partial void CommandsUpdated(this ILogger logger, EnumeratorLogger<Guid> commands);
 
     [LoggerMessage(
         EventId = 2,
@@ -67,7 +72,9 @@ internal static partial class LoggingExtensions
 
     [LoggerMessage(
         EventId = 4,
-        Level = LogLevel.Debug,
-        Message = "Command matched, executing...")]
-    public static partial void CommandMatched(this ILogger logger);
+        Level = LogLevel.Information,
+        Message = "Command matched, executing ({commandName}) with parameters: {parameters}")]
+    public static partial void CommandMatched(this ILogger logger, 
+                                              RedactingLogger<string> commandName,
+                                              RedactingLogger<EnumeratorLogger<KeyValuePair<string, Token>>> parameters);
 }

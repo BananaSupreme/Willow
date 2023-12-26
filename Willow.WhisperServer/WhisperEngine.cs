@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 using Python.Included;
 
 using Willow.Core.Helpers;
+using Willow.Core.Logging.Loggers;
+using Willow.Core.Logging.Settings;
 using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Models;
 using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Abstractions;
 using Willow.WhisperServer.Extensions;
@@ -20,17 +22,20 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
     private bool _firstLoadDone;
     private readonly DisposableLock _lock = new();
     private readonly ILogger<WhisperEngine> _log;
-    private readonly IOptionsMonitor<WhisperModelSettings> _modelSettingsMonitor;
-    private readonly IOptionsMonitor<TranscriptionSettings> _transcriptionSettingsMonitor;
+    private readonly IOptionsMonitor<WhisperModelSettings> _modelSettings;
+    private readonly IOptionsMonitor<TranscriptionSettings> _transcriptionSettings;
+    private readonly IOptionsMonitor<PrivacySettings> _privateSettings;
     private PyModule? _scope;
     private nint _state;
 
-    public WhisperEngine(IOptionsMonitor<WhisperModelSettings> modelSettingsMonitor,
-                         IOptionsMonitor<TranscriptionSettings> transcriptionSettingsMonitor,
+    public WhisperEngine(IOptionsMonitor<WhisperModelSettings> modelSettings,
+                         IOptionsMonitor<TranscriptionSettings> transcriptionSettings,
+                         IOptionsMonitor<PrivacySettings> privateSettings,
                          ILogger<WhisperEngine> log)
     {
-        _modelSettingsMonitor = modelSettingsMonitor;
-        _transcriptionSettingsMonitor = transcriptionSettingsMonitor;
+        _modelSettings = modelSettings;
+        _transcriptionSettings = transcriptionSettings;
+        _privateSettings = privateSettings;
         _log = log;
     }
 
@@ -49,7 +54,7 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
         InitPythonEngine();
         InitModule();
         InitializeModel();
-        _modelSettingsMonitor.OnChange(_ =>
+        _modelSettings.OnChange(_ =>
         {
             _log.ModelReinitializing();
             InitializeModel();
@@ -109,7 +114,7 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
     private void InitializeModel()
     {
         using var gil = Py.GIL();
-        var modelSettings = _modelSettingsMonitor.CurrentValue;
+        var modelSettings = _modelSettings.CurrentValue;
         _log.ModelInitializing(modelSettings);
         _scope?.InitializeWhisperModel(modelSettings);
         _log.ModelInitialized();
@@ -125,12 +130,12 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
     private string Transcribe(TranscriptionParameters transcriptionParameters)
     {
         using var gil = Py.GIL();
-        var transcriptionSettings = _transcriptionSettingsMonitor.CurrentValue;
+        var transcriptionSettings = _transcriptionSettings.CurrentValue;
         _log.TranscriptionRequested(transcriptionSettings, transcriptionParameters);
         var transcription = _scope?.TranscribeAudio(transcriptionParameters, transcriptionSettings)
                             ?? throw new InvalidOperationException("Transcribe was called without the start method");
         _log.AudioTranscribed();
-        _log.TranscriptionDetails(transcription);
+        _log.TranscriptionDetails(new(transcription, _privateSettings.CurrentValue.AllowLoggingTranscriptions));
         return transcription;
     }
 
@@ -174,7 +179,7 @@ internal static partial class WhisperEngineLoggingExtensions
         EventId = 2,
         Level = LogLevel.Debug,
         Message = "Transcribed Audio: ({transcription})")]
-    public static partial void TranscriptionDetails(this ILogger log, string transcription);
+    public static partial void TranscriptionDetails(this ILogger log, RedactingLogger<string> transcription);
 
     [LoggerMessage(
         EventId = 3,

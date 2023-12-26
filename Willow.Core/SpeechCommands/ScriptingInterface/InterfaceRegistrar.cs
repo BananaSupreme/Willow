@@ -3,7 +3,7 @@
 using System.Reflection;
 
 using Willow.Core.Helpers.Extensions;
-using Willow.Core.Helpers.Logging;
+using Willow.Core.Logging.Loggers;
 using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 
 namespace Willow.Core.SpeechCommands.ScriptingInterface;
@@ -47,5 +47,5 @@ internal static partial class LoggingExtensions
         EventId = 1,
         Level = LogLevel.Debug,
         Message = "Located interfaces: {implementations}")]
-    public static partial void ImplementationsFound(this ILogger logger, LoggingEnumerator<string> implementations);
+    public static partial void ImplementationsFound(this ILogger logger, EnumeratorLogger<string> implementations);
 }

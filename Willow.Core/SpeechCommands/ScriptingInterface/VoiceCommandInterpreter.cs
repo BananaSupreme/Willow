@@ -4,7 +4,7 @@ using System.Reflection;
 
 using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
-using Willow.Core.Helpers.Logging;
+using Willow.Core.Logging.Loggers;
 using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Attributes;
 using Willow.Core.SpeechCommands.ScriptingInterface.Models;
@@ -93,6 +93,6 @@ internal static partial class LoggingExtensions
         Level = LogLevel.Debug,
         Message = "Command ({commandTypeName}) Interpreted ({command}).\r\nValues captured: {capturedValues}")]
     public static partial void CommandInterpreted(this ILogger logger, RawVoiceCommand command,
-                                                  LoggingEnumerator<(string, object)> capturedValues,
+                                                  EnumeratorLogger<(string, object)> capturedValues,
                                                   string commandTypeName);
 }

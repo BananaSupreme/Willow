@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Willow.Core.Helpers.Logging;
+namespace Willow.Core.Logging.Loggers;
 
 public class JsonLogger<T>
 {
@@ -14,5 +14,10 @@ public class JsonLogger<T>
     public override string ToString()
     {
         return JsonSerializer.Serialize(_item);
+    }
+
+    public static implicit operator JsonLogger<T>(T? item)
+    {
+        return new(item);
     }
 }
