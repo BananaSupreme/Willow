@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Registration.Abstractions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Models;
 using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Eventing.Events;
@@ -22,15 +23,13 @@ public class VoiceCommandsEndToEnd
         var config = new ConfigurationManager();
         WillowStartup.Register(services, config);
         _serviceProvider = services.CreateServiceProvider();
-        WillowStartup.Start(_serviceProvider);
+        var registrar = _serviceProvider.GetRequiredService<IAssemblyRegistrationEntry>();
+        registrar.RegisterAssemblies([typeof(WillowStartup).Assembly, this.GetType().Assembly]);
     }
 
     [Fact]
     public async Task Sanity()
     {
-        var assemblyRegistrar = _serviceProvider.GetRequiredService<IAssemblyRegistrar>();
-        assemblyRegistrar.RegisterAssemblies([this.GetType().Assembly]);
-
         var eventDispatcher = _serviceProvider.GetRequiredService<IEventDispatcher>();
         eventDispatcher.Dispatch(new AudioTranscribedEvent("Test mario Repeat Repeat"));
         await eventDispatcher.FlushAsync();

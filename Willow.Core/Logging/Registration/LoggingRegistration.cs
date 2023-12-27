@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Helpers;
 using Willow.Core.Logging.Settings;
+using Willow.Core.Registration.Abstractions;
 
-namespace Willow.Core.Logging;
+namespace Willow.Core.Logging.Registration;
 
 internal class LoggingRegistration : IConfigurationRegistrar
 {

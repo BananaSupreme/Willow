@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Helpers;
+using Willow.Core.Registration.Abstractions;
 using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Abstractions;
 using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Settings;
 
-namespace Willow.Core.SpeechCommands.SpeechRecognition.Microphone;
+namespace Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Registration;
 
 internal class MicrophoneRegistrar : IServiceRegistrar, IConfigurationRegistrar
 {

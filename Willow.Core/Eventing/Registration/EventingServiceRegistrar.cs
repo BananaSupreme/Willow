@@ -1,13 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Helpers;
-using Willow.Core.SpeechCommands.ScriptingInterface;
-using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
+using Willow.Core.Registration.Abstractions;
 
-namespace Willow.Core.Eventing;
+namespace Willow.Core.Eventing.Registration;
 
-public class EventingRegistrar : IServiceRegistrar
+public class EventingServiceRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Willow.Core.Helpers;
+namespace Willow.Core.Registration.Abstractions;
 
 public interface IConfigurationRegistrar
 {

@@ -1,5 +1,8 @@
 ﻿using Pv;
 
+using System.Diagnostics.CodeAnalysis;
+
+using Willow.Core.Helpers;
 using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Abstractions;
 using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Models;
 using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Settings;
@@ -10,58 +13,85 @@ internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable
 {
     private const int _frameSize = 512;
     private readonly ILogger<MicrophoneAccess> _log;
+    private static readonly DisposableLock _lock = new();
 
-    private readonly IOptionsMonitor<MicrophoneSettings> _options;
+    private MicrophoneSettings _lastMicrophoneSettings;
+    private readonly IOptionsMonitor<MicrophoneSettings> _microphoneSettings;
 
     private PvRecorder? _recorder;
+    private readonly IDisposable? _listener;
+    private short[]? _buffer;
 
-    public MicrophoneAccess(IOptionsMonitor<MicrophoneSettings> options, ILogger<MicrophoneAccess> log)
+    public MicrophoneAccess(IOptionsMonitor<MicrophoneSettings> microphoneSettings, ILogger<MicrophoneAccess> log)
     {
-        _options = options;
+        _microphoneSettings = microphoneSettings;
+        _lastMicrophoneSettings = _microphoneSettings.CurrentValue;
         _log = log;
+        _listener = _microphoneSettings.OnChange(ChangeMicrophone);
     }
 
     public void Dispose()
     {
         StopRecording();
+        _listener?.Dispose();
         _recorder?.Dispose();
     }
 
     public IEnumerable<AudioData> StartRecording()
     {
-        _recorder = PvRecorder.Create(_frameSize, _options.CurrentValue.MicrophoneIndex, 100);
-        _recorder.Start();
+        SetupMicrophone();
 
-        _log.RecordingStarted(_options.CurrentValue.MicrophoneIndex, _recorder.SelectedDevice,
-            _options.CurrentValue.RecordingWindowTimeInMilliseconds);
-
-        var recordingTime = _options.CurrentValue.RecordingWindowTimeInMilliseconds;
-        var framesPerSecond = _recorder.SampleRate / _frameSize;
-        var bufferSize = (int)Math.Ceiling(framesPerSecond * _frameSize * (recordingTime / 1000.0));
-        var buffer = new short[bufferSize];
-
-        while (_recorder.IsRecording)
+        //When changing the recorder sometimes the isRecording value gets captured as false since we have to
+        //stop and start a new recorded, so this holds the value while the change happens making sure we wait for the lock
+        var isRecording = _recorder.IsRecording;
+        while (isRecording)
         {
-            yield return Record(bufferSize, buffer);
+            var @lock = _lock.Lock();
+            AudioData data;
+            try
+            {
+                data = Record(_recorder, _buffer.Length, _buffer);
+                isRecording = _recorder.IsRecording;
+            }
+            finally
+            {
+                @lock.Dispose();
+            }
+
+            _log.ReturningData(data);
+            yield return data;
         }
     }
 
-    private AudioData Record(int bufferSize, short[] buffer)
+    [MemberNotNull(nameof(_buffer), nameof(_recorder))]
+    private void SetupMicrophone()
+    {
+        _recorder = PvRecorder.Create(_frameSize, _microphoneSettings.CurrentValue.MicrophoneIndex, 100);
+        _recorder.Start();
+        _log.RecordingStarted(_microphoneSettings.CurrentValue.MicrophoneIndex, _recorder.SelectedDevice,
+            _microphoneSettings.CurrentValue.RecordingWindowTimeInMilliseconds);
+
+        var recordingTime = _microphoneSettings.CurrentValue.RecordingWindowTimeInMilliseconds;
+        var framesPerSecond = _recorder.SampleRate / _frameSize;
+        var bufferSize = (int)Math.Ceiling(framesPerSecond * _frameSize * (recordingTime / 1000.0));
+        _buffer = new short[bufferSize];
+    }
+
+    private static AudioData Record(PvRecorder recorder, int bufferSize, short[] buffer)
     {
         var framesProcessed = 0;
         var i = 0;
         while (i < bufferSize - _frameSize + 1
-               && _recorder!.IsRecording)
+               && recorder.IsRecording)
         {
-            var frame = _recorder.Read();
+            var frame = recorder.Read();
             frame.CopyTo(buffer, framesProcessed * _frameSize);
             framesProcessed++;
             i += _frameSize;
             Thread.Yield();
         }
 
-        var data = new AudioData(buffer, _recorder!.SampleRate, 1, 16);
-        _log.ReturningData(data);
+        var data = new AudioData(buffer, recorder.SampleRate, 1, 16);
         return data;
     }
 
@@ -69,6 +99,22 @@ internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable
     {
         _recorder?.Stop();
         _log.RecordingStopped();
+    }
+
+    private void ChangeMicrophone(MicrophoneSettings newValue, string? __)
+    {
+        if (newValue.MicrophoneIndex == _lastMicrophoneSettings.MicrophoneIndex
+            && newValue.RecordingWindowTimeInMilliseconds ==
+            _lastMicrophoneSettings.RecordingWindowTimeInMilliseconds)
+        {
+            return;
+        }
+
+        using var _ = _lock.Lock();
+        _lastMicrophoneSettings = newValue;
+        StopRecording();
+        _recorder?.Dispose();
+        SetupMicrophone();
     }
 }
 

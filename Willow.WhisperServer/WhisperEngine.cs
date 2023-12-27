@@ -20,6 +20,7 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
     private bool _isRunning;
     private bool _disposed;
     private bool _firstLoadDone;
+    private WhisperModelSettings _lastModelSettings;
     private readonly DisposableLock _lock = new();
     private readonly ILogger<WhisperEngine> _log;
     private readonly IOptionsMonitor<WhisperModelSettings> _modelSettings;
@@ -34,6 +35,7 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
                          ILogger<WhisperEngine> log)
     {
         _modelSettings = modelSettings;
+        _lastModelSettings = _modelSettings.CurrentValue;
         _transcriptionSettings = transcriptionSettings;
         _privateSettings = privateSettings;
         _log = log;
@@ -54,8 +56,15 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
         InitPythonEngine();
         InitModule();
         InitializeModel();
-        _modelSettings.OnChange(_ =>
+        _modelSettings.OnChange(newValue =>
         {
+            //Weird way to test, but I was lazy to start implementing equals on all the types
+            if (newValue.ToString() == _lastModelSettings.ToString())
+            {
+                return;
+            }
+
+            _lastModelSettings = newValue;
             _log.ModelReinitializing();
             InitializeModel();
         });
@@ -117,12 +126,17 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
         var modelSettings = _modelSettings.CurrentValue;
         _log.ModelInitializing(modelSettings);
         _scope?.InitializeWhisperModel(modelSettings);
-        _log.ModelInitialized();
+        _log.ModelInitialized(modelSettings);
     }
 
     public async Task<string> TranscribeAudioAsync(AudioData audioData)
     {
         EnsureNotDisposed();
+        if (!_isRunning)
+        {
+            return string.Empty;
+        }
+        
         var result = await Task.Run(() => Transcribe(new(audioData)));
         return result;
     }
@@ -197,8 +211,8 @@ internal static partial class WhisperEngineLoggingExtensions
     [LoggerMessage(
         EventId = 5,
         Level = LogLevel.Information,
-        Message = "Model initialized")]
-    public static partial void ModelInitialized(this ILogger log);
+        Message = "Model initialized: ({modelSettings})")]
+    public static partial void ModelInitialized(this ILogger log, WhisperModelSettings modelSettings);
 
     [LoggerMessage(
         EventId = 6,

@@ -1,15 +1,17 @@
 ﻿using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Models;
-using Willow.Core.Eventing;
 using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Eventing.Registration;
+using Willow.Core.Helpers.Extensions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Events;
 using Willow.Core.SpeechCommands.ScriptingInterface.Models;
 using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Eventing.Events;
-using Willow.Core.SpeechCommands.Tokenization;
 using Willow.Core.SpeechCommands.Tokenization.Eventing.Interceptors;
+using Willow.Core.SpeechCommands.Tokenization.Registration;
 using Willow.Core.SpeechCommands.Tokenization.Tokens;
 using Willow.Core.SpeechCommands.Tokenization.Tokens.Abstractions;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation;
+using Willow.Core.SpeechCommands.VoiceCommandCompilation.Abstractions;
+using Willow.Core.SpeechCommands.VoiceCommandCompilation.Registration;
 using Willow.Core.SpeechCommands.VoiceCommandParsing.Eventing.Events;
 using Willow.Core.SpeechCommands.VoiceCommandParsing.Eventing.Handlers;
 
@@ -33,6 +35,7 @@ public class CommandProcessingEndToEndTests
         _environmentStateProvider = Substitute.For<IEnvironmentStateProvider>();
         var services = new ServiceCollection();
         RegisterServices(services);
+        services.AddAllTypesFromOwnAssembly<INodeCompiler>(ServiceLifetime.Singleton);
         var serviceProvider = services.BuildServiceProvider();
         _eventDispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
         RegisterEvents();
@@ -57,7 +60,7 @@ public class CommandProcessingEndToEndTests
 
         VoiceCommandCompilationRegistrar.RegisterServices(services: services);
         TokenizationRegistrar.RegisterServices(services: services);
-        EventingRegistrar.RegisterServices(services: services);
+        EventingServiceRegistrar.RegisterServices(services: services);
     }
 
     [Fact]

@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Helpers;
+using Willow.Core.Registration.Abstractions;
 using Willow.Core.SpeechCommands.SpeechRecognition.VAD.Abstractions;
 using Willow.Core.SpeechCommands.SpeechRecognition.VAD.Settings;
 
-namespace Willow.Core.SpeechCommands.SpeechRecognition.VAD;
+namespace Willow.Core.SpeechCommands.SpeechRecognition.VAD.Registration;
 
 internal class VadRegistrar : IServiceRegistrar, IConfigurationRegistrar
 {

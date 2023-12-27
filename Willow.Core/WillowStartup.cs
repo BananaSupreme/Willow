@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Helpers;
 using Willow.Core.Helpers.Extensions;
-using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
+using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core;
 
@@ -14,14 +12,6 @@ public static class WillowStartup
     {
         RegisterServices(services);
         Configure(services, configuration);
-    }
-    
-    public static void Start(IServiceProvider serviceProvider)
-    {
-        var eventRegistrar = serviceProvider.GetRequiredService<IEventRegistrar>();
-        var eventDispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
-        eventRegistrar.RegisterEventsFromAssemblies([typeof(WillowStartup).Assembly]);
-        RegisterInterceptors(eventDispatcher);
     }
     
     private static void RegisterServices(IServiceCollection services)
@@ -44,13 +34,5 @@ public static class WillowStartup
         }
     }
 
-    private static void RegisterInterceptors(IEventDispatcher eventDispatcher)
-    {
-        var registrars = typeof(IInterceptorRegistrar).GetAllDerivingInOwnAssembly();
-        foreach (var registrar in registrars)
-        {
-            var registrationMethod = registrar.GetMethod(nameof(IInterceptorRegistrar.RegisterInterceptor));
-            registrationMethod?.Invoke(null, [eventDispatcher]);
-        }
-    }
+    
 }

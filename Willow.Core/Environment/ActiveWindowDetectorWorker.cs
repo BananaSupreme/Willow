@@ -68,7 +68,7 @@ internal static partial class LoggingExtensions
 
     [LoggerMessage(
         EventId = 3,
-        Level = LogLevel.Debug,
+        Level = LogLevel.Information,
         Message = "Window ({newWindow}) detected to be different from existing ({oldWindow})")]
     public static partial void WindowChanged(this ILogger logger, RedactingLogger<ActiveWindowInfo> oldWindow, RedactingLogger<ActiveWindowInfo> newWindow);
 }

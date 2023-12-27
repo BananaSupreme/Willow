@@ -7,6 +7,6 @@ internal class EmptyActiveWindowDetector : IActiveWindowDetector
 {
     public ActiveWindowInfo GetActiveWindow()
     {
-        return new("Testing", 0, "Test");
+        return new("Testing");
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
+namespace Willow.Core.Registration.Abstractions;
 
 // ReSharper disable once UnusedTypeParameter
 public interface IInterfaceRegistrar

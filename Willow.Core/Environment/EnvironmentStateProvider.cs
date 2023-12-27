@@ -14,8 +14,6 @@ internal class EnvironmentStateProvider : IEnvironmentStateProvider
                 new Tag(OperatingSystem), 
                 new Tag(ActivationMode), 
                 .. EnvironmentTags,
-                new Tag(ActiveWindow.Title), 
-                new Tag(ActiveWindow.ProcessId.ToString()),
                 new Tag(ActiveWindow.ProcessName)
             ];
         }
@@ -24,5 +22,5 @@ internal class EnvironmentStateProvider : IEnvironmentStateProvider
     public string OperatingSystem => System.Environment.OSVersion.Platform.ToString();
     public string ActivationMode { get; set; } = nameof(Enums.ActivationMode.Command);
     public Tag[] EnvironmentTags { get; set; } = [];
-    public ActiveWindowInfo ActiveWindow { get; set; } = new(string.Empty, 0, string.Empty);
+    public ActiveWindowInfo ActiveWindow { get; set; } = new(string.Empty);
 }

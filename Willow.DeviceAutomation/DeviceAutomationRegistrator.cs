@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Helpers;
+using Willow.Core.Registration.Abstractions;
 using Willow.DeviceAutomation.InputDevices;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
 

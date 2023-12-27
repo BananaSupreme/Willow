@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using Willow.Core.CommandExecution.Abstraction;
-using Willow.Core.Helpers;
+using Willow.Core.Registration.Abstractions;
 
-namespace Willow.Core.CommandExecution;
+namespace Willow.Core.CommandExecution.Registration;
 
 internal class CommandExecutionRegistrar : IServiceRegistrar
 {

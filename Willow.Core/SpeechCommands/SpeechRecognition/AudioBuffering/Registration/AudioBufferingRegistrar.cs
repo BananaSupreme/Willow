@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Helpers;
+using Willow.Core.Registration.Abstractions;
 using Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering.Abstractions;
 using Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering.Settings;
 
-namespace Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering;
+namespace Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering.Registration;
 
 internal class AudioBufferingRegistrar : IServiceRegistrar, IConfigurationRegistrar
 {

@@ -4,9 +4,9 @@ using System.Reflection;
 
 using Willow.Core.Helpers.Extensions;
 using Willow.Core.Logging.Loggers;
-using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
+using Willow.Core.Registration.Abstractions;
 
-namespace Willow.Core.SpeechCommands.ScriptingInterface;
+namespace Willow.Core.Registration;
 
 internal class InterfaceRegistrar : IInterfaceRegistrar
 {
@@ -28,6 +28,7 @@ internal class InterfaceRegistrar : IInterfaceRegistrar
     {
         var types = assemblies.SelectMany(x =>
                                   x.GetTypes()
+                                   .Where(type => !type.IsNestedPrivate)
                                    .Where(typeToDeriveFrom.IsAssignableFrom)
                                    .Where(type => type.IsConcrete()))
                               .ToArray();

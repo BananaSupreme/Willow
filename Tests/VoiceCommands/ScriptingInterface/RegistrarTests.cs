@@ -4,10 +4,10 @@ using System.Reflection;
 using System.Reflection.Emit;
 
 using Willow.Core.Environment.Models;
-using Willow.Core.Eventing;
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.SpeechCommands.ScriptingInterface;
-using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
+using Willow.Core.Eventing.Registration;
+using Willow.Core.Registration;
+using Willow.Core.Registration.Abstractions;
 using Willow.Core.SpeechCommands.Tokenization.Tokens.Abstractions;
 using Willow.Core.SpeechCommands.VoiceCommandParsing.Abstractions;
 using Willow.Core.SpeechCommands.VoiceCommandParsing.Models;
@@ -25,7 +25,7 @@ public class RegistrarTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<IInterfaceRegistrar, InterfaceRegistrar>();
-        EventingRegistrar.RegisterServices(services);
+        EventingServiceRegistrar.RegisterServices(services);
         services.AddSingleton<TestHelper>();
         _serviceProvider = services.CreateServiceProvider();
         _registrar = _serviceProvider.GetRequiredService<IInterfaceRegistrar>();
@@ -35,7 +35,7 @@ public class RegistrarTests
     [Fact]
     public async Task When_RegisteringNewEventFromAssembly_EventCorrectlyLoaded()
     {
-        _eventRegistrar.RegisterEventsFromAssemblies([typeof(TestEventHandler).Assembly]);
+        _eventRegistrar.RegisterFromAssemblies([typeof(TestEventHandler).Assembly]);
         var dispatcher = _serviceProvider.GetRequiredService<IEventDispatcher>();
 
         dispatcher.Dispatch(new Event());
@@ -48,7 +48,7 @@ public class RegistrarTests
     [Fact]
     public void When_RegisteringNewEventFromAssembly_ItsInterceptorsAreAlsoLoadedToIoC()
     {
-        _eventRegistrar.RegisterEventsFromAssemblies([typeof(TestEventHandler).Assembly]);
+        _eventRegistrar.RegisterFromAssemblies([typeof(TestEventHandler).Assembly]);
         _serviceProvider.Invoking(x => x.GetRequiredService<TestInterceptor>())
                         .Should().NotThrow();
     }
@@ -66,14 +66,14 @@ public class RegistrarTests
     public void When_NoTypesToBeRegistered_NoFailures()
     {
         var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
-        _eventRegistrar.Invoking(x => x.RegisterEventsFromAssemblies([assembly])).Should().NotThrow();
+        _eventRegistrar.Invoking(x => x.RegisterFromAssemblies([assembly])).Should().NotThrow();
         _registrar.Invoking(x => x.RegisterDeriving<IInterfaceRegistrar>([])).Should().NotThrow();
     }
 
     [Fact]
     public void When_NoAssembliesToBeRegistered_NoFailures()
     {
-        _eventRegistrar.Invoking(x => x.RegisterEventsFromAssemblies([])).Should().NotThrow();
+        _eventRegistrar.Invoking(x => x.RegisterFromAssemblies([])).Should().NotThrow();
         _registrar.Invoking(x => x.RegisterDeriving<IInterfaceRegistrar>([])).Should().NotThrow();
     }
 }
