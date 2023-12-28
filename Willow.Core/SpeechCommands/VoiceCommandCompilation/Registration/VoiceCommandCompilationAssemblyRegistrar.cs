@@ -5,7 +5,7 @@ using Willow.Core.SpeechCommands.VoiceCommandCompilation.Abstractions;
 
 namespace Willow.Core.SpeechCommands.VoiceCommandCompilation.Registration;
 
-internal class VoiceCommandCompilationAssemblyRegistrar : IAssemblyRegistrar
+internal sealed class VoiceCommandCompilationAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IInterfaceRegistrar _interfaceRegistrar;
 

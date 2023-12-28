@@ -5,7 +5,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.CommandExecution.Registration;
 
-internal class CommandExecutionRegistrar : IServiceRegistrar
+internal sealed class CommandExecutionRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

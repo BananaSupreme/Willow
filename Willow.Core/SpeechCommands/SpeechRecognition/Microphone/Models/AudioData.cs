@@ -1,8 +1,11 @@
 ﻿namespace Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Models;
 
-public readonly record struct AudioData(short[] RawData, int SamplingRate, ushort ChannelCount, ushort BitDepth)
+public record struct AudioData(short[] RawData, int SamplingRate, ushort ChannelCount, ushort BitDepth)
 {
     public TimeSpan Duration => FromSamplePosition(RawData.Length);
+    public float[] NormalizedData =>  _cachedNormalizedData ??= Normalize();
+
+    private float[]? _cachedNormalizedData;
 
     public TimeSpan FromSamplePosition(int position)
     {
@@ -12,6 +15,11 @@ public readonly record struct AudioData(short[] RawData, int SamplingRate, ushor
     public int FromTimeSpan(TimeSpan time)
     {
         return (int)(SamplingRate * time.TotalSeconds);
+    }
+
+    private float[] Normalize()
+    {
+        return RawData.Select(x => x / (float)32768.0).ToArray();
     }
 
     public override string ToString()

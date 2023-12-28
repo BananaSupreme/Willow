@@ -33,8 +33,7 @@ internal sealed class VoiceActivityDetectionInterceptor : IEventInterceptor<Audi
             _log.SpeechDetected(startSample, endSample);
 
             //Load all the data so there won't be any weird cuts in the audio
-            var speechData = audioData with { RawData = audioData.RawData };
-            LoadDataLogged(speechData);
+            LoadDataLogged(audioData);
         }
         else
         {
@@ -66,7 +65,7 @@ internal sealed class VoiceActivityDetectionInterceptor : IEventInterceptor<Audi
     }
 }
 
-internal static partial class VoicesActivityDetectionLoggingExtensions
+internal static partial class LoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

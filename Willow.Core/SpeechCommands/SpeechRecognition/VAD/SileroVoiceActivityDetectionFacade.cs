@@ -29,7 +29,7 @@ internal sealed class SileroVoiceActivityDetectionFacade : IVoiceActivityDetecti
     {
         var currentValue = _sileroSettings.CurrentValue;
         _log.VoiceActivityDetectionStarted(currentValue);
-        var result = _sileroVad.GetSpeechTimestamps(FromShortArray(audioSegment.RawData),
+        var result = _sileroVad.GetSpeechTimestamps(audioSegment.NormalizedData,
             currentValue.Threshold,
             currentValue.MinSpeechDurationMilliseconds,
             currentValue.MaxSpeechDurationSeconds,
@@ -58,11 +58,6 @@ internal sealed class SileroVoiceActivityDetectionFacade : IVoiceActivityDetecti
         }
 
         return vadResult;
-    }
-
-    private static float[] FromShortArray(short[] rawData)
-    {
-        return rawData.Select(x => x / (float)32768.0).ToArray();
     }
 }
 

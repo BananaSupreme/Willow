@@ -7,7 +7,7 @@ using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Settings;
 
 namespace Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Registration;
 
-internal class MicrophoneRegistrar : IServiceRegistrar, IConfigurationRegistrar
+internal sealed class MicrophoneRegistrar : IServiceRegistrar, IConfigurationRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

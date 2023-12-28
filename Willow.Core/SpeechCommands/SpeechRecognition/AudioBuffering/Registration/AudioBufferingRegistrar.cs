@@ -7,7 +7,7 @@ using Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering.Settings;
 
 namespace Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering.Registration;
 
-internal class AudioBufferingRegistrar : IServiceRegistrar, IConfigurationRegistrar
+internal sealed class AudioBufferingRegistrar : IServiceRegistrar, IConfigurationRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

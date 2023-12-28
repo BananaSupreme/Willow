@@ -7,7 +7,7 @@ using Willow.DeviceAutomation.InputDevices.Enums;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-internal class ClickVoiceCommand : IVoiceCommand
+internal sealed class ClickVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
 

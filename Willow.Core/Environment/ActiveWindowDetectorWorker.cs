@@ -9,7 +9,7 @@ using Willow.Core.Logging.Settings;
 
 namespace Willow.Core.Environment;
 
-internal class ActiveWindowDetectorWorker : BackgroundService
+internal sealed class ActiveWindowDetectorWorker : BackgroundService
 {
     private readonly IActiveWindowDetector _activeWindowDetector;
     private readonly IEventDispatcher _eventDispatcher;

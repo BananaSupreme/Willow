@@ -11,7 +11,7 @@ using Willow.Core.SpeechCommands.ScriptingInterface.Models;
 
 namespace Willow.Core.SpeechCommands.ScriptingInterface;
 
-internal class VoiceCommandInterpreter : IVoiceCommandInterpreter
+internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
 {
     private readonly ILogger<VoiceCommandInterpreter> _log;
     private readonly IServiceProvider _serviceProvider;

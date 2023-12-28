@@ -9,7 +9,7 @@ using Willow.Core.SpeechCommands.ScriptingInterface.Events;
 
 namespace Willow.Core.SpeechCommands.ScriptingInterface.Registration;
 
-internal class ScriptingInterfaceAssemblyRegistrar : IAssemblyRegistrar
+internal sealed class ScriptingInterfaceAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IVoiceCommandInterpreter _voiceCommandInterpreter;

@@ -6,6 +6,7 @@ using Willow.Core.Helpers.Extensions;
 using Willow.Core.SpeechCommands.ScriptingInterface.Events;
 using Willow.Core.SpeechCommands.ScriptingInterface.Models;
 using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Eventing.Events;
+using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Registration;
 using Willow.Core.SpeechCommands.Tokenization.Eventing.Interceptors;
 using Willow.Core.SpeechCommands.Tokenization.Registration;
 using Willow.Core.SpeechCommands.Tokenization.Tokens;
@@ -43,7 +44,7 @@ public class CommandProcessingEndToEndTests
 
     private void RegisterEvents()
     {
-        CommandParsingInterceptorRegistrar.RegisterInterceptor(eventDispatcher: _eventDispatcher);
+        AudioTranscribedEventInterceptorRegistrar.RegisterInterceptor(eventDispatcher: _eventDispatcher);
         _eventDispatcher.RegisterHandler<AudioTranscribedEvent, AudioTranscribedEventHandler>();
         _eventDispatcher.RegisterHandler<CommandModifiedEvent, CommandModifiedEventHandler>();
         _eventDispatcher.RegisterHandler<CommandParsedEvent, ITestHandler>();

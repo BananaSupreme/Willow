@@ -6,7 +6,7 @@ using Willow.DeviceAutomation.InputDevices.Abstractions;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-internal class MouseDragVoiceCommand : IVoiceCommand
+internal sealed class MouseDragVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
 

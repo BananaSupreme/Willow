@@ -6,7 +6,7 @@ using Willow.Core.SpeechCommands.Tokenization.Abstractions;
 
 namespace Willow.Core.SpeechCommands.Tokenization.Registration;
 
-internal class TokenizationRegistrar : IServiceRegistrar
+internal sealed class TokenizationRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

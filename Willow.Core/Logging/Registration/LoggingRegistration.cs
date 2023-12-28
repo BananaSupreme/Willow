@@ -6,7 +6,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Logging.Registration;
 
-internal class LoggingRegistration : IConfigurationRegistrar
+internal sealed class LoggingRegistration : IConfigurationRegistrar
 {
     public static void RegisterConfiguration(IServiceCollection services, IConfiguration configuration)
     {

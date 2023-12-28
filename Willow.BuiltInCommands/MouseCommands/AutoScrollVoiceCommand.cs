@@ -8,7 +8,7 @@ using Willow.DeviceAutomation.InputDevices.Abstractions;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-internal class AutoScrollVoiceCommand : IVoiceCommand
+internal sealed class AutoScrollVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
 

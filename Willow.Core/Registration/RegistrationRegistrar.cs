@@ -4,7 +4,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Registration;
 
-internal class RegistrationRegistrar : IServiceRegistrar
+internal sealed class RegistrationRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

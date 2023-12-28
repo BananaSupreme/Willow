@@ -6,7 +6,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Registration;
 
-internal class AssemblyRegistrationEntry : IAssemblyRegistrationEntry
+internal sealed class AssemblyRegistrationEntry : IAssemblyRegistrationEntry
 {
     private readonly IEnumerable<IAssemblyRegistrar> _registrars;
 

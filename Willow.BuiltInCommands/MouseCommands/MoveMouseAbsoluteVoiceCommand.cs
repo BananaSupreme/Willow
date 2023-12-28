@@ -6,7 +6,7 @@ using Willow.DeviceAutomation.InputDevices.Abstractions;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-internal class MoveMouseAbsoluteVoiceCommand : IVoiceCommand
+internal sealed class MoveMouseAbsoluteVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
     

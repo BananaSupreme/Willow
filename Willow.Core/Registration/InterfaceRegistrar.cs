@@ -8,7 +8,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Registration;
 
-internal class InterfaceRegistrar : IInterfaceRegistrar
+internal sealed class InterfaceRegistrar : IInterfaceRegistrar
 {
     private readonly IRegistrator _registrator;
     private readonly ILogger<InterfaceRegistrar> _log;

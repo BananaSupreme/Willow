@@ -6,7 +6,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Environment.Registration;
 
-internal class EnvironmentRegistrar : IServiceRegistrar
+internal sealed class EnvironmentRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

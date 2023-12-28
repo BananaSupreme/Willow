@@ -5,7 +5,7 @@ using Willow.Core.SpeechCommands.Tokenization.Abstractions;
 
 namespace Willow.Core.SpeechCommands.Tokenization.Registration;
 
-internal class TokenizationAssemblyRegistrar : IAssemblyRegistrar
+internal sealed class TokenizationAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IInterfaceRegistrar _interfaceRegistrar;
 

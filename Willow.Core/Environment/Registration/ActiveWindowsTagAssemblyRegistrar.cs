@@ -8,7 +8,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Environment.Registration;
 
-internal class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
+internal sealed class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IActiveWindowTagStorage _activeWindowTagStorage;
     private readonly ILogger<ActiveWindowsTagAssemblyRegistrar> _log;

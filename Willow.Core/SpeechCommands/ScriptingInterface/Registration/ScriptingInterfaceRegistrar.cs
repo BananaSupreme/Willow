@@ -5,7 +5,7 @@ using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
 
 namespace Willow.Core.SpeechCommands.ScriptingInterface.Registration;
 
-internal class ScriptingInterfaceRegistrar : IServiceRegistrar
+internal sealed class ScriptingInterfaceRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

@@ -6,7 +6,7 @@ using Willow.Core.SpeechCommands.ScriptingInterface.Events;
 
 namespace Willow.Core.CommandExecution.Eventing.Handlers;
 
-internal class CommandModifiedEventHandler : IEventHandler<CommandModifiedEvent>
+internal sealed class CommandModifiedEventHandler : IEventHandler<CommandModifiedEvent>
 {
     private readonly ICommandStorage _commandStorage;
 

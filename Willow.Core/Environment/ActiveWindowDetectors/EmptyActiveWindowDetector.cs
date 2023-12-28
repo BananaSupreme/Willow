@@ -3,7 +3,7 @@ using Willow.Core.Environment.Models;
 
 namespace Willow.Core.Environment.ActiveWindowDetectors;
 
-internal class EmptyActiveWindowDetector : IActiveWindowDetector
+internal sealed class EmptyActiveWindowDetector : IActiveWindowDetector
 {
     public ActiveWindowInfo GetActiveWindow()
     {

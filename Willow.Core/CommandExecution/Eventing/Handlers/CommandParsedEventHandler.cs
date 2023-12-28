@@ -4,7 +4,7 @@ using Willow.Core.SpeechCommands.VoiceCommandParsing.Eventing.Events;
 
 namespace Willow.Core.CommandExecution.Eventing.Handlers;
 
-internal class CommandParsedEventHandler : IEventHandler<CommandParsedEvent>
+internal sealed class CommandParsedEventHandler : IEventHandler<CommandParsedEvent>
 {
     private readonly ICommandStorage _commandStorage;
 

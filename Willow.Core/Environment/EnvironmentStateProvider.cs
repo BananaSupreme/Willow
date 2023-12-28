@@ -3,7 +3,7 @@ using Willow.Core.Environment.Models;
 
 namespace Willow.Core.Environment;
 
-internal class EnvironmentStateProvider : IEnvironmentStateProvider
+internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
 {
     public IReadOnlyList<Tag> Tags
     {

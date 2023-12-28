@@ -22,8 +22,4 @@
       <PackageReference Include="ToString.Fody" Version="1.11.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="SpeechCommands\SpeechRecognition\" />
-    </ItemGroup>
-
 </Project>

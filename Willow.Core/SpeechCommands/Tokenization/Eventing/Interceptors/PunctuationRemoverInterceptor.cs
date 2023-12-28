@@ -4,7 +4,7 @@ using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Eventing.Events;
 
 namespace Willow.Core.SpeechCommands.Tokenization.Eventing.Interceptors;
 
-internal class PunctuationRemoverInterceptor : IEventInterceptor<AudioTranscribedEvent>
+internal sealed class PunctuationRemoverInterceptor : IEventInterceptor<AudioTranscribedEvent>
 {
     public async Task InterceptAsync(AudioTranscribedEvent @event, Func<AudioTranscribedEvent, Task> next)
     {

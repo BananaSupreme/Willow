@@ -7,7 +7,7 @@ using Willow.DeviceAutomation.InputDevices.Abstractions;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-internal class MoveMouseByOffsetVoiceCommand : IVoiceCommand
+internal sealed class MoveMouseByOffsetVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
 

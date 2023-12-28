@@ -7,7 +7,7 @@ using Willow.Core.SpeechCommands.SpeechRecognition.VAD.Settings;
 
 namespace Willow.Core.SpeechCommands.SpeechRecognition.VAD.Registration;
 
-internal class VadRegistrar : IServiceRegistrar, IConfigurationRegistrar
+internal sealed class VadRegistrar : IServiceRegistrar, IConfigurationRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

@@ -7,7 +7,7 @@ using Willow.Core.Logging.Settings;
 
 namespace Willow.Core.Environment.Eventing.Handlers;
 
-internal class ActiveWindowChangedEventHandler : IEventHandler<ActiveWindowChangedEvent>
+internal sealed class ActiveWindowChangedEventHandler : IEventHandler<ActiveWindowChangedEvent>
 {
     private readonly IActiveWindowTagStorage _activeWindowTagStorage;
     private readonly IEnvironmentStateProvider _environmentStateProvider;

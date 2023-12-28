@@ -6,7 +6,7 @@ using Willow.Core.Logging.Settings;
 
 namespace Willow.Core.Environment;
 
-internal class ActiveWindowTagStorage : IActiveWindowTagStorage
+internal sealed class ActiveWindowTagStorage : IActiveWindowTagStorage
 {
     private IDictionary<string, Tag[]> _storage = new Dictionary<string, Tag[]>();
 

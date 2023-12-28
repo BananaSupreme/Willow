@@ -12,7 +12,7 @@ using Willow.Core.SpeechCommands.Tokenization.Tokens.Abstractions;
 
 namespace Willow.Core.CommandExecution;
 
-internal class CommandStorage : ICommandStorage
+internal sealed class CommandStorage : ICommandStorage
 {
     private readonly ILogger<CommandStorage> _log;
     private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
