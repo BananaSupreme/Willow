@@ -28,6 +28,17 @@ internal sealed class ClickVoiceCommand : IVoiceCommand
     {
         var button = context.Parameters.GetValueOrDefault(_button)?.GetString() ?? _left;
 
+        PerformClick(button);
+        if (context.Parameters.TryGetValue(_doubleClick, out _))
+        {
+            PerformClick(button);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void PerformClick(string button)
+    {
         switch (button)
         {
             case _left:
@@ -45,7 +56,5 @@ internal sealed class ClickVoiceCommand : IVoiceCommand
             default:
                 throw new UnreachableException();
         }
-
-        return Task.CompletedTask;
     }
 }

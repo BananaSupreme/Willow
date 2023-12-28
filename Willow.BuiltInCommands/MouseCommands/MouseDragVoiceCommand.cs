@@ -30,7 +30,7 @@ internal sealed class MouseDragVoiceCommand : IVoiceCommand
                 break;
             
             case _release:
-                _inputSimulator.MouseButtonDown();
+                _inputSimulator.MouseButtonUp();
                 break;
             
             default:
