@@ -398,7 +398,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-Docs/*
-Tests/VoiceCommands/test.json
 TestEntry/*
 .idea/*
