@@ -4,14 +4,12 @@ using Newtonsoft.Json.Serialization;
 using System.Reflection;
 
 using Willow.Core.Environment.Models;
-using Willow.Core.SpeechCommands.Tokenization.Tokens;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation.Abstractions;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation.Models;
-using Willow.Core.SpeechCommands.VoiceCommandParsing;
-using Willow.Core.SpeechCommands.VoiceCommandParsing.NodeProcessors;
-
-using OptionalNodeProcessor = Willow.Core.SpeechCommands.VoiceCommandParsing.NodeProcessors.OptionalNodeProcessor;
+using Willow.Speech.Tokenization.Tokens;
+using Willow.Speech.VoiceCommandCompilation;
+using Willow.Speech.VoiceCommandCompilation.Abstractions;
+using Willow.Speech.VoiceCommandCompilation.Models;
+using Willow.Speech.VoiceCommandParsing;
+using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Tests.VoiceCommands.CommandProcessing;
 

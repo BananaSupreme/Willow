@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 
-using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
-using Willow.Core.SpeechCommands.ScriptingInterface.Models;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
+using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 

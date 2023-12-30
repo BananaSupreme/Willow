@@ -9,6 +9,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Willow.Core\Willow.Core.csproj" />
       <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj" />
+      <ProjectReference Include="..\Willow.Speech\Willow.Speech.csproj" />
     </ItemGroup>
 
 </Project>

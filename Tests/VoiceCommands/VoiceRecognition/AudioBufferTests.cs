@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 
-using Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering;
-using Willow.Core.SpeechCommands.SpeechRecognition.AudioBuffering.Settings;
-using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Models;
+using Willow.Speech.SpeechRecognition.AudioBuffering;
+using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
+using Willow.Speech.SpeechRecognition.Microphone.Models;
 
 namespace Tests.VoiceCommands.VoiceRecognition;
 

@@ -4,11 +4,13 @@ using Microsoft.Extensions.Configuration;
 
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Registration;
 using Willow.Core.Registration.Abstractions;
-using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
-using Willow.Core.SpeechCommands.ScriptingInterface.Models;
-using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Eventing.Events;
-using Willow.Core.SpeechCommands.Tokenization.Tokens;
+using Willow.Speech;
+using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.ScriptingInterface.Models;
+using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
+using Willow.Speech.Tokenization.Tokens;
 
 namespace Tests.VoiceCommands;
 
@@ -21,10 +23,17 @@ public class VoiceCommandsEndToEnd
         var services = new ServiceCollection();
         services.AddLogging();
         var config = new ConfigurationManager();
-        WillowStartup.Register(services, config);
+        WillowStartup.Register(
+            [typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly],
+            services,
+            config);
         _serviceProvider = services.CreateServiceProvider();
         var registrar = _serviceProvider.GetRequiredService<IAssemblyRegistrationEntry>();
-        registrar.RegisterAssemblies([typeof(WillowStartup).Assembly, this.GetType().Assembly]);
+        registrar.RegisterAssemblies([
+                                         typeof(ICoreAssemblyMarker).Assembly, 
+                                         typeof(ISpeechAssemblyMarker).Assembly,
+                                         this.GetType().Assembly
+                                     ]);
     }
 
     [Fact]
@@ -33,10 +42,10 @@ public class VoiceCommandsEndToEnd
         var eventDispatcher = _serviceProvider.GetRequiredService<IEventDispatcher>();
         eventDispatcher.Dispatch(new AudioTranscribedEvent("Test mario Repeat Repeat"));
         await eventDispatcher.FlushAsync();
-        
+
         var testVoiceCommand = _serviceProvider.GetRequiredService<TestVoiceCommand>();
         var testVoiceCommandModifer = _serviceProvider.GetRequiredService<TestVoiceCommandModifer>();
-        
+
         testVoiceCommand.Called.Should().BeTrue();
         testVoiceCommandModifer.CalledAmount.Should().Be(2);
     }
@@ -55,6 +64,7 @@ public class TestVoiceCommand : IVoiceCommand
         {
             Called = true;
         }
+
         return Task.CompletedTask;
     }
 }
@@ -63,6 +73,7 @@ public class TestVoiceCommandModifer : IVoiceCommand
 {
     public int CalledAmount { get; private set; }
     public string InvocationPhrase => "Repeat";
+
     public Task ExecuteAsync(VoiceCommandContext context)
     {
         CalledAmount++;

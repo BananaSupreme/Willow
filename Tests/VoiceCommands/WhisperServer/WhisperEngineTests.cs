@@ -2,8 +2,8 @@ using Microsoft.Extensions.Configuration;
 
 using Python.Included;
 
-using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Models;
-using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Abstractions;
+using Willow.Speech.SpeechRecognition.Microphone.Models;
+using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
 using Willow.WhisperServer;
 
 using Xunit.Abstractions;
@@ -19,7 +19,8 @@ public class WhisperEngineTests : IAsyncLifetime
     public WhisperEngineTests(ITestOutputHelper outputHelper)
     {
         var services = new ServiceCollection();
-        WillowWhisperServerStartup.Register(services, new ConfigurationManager());
+        WillowWhisperServerRegistrar.RegisterServices(services);
+        WillowWhisperServerRegistrar.RegisterConfiguration(services, new ConfigurationManager());
         services.AddLogging();
         _serviceProvider = services.BuildServiceProvider();
         Installer.LogMessage += outputHelper.WriteLine;

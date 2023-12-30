@@ -1,6 +1,6 @@
 ﻿namespace Willow.Core.Helpers;
 
-public readonly struct DisposableLock : IDisposable
+internal readonly struct DisposableLock : IDisposable
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 

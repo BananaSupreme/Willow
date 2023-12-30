@@ -1,12 +1,12 @@
 ﻿using Willow.Core.Helpers.Extensions;
-using Willow.Core.SpeechCommands.Tokenization.Tokens;
-using Willow.Core.SpeechCommands.Tokenization.Tokens.Abstractions;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation.Abstractions;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation.Exceptions;
-using Willow.Core.SpeechCommands.VoiceCommandCompilation.Models;
-using Willow.Core.SpeechCommands.VoiceCommandParsing.Abstractions;
-using Willow.Core.SpeechCommands.VoiceCommandParsing.NodeProcessors;
+using Willow.Speech.Tokenization.Tokens;
+using Willow.Speech.Tokenization.Tokens.Abstractions;
+using Willow.Speech.VoiceCommandCompilation;
+using Willow.Speech.VoiceCommandCompilation.Abstractions;
+using Willow.Speech.VoiceCommandCompilation.Exceptions;
+using Willow.Speech.VoiceCommandCompilation.Models;
+using Willow.Speech.VoiceCommandParsing.Abstractions;
+using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Tests.VoiceCommands.CommandProcessing;
 

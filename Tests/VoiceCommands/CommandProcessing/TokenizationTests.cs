@@ -1,8 +1,8 @@
 ﻿using Willow.Core.Helpers.Extensions;
-using Willow.Core.SpeechCommands.Tokenization;
-using Willow.Core.SpeechCommands.Tokenization.Abstractions;
-using Willow.Core.SpeechCommands.Tokenization.Tokens;
-using Willow.Core.SpeechCommands.Tokenization.Tokens.Abstractions;
+using Willow.Speech.Tokenization;
+using Willow.Speech.Tokenization.Abstractions;
+using Willow.Speech.Tokenization.Tokens;
+using Willow.Speech.Tokenization.Tokens.Abstractions;
 
 namespace Tests.VoiceCommands.CommandProcessing;
 

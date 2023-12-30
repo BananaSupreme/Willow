@@ -8,4 +8,14 @@
   - zoom
   - move keys
   - copy, paste, cut
-  - 
+  - tags
+  - abbreviating
+  - file extensions
+  - homophones
+  - press keys
+  - mode changing
+  - repetition and voice command history
+  - write formatted
+  - write text
+  - dictation mode editing
+  - move around text

@@ -1,4 +1,4 @@
-﻿using Willow.Core.SpeechCommands.SpeechRecognition.Microphone.Models;
+﻿using Willow.Speech.SpeechRecognition.Microphone.Models;
 
 namespace Willow.WhisperServer.Models;
 

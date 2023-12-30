@@ -8,9 +8,9 @@ using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Registration;
 using Willow.Core.Registration.Abstractions;
-using Willow.Core.SpeechCommands.Tokenization.Tokens.Abstractions;
-using Willow.Core.SpeechCommands.VoiceCommandParsing.Abstractions;
-using Willow.Core.SpeechCommands.VoiceCommandParsing.Models;
+using Willow.Speech.Tokenization.Tokens.Abstractions;
+using Willow.Speech.VoiceCommandParsing.Abstractions;
+using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Tests.VoiceCommands.ScriptingInterface;
 

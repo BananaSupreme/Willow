@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Willow.Core\Willow.Core.csproj" />
+      <ProjectReference Include="..\Willow.Speech\Willow.Speech.csproj" />
     </ItemGroup>
 
 </Project>

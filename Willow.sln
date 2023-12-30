@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.BuiltInCommands", "W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{CEF3329F-2338-485C-B51F-BF9699BC456A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Speech", "Willow.Speech\Willow.Speech.csproj", "{7FC20A8E-1CFB-4377-B6F4-B5E1F34AB260}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,10 @@ Global
 		{CEF3329F-2338-485C-B51F-BF9699BC456A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEF3329F-2338-485C-B51F-BF9699BC456A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEF3329F-2338-485C-B51F-BF9699BC456A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FC20A8E-1CFB-4377-B6F4-B5E1F34AB260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FC20A8E-1CFB-4377-B6F4-B5E1F34AB260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FC20A8E-1CFB-4377-B6F4-B5E1F34AB260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FC20A8E-1CFB-4377-B6F4-B5E1F34AB260}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

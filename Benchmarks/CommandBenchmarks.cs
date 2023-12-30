@@ -10,10 +10,12 @@ using NSubstitute;
 using Willow.BuiltInCommands;
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Registration;
 using Willow.Core.Registration.Abstractions;
-using Willow.Core.SpeechCommands.SpeechRecognition.SpeechToText.Eventing.Events;
 using Willow.DeviceAutomation;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
+using Willow.Speech;
+using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
 
 namespace Benchmarks;
 
@@ -27,19 +29,27 @@ public class CommandBenchmarks
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        WillowStartup.Register(services, new ConfigurationManager());
+        WillowStartup.Register(
+            [typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly],
+            services,
+            new ConfigurationManager());
         services.AddSingleton(_ => Substitute.For<IInputSimulator>());
         DeviceAutomationRegistrator.RegisterServices(services);
         var provider = services.CreateServiceProvider();
         _dispatcher = provider.GetRequiredService<IEventDispatcher>();
         var registrar = provider.GetRequiredService<IAssemblyRegistrationEntry>();
-        registrar.RegisterAssemblies([typeof(WillowStartup).Assembly, typeof(IBuiltInCommandsAssemblyMarker).Assembly]);
+        registrar.RegisterAssemblies([
+                                         typeof(ICoreAssemblyMarker).Assembly,
+                                         typeof(ISpeechAssemblyMarker).Assembly,
+                                         typeof(IBuiltInCommandsAssemblyMarker).Assembly
+                                     ]);
     }
 
     [Benchmark]
     public async Task MoveMouseUp()
     {
-        _dispatcher.Dispatch(new AudioTranscribedEvent("move mouse up 72 move mouse down 72 move mouse left 72 move mouse right 72"));
+        _dispatcher.Dispatch(
+            new AudioTranscribedEvent("move mouse up 72 move mouse down 72 move mouse left 72 move mouse right 72"));
         await _dispatcher.FlushAsync();
     }
 

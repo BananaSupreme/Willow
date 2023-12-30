@@ -1,9 +1,9 @@
 ﻿using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
-using Willow.Core.SpeechCommands.ScriptingInterface;
-using Willow.Core.SpeechCommands.ScriptingInterface.Abstractions;
-using Willow.Core.SpeechCommands.ScriptingInterface.Attributes;
-using Willow.Core.SpeechCommands.ScriptingInterface.Models;
+using Willow.Speech.ScriptingInterface;
+using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.ScriptingInterface.Attributes;
+using Willow.Speech.ScriptingInterface.Models;
 
 namespace Tests.VoiceCommands.ScriptingInterface;
 
