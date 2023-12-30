@@ -40,11 +40,25 @@
     - **Note**: captured lists are enumerated when the command is created and not when it is executed.
 
 - **Optional**:
-    - Alias: `Optional`, `?`, `Opt`
+    - Alias: `Optional`, `Opt`, `?`
     - Wrapper Node
     - This node also accepts a flag at the end, under this flag an `EmptyToken` would be registered in the captured
       values
     - Description: Indicates that the node is optional in a command.
+
+- **And**:
+    - Alias: `And`, `A`, `&` 
+    - Wrapper Node
+    - Similiar to the OneOf node the inner nodes are seperated by pipes,
+    - Note that nodes are processed from left to right
+    - Description: A wrapper that require all nodes going from left to write to be processed succesfully.
+
+- **Or**:
+    - Alias: `Or`, `O`, `~`, 
+    - Wrapper Node
+    - Similiar to the OneOf node the inner nodes are seperated by pipes,
+    - Note that nodes are processed from left to right
+    - Description: A wrapper that requires that any of the node processors produces a match.
 
 ## Examples
 
@@ -116,4 +130,20 @@
     - Breakdown:
         - `file document as` - Plain word(s)
         - `[_documentFormats]:format` - OneOf Node Processor using a list variable `documentFormats` to capture the
-          document format, the `_` marks that this is a captured list rather than a plain word.
+          document format, the `_` marks that this is a captured list rather than a plain word.4
+
+10. **Optional Command Handles an Inner And Wrapper**:
+    - Command: `"raise volume ?[&[a|little]]:_flag"`
+    - Breakdown:
+        - `raise volume` - Plain word(s)
+        - `?[&[a|little]]:_flag` - An optional node processor that wraps inside it an `And` node, this groups together one word
+          node `a` and a second `little`, only if both are said the optional succeedes.
+        - Like all other nodes aliasing rules applies so this is equivilant to `Optional[And[a|little]]`
+
+11. **Optional Command Handles an Inner Or Wrapper**:
+    - Command: `"raise volume ?[~[much|little]]:flag"`
+    - Breakdown:
+        - `raise volume` - Plain word(s)
+        - `?[~[much|little]]:flag` - An optional node processor that wraps inside it an `Or` node, this groups together one word
+          node `much` and a second `little`, if the user says either word the operation is considered a success.
+        - Like all other nodes aliasing rules applies so this is equivilant to `Optional[Or[much|little]]`

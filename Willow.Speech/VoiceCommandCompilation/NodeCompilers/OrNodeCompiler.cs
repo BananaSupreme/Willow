@@ -7,9 +7,9 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
-internal sealed class OptionNodeCompiler : INodeCompiler
+internal sealed class OrNodeCompiler : INodeCompiler
 {
-    private static readonly char[][] _startSymbols = ["Optional".ToCharArray(), "Opt".ToCharArray(), "?".ToCharArray()];
+    private static readonly char[][] _startSymbols = ["Or".ToCharArray(), "O".ToCharArray(), "~".ToCharArray()];
 
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
@@ -24,16 +24,15 @@ internal sealed class OptionNodeCompiler : INodeCompiler
         var separatorIndex = commandWord.LastIndexOf(Chars.Colon);
         if (separatorIndex < 0)
         {
-            throw new CommandCompilationException("Expected a flag name, but found none");
+            throw new CommandCompilationException("Expected an index name, but found none");
         }
+        
+        var capturedValue = commandWord[startSymbol.Length..separatorIndex].GuardWrappedInSquares();
+        var nodeProcessors = capturedValue.ExtractNodeProcessors(compilers, capturedValues);
 
-        var captureValue = commandWord[startSymbol.Length..separatorIndex].GuardWrappedInSquares();
-        var node = captureValue.ParseCommandWord(compilers, capturedValues);
-        node.GuardNotSame<OptionalNodeProcessor>();
-
-        var flagName = commandWord[(separatorIndex + 1)..];
-        flagName = flagName.GuardValidVariableName();
-
-        return (true, new OptionalNodeProcessor(flagName.ToString(), node));
+        var successIndexName = commandWord[(separatorIndex + 1)..];
+        successIndexName = successIndexName.GuardValidVariableName();
+        
+        return (true, new OrNodeProcessor(successIndexName.ToString(), nodeProcessors));
     }
 }

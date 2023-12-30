@@ -15,17 +15,17 @@ internal sealed class OneOfSpecialSyntaxNodeCompiler : INodeCompiler
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
                                                                       INodeCompiler[]
-                                                                          specializedCommandParsers)
+                                                                          compilers)
     {
         if (!commandWord.StartsWith(_startSymbols))
         {
             return INodeCompiler.Fail();
         }
 
-        var separatorIdx = commandWord.IndexOf(Chars.Colon);
-        var tokens = GetTokens(commandWord[..separatorIdx], capturedValues);
+        var separatorIndex = commandWord.IndexOf(Chars.Colon);
+        var tokens = GetTokens(commandWord[..separatorIndex], capturedValues);
 
-        commandWord = commandWord[(separatorIdx + 1)..];
+        commandWord = commandWord[(separatorIndex + 1)..];
         var captureValue = commandWord.GuardValidVariableName();
 
         return (true, new OneOfNodeProcessor(captureValue.ToString(), tokens));

@@ -10,7 +10,7 @@ internal sealed class WordNodeCompiler : INodeCompiler
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
                                                                       INodeCompiler[]
-                                                                          specializedCommandParsers)
+                                                                          compilers)
     {
         return commandWord.ContainsAnyExcept(CachedSearchValues.Alphabet)
                    ? INodeCompiler.Fail()

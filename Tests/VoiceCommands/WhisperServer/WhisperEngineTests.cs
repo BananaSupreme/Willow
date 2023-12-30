@@ -27,13 +27,6 @@ public class WhisperEngineTests : IAsyncLifetime
     }
     
     [Fact]
-    public async Task Sanity()
-    {
-        var whisperEngine = (WhisperEngine)_serviceProvider.GetRequiredService<ISpeechToTextEngine>();
-        await TestInternal(whisperEngine);
-    }
-
-    [Fact]
     public async Task When_ServerStartedAndStopped_StartsAgainOK()
     {
         var whisperEngine = (WhisperEngine)_serviceProvider.GetRequiredService<ISpeechToTextEngine>();

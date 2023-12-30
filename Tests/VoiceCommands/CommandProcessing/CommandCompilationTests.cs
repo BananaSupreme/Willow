@@ -10,7 +10,7 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Tests.VoiceCommands.CommandProcessing;
 
-public class CommandParsingTests
+public class CommandCompilationTests
 {
     private static readonly Dictionary<string, object> _capturedValues = new()
     {
@@ -25,7 +25,7 @@ public class CommandParsingTests
 
     private readonly IVoiceCommandCompiler _sut;
 
-    public CommandParsingTests()
+    public CommandCompilationTests()
     {
         _guid = Guid.Parse("58b36a5f-de95-4986-ac06-35bf9a35966e");
         _base = new(_guid, string.Empty, [], []);
@@ -41,7 +41,7 @@ public class CommandParsingTests
     }
 
     public static object[][] ValidTestDataWrapper =>
-        ValidTestData.Select((x, idx) => new object[] { idx, x.Item1 }).ToArray();
+        ValidTestData.Select((x, index) => new object[] { index, x.Item1 }).ToArray();
 
     public static object[][] InvalidData =>
     [
@@ -58,6 +58,11 @@ public class CommandParsingTests
         ["?[Number:]"], //invalid inner token
         ["!invalid command format"],
         ["process data #number% error"],
+        ["&[Not|~[Enough|Right|Squares]"],
+        ["&[No|Space]~[Between|Nodes]"],
+        ["&[Not|~[Enough|Left|Squares]]]"],
+        ["~[NO|FLAG]"],
+        ["~[Wrong,Separator]"],
         ["?[captureWithoutAFlagName]"],
         ["pro&cess with symbols in word"],
         ["process# with symbols in word"]
@@ -119,35 +124,35 @@ public class CommandParsingTests
         ("show weather ?[*location]:capture",
          [
              new WordNodeProcessor(new("show")), new WordNodeProcessor(new("weather")),
-             new OptionalNodeProcessor(new WildCardNodeProcessor("location"), "capture")
+             new OptionalNodeProcessor("capture", new WildCardNodeProcessor("location"))
          ]),
         ("book a flight to Optional[OneOf:destination{[York|London|Paris]}]:flag",
          [
              new WordNodeProcessor(new("book")), new WordNodeProcessor(new("a")), new WordNodeProcessor(new("flight")),
              new WordNodeProcessor(new("to")),
-             new OptionalNodeProcessor(new OneOfNodeProcessor("destination",
-                 [new WordToken("York"), new WordToken("London"), new WordToken("Paris")]), "flag")
+             new OptionalNodeProcessor("flag", new OneOfNodeProcessor("destination",
+                 [new WordToken("York"), new WordToken("London"), new WordToken("Paris")]))
          ]),
         ("list files in Opt[WildCard:directory]:name",
          [
              new WordNodeProcessor(new("list")), new WordNodeProcessor(new("files")), new WordNodeProcessor(new("in")),
-             new OptionalNodeProcessor(new WildCardNodeProcessor("directory"), "name")
+             new OptionalNodeProcessor("name", new WildCardNodeProcessor("directory"))
          ]),
         ("list files in Optional[WildCard:directory]:hit",
          [
              new WordNodeProcessor(new("list")), new WordNodeProcessor(new("files")), new WordNodeProcessor(new("in")),
-             new OptionalNodeProcessor(new WildCardNodeProcessor("directory"), "hit")
+             new OptionalNodeProcessor("hit", new WildCardNodeProcessor("directory"))
          ]),
         ("list files in Optional[system]:flag",
          [
              new WordNodeProcessor(new("list")), new WordNodeProcessor(new("files")), new WordNodeProcessor(new("in")),
-             new OptionalNodeProcessor(new WordNodeProcessor(new("system")), "flag")
+             new OptionalNodeProcessor("flag", new WordNodeProcessor(new("system")))
          ]),
         ("set alarm for #hour #minute ?[quickly]:match",
          [
              new WordNodeProcessor(new("set")), new WordNodeProcessor(new("alarm")), new WordNodeProcessor(new("for")),
              new NumberNodeProcessor("hour"), new NumberNodeProcessor("minute"),
-             new OptionalNodeProcessor(new WordNodeProcessor(new("quickly")), "match")
+             new OptionalNodeProcessor("match", new WordNodeProcessor(new("quickly")))
          ]),
         ("remind me to *task at #time",
          [
@@ -174,19 +179,19 @@ public class CommandParsingTests
         ("turn Optional[OneOf:device{_devices}]:hit off",
          [
              new WordNodeProcessor(new("turn")),
-             new OptionalNodeProcessor(new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"]), "hit"),
+             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"])),
              new WordNodeProcessor(new("off"))
          ]),
         ("turn ?[OneOf:device{_devices}]:hit off",
          [
              new WordNodeProcessor(new("turn")),
-             new OptionalNodeProcessor(new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"]), "hit"),
+             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"])),
              new WordNodeProcessor(new("off"))
          ]),
         ("turn ?[[_devices]:device]:hit off",
          [
              new WordNodeProcessor(new("turn")),
-             new OptionalNodeProcessor(new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"]), "hit"),
+             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"])),
              new WordNodeProcessor(new("off"))
          ]),
         ("rename WildCard:oldName to WildCard:newName",
@@ -207,14 +212,58 @@ public class CommandParsingTests
              new OneOfNodeProcessor("eventType",
                  [new WordToken("work"), new WordToken("personal"), new WordToken("vacation")])
          ]),
+        ("**Phrase", [new RepeatingWildCardNodeProcessor("Phrase")]),
+        ("hello &[world|else]",
+         [
+             new WordNodeProcessor(new("hello")),
+             new AndNodeProcessor(
+                 [
+                     new WordNodeProcessor(new("world")),
+                     new WordNodeProcessor(new("else"))
+                 ]),
+         ]),
+        ("hello ~[world|else]:i &[world|else] something",
+         [
+             new WordNodeProcessor(new("hello")),
+             new OrNodeProcessor("i",
+                 [
+                     new WordNodeProcessor(new("world")),
+                     new WordNodeProcessor(new("else"))
+                 ]),
+             new AndNodeProcessor(
+                 [
+                     new WordNodeProcessor(new("world")),
+                     new WordNodeProcessor(new("else"))
+                 ]),
+             new WordNodeProcessor(new("something")),
+         ]),
+        ("?[~[[hello|world]:captured|something|&[group|?[[lot|anti]:anotherCapture]:hitLot]]:index]:hit",
+         [
+             new OptionalNodeProcessor("hit", new OrNodeProcessor("index",
+                 [
+                     new OneOfNodeProcessor("captured",
+                         [new WordToken("hello"), new WordToken("world")]),
+                     new WordNodeProcessor(new("something")),
+                     new AndNodeProcessor(
+                         [
+                             new WordNodeProcessor(new("group")),
+                             new OptionalNodeProcessor("hitLot", new OneOfNodeProcessor("anotherCapture",
+                                 [
+                                     new WordToken("lot"),
+                                     new WordToken("anti")
+                                 ]))
+                         ]
+                     )
+                 ]))
+         ]),
         ("**Phrase", [new RepeatingWildCardNodeProcessor("Phrase")])
     ];
 
     [Theory]
     [MemberData(nameof(ValidTestDataWrapper))]
-    public void When_ValidData_ReturnCorrectNodes(int idx, string input)
+    public void When_ValidData_ReturnCorrectNodes(int index, string input)
     {
-        var output = ValidTestData[idx].Item2;
+        var output = ValidTestData[index].Item2;
         output = [.. output, new CommandSuccessNodeProcessor(_guid)];
         var result = _sut.Compile(_base with { InvocationPhrase = input });
         result.Should().BeEquivalentTo(output, options => options.ComparingByValue<INodeProcessor>());
@@ -222,7 +271,7 @@ public class CommandParsingTests
 
     [Theory]
     [MemberData(nameof(InvalidData))]
-    public void When_InvalidData_ThrowParsingException(string input)
+    public void When_InvalidData_ThrowCompilationException(string input)
     {
         _sut.Invoking(x => x.Compile(_base with { InvocationPhrase = input }))
             .Should().Throw<CommandCompilationException>();

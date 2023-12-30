@@ -6,7 +6,7 @@ using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
-internal sealed record OptionalNodeProcessor(INodeProcessor InnerNode, string FlagName) : INodeProcessor
+internal sealed record OptionalNodeProcessor(string FlagName, INodeProcessor InnerNode) : INodeProcessor
 {
     public bool IsLeaf => InnerNode.IsLeaf;
     public uint Weight => InnerNode.Weight;

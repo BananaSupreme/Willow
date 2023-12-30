@@ -13,7 +13,7 @@ internal sealed class WildCardNodeCompiler : INodeCompiler
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
                                                                       INodeCompiler[]
-                                                                          specializedCommandParsers)
+                                                                          compilers)
     {
         var startSymbol = commandWord.FirstToStartWithOrNull(_startSymbols);
         if (startSymbol is null

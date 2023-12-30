@@ -5,14 +5,13 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
-internal sealed class NumberNodeCompiler : INodeCompiler
+internal sealed class AndNodeCompiler : INodeCompiler
 {
-    private static readonly char[][] _startSymbols = ["Number:".ToCharArray(), "N:".ToCharArray(), "#".ToCharArray()];
+    private static readonly char[][] _startSymbols = ["And".ToCharArray(), "A".ToCharArray(), "&".ToCharArray()];
 
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
-                                                                      INodeCompiler[]
-                                                                          compilers)
+                                                                      INodeCompiler[] compilers)
     {
         var startSymbol = commandWord.FirstToStartWithOrNull(_startSymbols);
         if (startSymbol is null)
@@ -20,8 +19,9 @@ internal sealed class NumberNodeCompiler : INodeCompiler
             return INodeCompiler.Fail();
         }
 
-        var captureValue = commandWord[startSymbol.Length..].GuardValidVariableName();
+        var capturedValue = commandWord[startSymbol.Length..].GuardWrappedInSquares();
+        var nodeProcessors = capturedValue.ExtractNodeProcessors(compilers, capturedValues);
 
-        return (true, new NumberNodeProcessor(captureValue.ToString()));
+        return (true, new AndNodeProcessor(nodeProcessors));
     }
 }

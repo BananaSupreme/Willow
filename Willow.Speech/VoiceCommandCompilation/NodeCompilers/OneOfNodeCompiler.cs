@@ -14,7 +14,7 @@ internal sealed class OneOfNodeCompiler : INodeCompiler
 
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
-                                                                      INodeCompiler[] specializedCommandParsers)
+                                                                      INodeCompiler[] compilers)
     {
         if (!commandWord.StartsWith(_startSymbols))
         {

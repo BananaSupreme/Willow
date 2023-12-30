@@ -7,12 +7,12 @@ namespace Willow.Speech.VoiceCommandCompilation.Extensions;
 internal static partial class SpanExtensions
 {
     public static INodeProcessor ParseCommandWord(this ReadOnlySpan<char> word,
-                                                  INodeCompiler[] internalParsers,
+                                                  INodeCompiler[] compilers,
                                                   IDictionary<string, object> capturedValues)
     {
-        foreach (var internalParser in internalParsers)
+        foreach (var compiler in compilers)
         {
-            var (isSuccessful, node) = internalParser.TryParse(word, capturedValues, internalParsers);
+            var (isSuccessful, node) = compiler.TryParse(word, capturedValues, compilers);
             if (isSuccessful)
             {
                 return node;

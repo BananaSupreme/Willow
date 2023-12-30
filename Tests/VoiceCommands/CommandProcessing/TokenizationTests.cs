@@ -21,7 +21,7 @@ public class TokenizationTests
     }
 
     public static object[][] ValidTestDataWrapper =>
-        ValidTestData.Select((x, idx) => new object[] { idx, x.Item1 }).ToArray();
+        ValidTestData.Select((x, index) => new object[] { index, x.Item1 }).ToArray();
 
     private static (string, Token[])[] ValidTestData =>
     [
@@ -48,9 +48,9 @@ public class TokenizationTests
 
     [Theory]
     [MemberData(nameof(ValidTestDataWrapper))]
-    public void TestInputs(int idx, string input)
+    public void TestInputs(int index, string input)
     {
-        var output = ValidTestData[idx].Item2;
+        var output = ValidTestData[index].Item2;
         output = [.. output];
         var result = _sut.Tokenize(input);
         result.Should().BeEquivalentTo(output);

@@ -9,7 +9,7 @@ public interface INodeCompiler
 {
     (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                IDictionary<string, object> capturedValues,
-                                                               INodeCompiler[] specializedCommandParsers);
+                                                               INodeCompiler[] compilers);
 
     static (bool IsSuccefful, INodeProcessor ProccessedNode) Fail()
     {

@@ -192,8 +192,8 @@ public class TrieConstructionTests
                         new WordToken(Value: "seven")
                     ]),
                 new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                    FlagName: "match"),
+                new OptionalNodeProcessor(FlagName: "match",
+                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                 new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
             ]);
         _compiler.Compile(command: commands[1]).Returns(returnThis:
@@ -205,8 +205,8 @@ public class TrieConstructionTests
                         new WordToken(Value: "three")
                     ]),
                 new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                    FlagName: "match"),
+                new OptionalNodeProcessor(FlagName: "match",
+                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                 new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
             ]);
 
@@ -228,9 +228,8 @@ public class TrieConstructionTests
                                 [
                                     new(tagRequirements: [new(Tags: [])],
                                         nodeProcessor:
-                                        new OptionalNodeProcessor(
-                                            InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                                            FlagName: "match"),
+                                        new OptionalNodeProcessor(FlagName: "match",
+                                            InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                                         children:
                                         [
                                             new(tagRequirements: [new(Tags: [])],
@@ -257,9 +256,8 @@ public class TrieConstructionTests
                                 children:
                                 [
                                     new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new OptionalNodeProcessor(
-                                            InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                                            FlagName: "match"),
+                                        nodeProcessor: new OptionalNodeProcessor(FlagName: "match",
+                                            InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                                         children:
                                         [
                                             new(tagRequirements: [new(Tags: [])],
@@ -297,15 +295,15 @@ public class TrieConstructionTests
         _compiler.Compile(command: commands[0]).Returns(returnThis:
             [
                 new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                    FlagName: "hit"),
+                new OptionalNodeProcessor(FlagName: "hit",
+                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                 new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
             ]);
         _compiler.Compile(command: commands[1]).Returns(returnThis:
             [
                 new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                    FlagName: "hit"),
+                new OptionalNodeProcessor(FlagName: "hit",
+                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                 new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
             ]);
 
@@ -322,9 +320,8 @@ public class TrieConstructionTests
                         children:
                         [
                             new(tagRequirements: [new(Tags: [new(Name: "hello")]), new(Tags: [new(Name: "world")])],
-                                nodeProcessor: new OptionalNodeProcessor(
-                                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                                    FlagName: "hit"),
+                                nodeProcessor: new OptionalNodeProcessor(FlagName: "hit",
+                                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                                 children:
                                 [
                                     new(tagRequirements: [new(Tags: [new(Name: "hello")])],
@@ -364,15 +361,15 @@ public class TrieConstructionTests
         _compiler.Compile(command: commands[0]).Returns(returnThis:
             [
                 new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                    FlagName: "catch"),
+                new OptionalNodeProcessor(FlagName: "catch",
+                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                 new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
             ]);
         _compiler.Compile(command: commands[1]).Returns(returnThis:
             [
                 new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                    FlagName: "catch"),
+                new OptionalNodeProcessor(FlagName: "catch",
+                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                 new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
             ]);
 
@@ -388,9 +385,8 @@ public class TrieConstructionTests
                         children:
                         [
                             new(tagRequirements: [new(Tags: [new(Name: "hello")])],
-                                nodeProcessor: new OptionalNodeProcessor(
-                                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                                    FlagName: "catch"),
+                                nodeProcessor: new OptionalNodeProcessor(FlagName: "catch",
+                                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
                                 children:
                                 [
                                     new(tagRequirements: [new(Tags: [new(Name: "hello")])],
@@ -517,124 +513,564 @@ public class TrieConstructionTests
     }
 
     [Fact]
-    public void When_InsertingCommands_TheyAreOrderedCorrectly()
+    public void When_Ordering_WordBeforeOneOf()
     {
-        //ordering should be - word/number > OneOf(also ordered by choice size) > WildCard > RepeatingWildCar > LeafNode- Optional takes the value inside
-        //Equivalent should be by order of input
         PreCompiledVoiceCommand[] commands =
         [
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "*wildCard" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two|three]:enter" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "#number" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "**phrase" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "?[*wildcard]:hit" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "?[#number]:hit" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "one" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "one **phrase" }
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "increase" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" }
         ];
 
         _compiler.Compile(command: commands[0]).Returns(returnThis:
             [
-                new WildCardNodeProcessor(CaptureName: "wildCard"),
+                new WordNodeProcessor(Value: new(Value: "increase")),
                 new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
             ]);
         _compiler.Compile(command: commands[1]).Returns(returnThis:
             [
-                new OneOfNodeProcessor(CaptureName: "enter",
-                    ValidWords:
-                    [
-                        new WordToken(Value: "one"), new WordToken(Value: "two"),
-                        new WordToken(Value: "three")
-                    ]),
+                new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
                 new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
             ]);
-        _compiler.Compile(command: commands[2]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(CaptureName: "enter",
-                    ValidWords:
-                    [
-                        new WordToken(Value: "one"), new WordToken(Value: "two")
-                    ]),
-                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
-            ]);
-        _compiler.Compile(command: commands[3]).Returns(returnThis:
-            [
-                new NumberNodeProcessor(CaptureName: "number"),
-                new CommandSuccessNodeProcessor(CommandId: commands[3].Id)
-            ]);
-        _compiler.Compile(command: commands[4]).Returns(returnThis:
-            [
-                new RepeatingWildCardNodeProcessor(CaptureName: "phrase"),
-                new CommandSuccessNodeProcessor(CommandId: commands[4].Id)
-            ]);
-        _compiler.Compile(command: commands[5]).Returns(returnThis:
-            [
-                new OptionalNodeProcessor(InnerNode: new WildCardNodeProcessor(CaptureName: "wildCard"),
-                    FlagName: "hit"),
-                new CommandSuccessNodeProcessor(CommandId: commands[5].Id)
-            ]);
-        _compiler.Compile(command: commands[6]).Returns(returnThis:
-            [
-                new OptionalNodeProcessor(InnerNode: new NumberNodeProcessor(CaptureName: "number"), FlagName: "hit"),
-                new CommandSuccessNodeProcessor(CommandId: commands[6].Id)
-            ]);
-        _compiler.Compile(command: commands[7]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "one")),
-                new CommandSuccessNodeProcessor(CommandId: commands[7].Id)
-            ]);
-        _compiler.Compile(command: commands[8]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "one")),
-                new RepeatingWildCardNodeProcessor(CaptureName: "phrase"),
-                new CommandSuccessNodeProcessor(CommandId: commands[8].Id)
-            ]);
-        //ordering should be - word/number > OneOf(also ordered by choice size) > WildCard > RepeatingWildCar > LeafNode- Optional takes the value inside
+
         var expectedTrie = new Trie
         (
             root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
                 [
                     new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new NumberNodeProcessor(CaptureName: "number"),
+                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
                         children:
                         [
                             new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[3].Id),
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
                                 children: [])
                         ]
                     ),
                     new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OptionalNodeProcessor(
-                            InnerNode: new NumberNodeProcessor(CaptureName: "number"), FlagName: "hit"),
+                        nodeProcessor: new OneOfNodeProcessor(
+                            "enter",
+                            [new WordToken("one"), new WordToken("two")]),
                         children:
                         [
                             new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[6].Id),
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_NumberBeforeOneOf()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "#number" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new NumberNodeProcessor("number"),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new NumberNodeProcessor("number"),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
                                 children: [])
                         ]
                     ),
                     new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "one")),
+                        nodeProcessor: new OneOfNodeProcessor(
+                            "enter",
+                            [new WordToken("one"), new WordToken("two")]),
                         children:
                         [
                             new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new RepeatingWildCardNodeProcessor(CaptureName: "phrase"),
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_EqualsTakePrecedenceByOrderFound()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "word" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "#number" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new WordNodeProcessor(new("word")),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new NumberNodeProcessor("number"),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new WordNodeProcessor(new("word")),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new NumberNodeProcessor("number"),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_LeafIsAlwaysLast()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "word **phrase" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "word" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new WordNodeProcessor(new("word")),
+                new RepeatingWildCardNodeProcessor("phrase"),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new WordNodeProcessor(new("word")),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new WordNodeProcessor(new("word")),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new RepeatingWildCardNodeProcessor("phrase"),
                                 children:
                                 [
                                     new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[8].Id),
+                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
                                         children: [])
                                 ]
                             ),
                             new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[7].Id),
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    ),
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_OneOfByWordCount()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two|three]:enter" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two|three|four]:enter" },
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new OneOfNodeProcessor(
+                    "enter",
+                    [new WordToken("one"), new WordToken("two"), new WordToken("three")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new OneOfNodeProcessor(
+                    "enter",
+                    [new WordToken("one"), new WordToken("two")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+        _compiler.Compile(command: commands[2]).Returns(returnThis:
+            [
+                new OneOfNodeProcessor(
+                    "enter",
+                    [
+                        new WordToken("one"), new WordToken("two"),
+                        new WordToken("three"), new WordToken("four")
+                    ]),
+                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new OneOfNodeProcessor(
+                            "enter",
+                            [new WordToken("one"), new WordToken("two")]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
                                 children: [])
                         ]
                     ),
                     new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(CaptureName: "enter",
-                            ValidWords: [new WordToken(Value: "one"), new WordToken(Value: "two")]),
+                        nodeProcessor: new OneOfNodeProcessor(
+                            "enter",
+                            [new WordToken("one"), new WordToken("two"), new WordToken("three")]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new OneOfNodeProcessor(
+                            "enter",
+                            [
+                                new WordToken("one"), new WordToken("two"),
+                                new WordToken("three"), new WordToken("four")
+                            ]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[2].Id),
+                                children: [])
+                        ]
+                    ),
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_WildCardBeforeRepeatingWildCard()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "**phrase" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "*wildcard" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new RepeatingWildCardNodeProcessor("phrase"),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new WildCardNodeProcessor("wildcard"),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new WildCardNodeProcessor("wildcard"),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new RepeatingWildCardNodeProcessor("phrase"),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_OneOfBeforeWildCard()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "*wildcard" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new WildCardNodeProcessor("wildcard"),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new OneOfNodeProcessor(
+                            "enter",
+                            [new WordToken("one"), new WordToken("two")]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new WildCardNodeProcessor("wildcard"),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_OptionalTakesInner()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "?[*wildcard]:_" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "?[#n]:_" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new OptionalNodeProcessor("_", new WildCardNodeProcessor("wildcard")),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new OptionalNodeProcessor("_", new NumberNodeProcessor("n")),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new OptionalNodeProcessor("_", new NumberNodeProcessor("n")),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new OptionalNodeProcessor("_", new WildCardNodeProcessor("wildcard")),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_Ordering_AndSums()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "&[#n|#nn]" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "#n" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "&[#n|[one|two]:enter]" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new AndNodeProcessor([new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new NumberNodeProcessor("n"),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+        _compiler.Compile(command: commands[2]).Returns(returnThis:
+            [
+                new AndNodeProcessor([
+                                         new NumberNodeProcessor("n"),
+                                         new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")])
+                                     ]),
+                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new NumberNodeProcessor("n"),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new AndNodeProcessor(
+                            [new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new AndNodeProcessor([
+                                                                new NumberNodeProcessor("n"),
+                                                                new OneOfNodeProcessor("enter",
+                                                                    [
+                                                                        new WordToken("one"),
+                                                                        new WordToken("two")
+                                                                    ])
+                                                            ]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[2].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    [Fact]
+    public void When_OrderingAndSumOverflows_TakeMaxInner()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "&[#n|#nn]" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "&[#n|**p]" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "&[#n|#nn|*w]" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new AndNodeProcessor([new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new AndNodeProcessor([new NumberNodeProcessor("n"), new RepeatingWildCardNodeProcessor("p")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+        _compiler.Compile(command: commands[2]).Returns(returnThis:
+            [
+                new AndNodeProcessor([
+                                         new NumberNodeProcessor("n"),
+                                         new NumberNodeProcessor("nn"),
+                                         new WildCardNodeProcessor("w")
+                                     ]),
+                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new AndNodeProcessor([
+                                                                new NumberNodeProcessor("n"),
+                                                                new NumberNodeProcessor("nn")
+                                                            ]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new AndNodeProcessor([
+                                                                new NumberNodeProcessor("n"),
+                                                                new NumberNodeProcessor("nn"),
+                                                                new WildCardNodeProcessor("w")
+                                                            ]),
                         children:
                         [
                             new(tagRequirements: [new(Tags: [])],
@@ -643,11 +1079,93 @@ public class TrieConstructionTests
                         ]
                     ),
                     new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(CaptureName: "enter",
-                            ValidWords:
+                        nodeProcessor: new AndNodeProcessor([
+                                                                new NumberNodeProcessor("n"),
+                                                                new RepeatingWildCardNodeProcessor("p")
+                                                            ]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
+                                children: [])
+                        ]
+                    )
+                ]
+            )
+        );
+
+        TestInternal(commands, expectedTrie);
+    }
+
+    //when_Ordering_OrTakesMinimum
+    [Fact]
+    public void when_Ordering_OrTakesMinimum()
+    {
+        PreCompiledVoiceCommand[] commands =
+        [
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "~[#n|#nn]:i" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "~[#n|**p]:i" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "~[*w|[one|two]:enter]:i" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "~[#n|#nn|*w]:i" }
+        ];
+
+        _compiler.Compile(command: commands[0]).Returns(returnThis:
+            [
+                new OrNodeProcessor("i", [new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+            ]);
+        _compiler.Compile(command: commands[1]).Returns(returnThis:
+            [
+                new OrNodeProcessor("i",
+                    [
+                        new NumberNodeProcessor("n"),
+                        new RepeatingWildCardNodeProcessor("p")
+                    ]),
+                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+            ]);
+        _compiler.Compile(command: commands[2]).Returns(returnThis:
+            [
+                new OrNodeProcessor("i",
+                    [
+                        new WildCardNodeProcessor("w"),
+                        new OneOfNodeProcessor("enter",
                             [
-                                new WordToken(Value: "one"), new WordToken(Value: "two"),
-                                new WordToken(Value: "three")
+                                new WordToken("one"),
+                                new WordToken("two")
+                            ])
+                    ]),
+                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+            ]);
+        _compiler.Compile(command: commands[3]).Returns(returnThis:
+            [
+                new OrNodeProcessor("i",
+                    [
+                        new NumberNodeProcessor("n"),
+                        new NumberNodeProcessor("nn"),
+                        new WildCardNodeProcessor("w")
+                    ]),
+                new CommandSuccessNodeProcessor(CommandId: commands[3].Id)
+            ]);
+
+        var expectedTrie = new Trie
+        (
+            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
+                [
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new OrNodeProcessor("i",
+                            [new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                        children:
+                        [
+                            new(tagRequirements: [new(Tags: [])],
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                children: [])
+                        ]
+                    ),
+                    new(tagRequirements: [new(Tags: [])],
+                        nodeProcessor: new OrNodeProcessor("i",
+                            [
+                                new NumberNodeProcessor("n"),
+                                new RepeatingWildCardNodeProcessor("p")
                             ]),
                         children:
                         [
@@ -657,38 +1175,42 @@ public class TrieConstructionTests
                         ]
                     ),
                     new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WildCardNodeProcessor(CaptureName: "wildCard"),
+                        nodeProcessor: new OrNodeProcessor("i",
+                            [
+                                new NumberNodeProcessor("n"),
+                                new NumberNodeProcessor("nn"),
+                                new WildCardNodeProcessor("w")
+                            ]),
                         children:
                         [
                             new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[3].Id),
                                 children: [])
                         ]
                     ),
+                    
                     new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OptionalNodeProcessor(
-                            InnerNode: new WildCardNodeProcessor(CaptureName: "wildCard"), FlagName: "hit"),
+                        nodeProcessor: new OrNodeProcessor("i",
+                            [
+                                new WildCardNodeProcessor("w"),
+                                new OneOfNodeProcessor("enter",
+                                    [
+                                        new WordToken("one"),
+                                        new WordToken("two")
+                                    ])
+                            ]),
                         children:
                         [
                             new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[5].Id),
+                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[2].Id),
                                 children: [])
                         ]
                     ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new RepeatingWildCardNodeProcessor(CaptureName: "phrase"),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[4].Id),
-                                children: [])
-                        ]
-                    )
                 ]
             )
         );
 
-        TestInternal(commands: commands, expectedTrie: expectedTrie);
+        TestInternal(commands, expectedTrie);
     }
 
     private void TestInternal(PreCompiledVoiceCommand[] commands, Trie expectedTrie)
