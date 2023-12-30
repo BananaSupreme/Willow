@@ -2,6 +2,7 @@
 
 using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.ActiveWindowDetectors;
+using Willow.Core.Helpers;
 using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Environment.Registration;
@@ -19,13 +20,9 @@ internal sealed class EnvironmentRegistrar : IServiceRegistrar
 
     private static void RegisterActiveWindow(IServiceCollection services)
     {
-        if (OperatingSystem.IsWindows())
-        {
-            services.AddSingleton<IActiveWindowDetector, WindowsActiveWindowDetector>();
-        }
-        else
-        {
-            services.AddSingleton<IActiveWindowDetector, EmptyActiveWindowDetector>();
-        }
+        OsHelpers.MatchOs(
+            services.AddSingleton<IActiveWindowDetector, WindowsActiveWindowDetector>,
+            services.AddSingleton<IActiveWindowDetector, EmptyActiveWindowDetector>,
+            services.AddSingleton<IActiveWindowDetector, EmptyActiveWindowDetector>);
     }
 }
