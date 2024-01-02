@@ -28,11 +28,7 @@ internal sealed class TrieFactory : ITrieFactory
         root.SetNodeProcessor(new EmptyNodeProcessor());
         _log.ProcessingCommands(new(commands));
 
-        var exceptions = SafeMultipleFunctionExecutor.Execute(commands, root, ProcessCommand);
-        if (exceptions.Length != 0)
-        {
-            throw new AggregateException(exceptions); //TODO We should handle this smarter - failure events
-        }
+        _ = SafeMultipleFunctionExecutor.Execute(commands, root, ProcessCommand, onException: LogException);
 
         _cache = new(root.Build());
     }
@@ -46,6 +42,10 @@ internal sealed class TrieFactory : ITrieFactory
         var (currentNode, remainingProcessors) = Traverse(root, nodeProcessors, command.TagRequirements);
         BranchOut(currentNode, remainingProcessors, command.TagRequirements);
         _log.TrieState(root);
+    }
+    
+    private void LogException(PreCompiledVoiceCommand command, NodeBuilder _, Exception ex)
+    {
     }
 
     public ITrie? Get()
@@ -123,9 +123,15 @@ internal static partial class LoggingExtensions
         Level = LogLevel.Debug,
         Message = "Command compilation succeeded, resulted as: {nodeProcessors}")]
     public static partial void CommandCompiled(this ILogger logger, EnumeratorLogger<INodeProcessor> nodeProcessors);
-
+    
     [LoggerMessage(
         EventId = 6,
+        Level = LogLevel.Error,
+        Message = "Compilation of ({command}) failed!")]
+    public static partial void CompilationFailed(this ILogger logger, PreCompiledVoiceCommand command, Exception ex);
+
+    [LoggerMessage(
+        EventId = 7,
         Level = LogLevel.Trace,
         Message = "Trie state checkpoint\r\n{trie}")]
     public static partial void TrieState(this ILogger logger, JsonLogger<NodeBuilder> trie);

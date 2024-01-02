@@ -22,7 +22,8 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
 
     public INodeProcessor[] Compile(PreCompiledVoiceCommand command)
     {
-        _log.CompilationStarted(command, new(_internalParsers.Select(x => x.GetType().Name)));
+        _log.CompilationStarted(command);
+        _log.CompilersFound(new(_internalParsers.Select(x => x.GetType().Name)));
         if (string.IsNullOrWhiteSpace(command.InvocationPhrase))
         {
             throw new CommandCompilationException("Command string cannot be empty");
@@ -63,17 +64,24 @@ internal static partial class LoggingExtensions
     [LoggerMessage(
         EventId = 1,
         Level = LogLevel.Information,
-        Message = "Started compilation on command ({command}), compilers found: {nodeCompilers}")]
-    public static partial void CompilationStarted(this ILogger logger, PreCompiledVoiceCommand command, EnumeratorLogger<string> nodeCompilers);
+        Message = "Started compilation on command ({command})")]
+    public static partial void CompilationStarted(this ILogger logger, PreCompiledVoiceCommand command);
 
     [LoggerMessage(
         EventId = 2,
+        Level = LogLevel.Debug,
+        Message = "compilers found: {nodeCompilers}")]
+    public static partial void CompilersFound(this ILogger logger, EnumeratorLogger<string> nodeCompilers);
+
+    
+    [LoggerMessage(
+        EventId = 3,
         Level = LogLevel.Trace,
         Message = "Started parsing word with length ({wordLength})")]
     public static partial void ParsingWord(this ILogger logger, int wordLength);
 
     [LoggerMessage(
-        EventId = 3,
+        EventId = 4,
         Level = LogLevel.Debug,
         Message = "Word of length ({wordLength}) was parsed into node ({nodeProcessor})")]
     public static partial void WordParsed(this ILogger logger, INodeProcessor nodeProcessor, int wordLength);

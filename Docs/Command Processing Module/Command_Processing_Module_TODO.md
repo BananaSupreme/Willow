@@ -11,4 +11,3 @@
   floated
 - We should certainly look into caching repeated commands, no point in processing a sentatnce twice if the user said the
   same thing.
-- Errors should not bring down the entire compilation process but just eliminate the specific command that failed.

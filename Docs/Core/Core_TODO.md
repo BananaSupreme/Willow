@@ -1,11 +1,5 @@
-- Do we really need interceptors? if not we should consider how the event loop is built
-- Should we take a more functional approach and start introducing, Option and Either types?
-- We need to add an error event, when the handler catches an exception it will alert of it through an event(ofcourse if
-  the error is in that event handler, than log and ignore to avoid infinite loops).
-  That way we can also add a repeating eventhandler that will allow for events that need to be run repeatedly, we should
-  also run tests for it. Some tests options are now a comment in the dispatcher test suite
 - We should consider how to let the user know when errors occur in the pipeline, maybe we can capture Error level logs
-  for ui displays? can we plug into the ILogger in that way?
+  for ui displays? can we plug into the ILogger in that way? -- a sink on serilog.
 - Windows
   Microsoft UI Automation (UIA): This is the most powerful and recommended way to access UI elements and their
   properties, including text, on Windows. UIA allows you to programmatically explore, monitor, and interact with the
