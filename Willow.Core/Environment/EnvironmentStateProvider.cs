@@ -11,10 +11,11 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
         {
             return
             [
-                new Tag(OperatingSystem), 
-                new Tag(ActivationMode), 
+                new(OperatingSystem),
+                new(ActivationMode),
                 .. EnvironmentTags,
-                new Tag(ActiveWindow.ProcessName)
+                .. _customTags,
+                new(ActiveWindow.ProcessName)
             ];
         }
     }
@@ -23,4 +24,16 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     public string ActivationMode { get; set; } = nameof(Enums.ActivationMode.Command);
     public Tag[] EnvironmentTags { get; set; } = [];
     public ActiveWindowInfo ActiveWindow { get; set; } = new(string.Empty);
+
+    private readonly HashSet<Tag> _customTags = [];
+
+    public void AddTag(Tag tag)
+    {
+        _customTags.Add(tag);
+    }
+
+    public void RemoveTag(Tag tag)
+    {
+        _customTags.Remove(tag);
+    }
 }

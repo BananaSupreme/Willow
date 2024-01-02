@@ -10,4 +10,7 @@ public interface IEnvironmentStateProvider
     internal string ActivationMode { get; set; }
     internal Tag[] EnvironmentTags { get; set; }
     internal ActiveWindowInfo ActiveWindow { get; set; }
+
+    void AddTag(Tag tag);
+    void RemoveTag(Tag tag);
 }
