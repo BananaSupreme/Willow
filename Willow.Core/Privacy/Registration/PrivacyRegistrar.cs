@@ -6,7 +6,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Privacy.Registration;
 
-internal sealed class PrivacyRegistration : IConfigurationRegistrar
+internal sealed class PrivacyRegistrar : IConfigurationRegistrar
 {
     public static void RegisterConfiguration(IServiceCollection services, IConfiguration configuration)
     {
