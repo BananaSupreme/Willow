@@ -12,7 +12,7 @@ using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Tokens;
 
-namespace Tests.VoiceCommands;
+namespace Tests.Speech;
 
 public class VoiceCommandsEndToEnd
 {

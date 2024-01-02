@@ -1,6 +1,6 @@
 ﻿using Willow.Speech.SpeechRecognition.Microphone.Models;
 
-namespace Tests.VoiceCommands.VoiceRecognition;
+namespace Tests.Speech.VoiceRecognition;
 
 public class AudioManipulationTests
 {

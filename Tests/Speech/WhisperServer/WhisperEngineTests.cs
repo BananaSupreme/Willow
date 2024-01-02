@@ -8,7 +8,7 @@ using Willow.WhisperServer;
 
 using Xunit.Abstractions;
 
-namespace Tests.VoiceCommands.WhisperServer;
+namespace Tests.Speech.WhisperServer;
 
 public class WhisperEngineTests : IAsyncLifetime
 {

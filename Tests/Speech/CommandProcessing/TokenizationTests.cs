@@ -4,7 +4,7 @@ using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 
-namespace Tests.VoiceCommands.CommandProcessing;
+namespace Tests.Speech.CommandProcessing;
 
 public class TokenizationTests
 {

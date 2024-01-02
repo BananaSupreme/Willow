@@ -4,7 +4,7 @@ using Willow.Speech.SpeechRecognition.AudioBuffering;
 using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
 
-namespace Tests.VoiceCommands.VoiceRecognition;
+namespace Tests.Speech.VoiceRecognition;
 
 public class AudioBufferTests
 {

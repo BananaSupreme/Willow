@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 
+using Willow.Core.Environment.Abstractions;
+using Willow.Core.Environment.Models;
 using Willow.Core.Helpers;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
 using Willow.Speech.ScriptingInterface.Abstractions;
@@ -10,54 +12,54 @@ namespace Willow.BuiltInCommands.MouseCommands;
 
 internal sealed class AutoScrollVoiceCommand : IVoiceCommand
 {
+    public static readonly Tag ScrollingTag = new("__scrolling");
     private readonly IInputSimulator _inputSimulator;
-
+    private readonly IEnvironmentStateProvider _environmentStateProvider;
     private static CancellationTokenSource? _cts;
     private static readonly DisposableLock _lock = new();
 
-    private const string _start = "start";
-    private const string _stop = "stop";
-    private const string _action = "action";
-    private const string _up = "up";
-    private const string _down = "down";
-    private const string _direction = "direction";
 
-    public AutoScrollVoiceCommand(IInputSimulator inputSimulator)
+    public AutoScrollVoiceCommand(IInputSimulator inputSimulator, IEnvironmentStateProvider environmentStateProvider)
     {
         _inputSimulator = inputSimulator;
+        _environmentStateProvider = environmentStateProvider;
     }
 
-    public string InvocationPhrase => $"scroll auto [{_start}|{_stop}]:{_action} ?[[{_up}|{_down}]:{_direction}]:_";
+    public string InvocationPhrase => $"scroll auto ?[[start|stop]:action]:__ ?[[up|down]:direction]:_";
 
     public async Task ExecuteAsync(VoiceCommandContext context)
     {
-        var action = context.Parameters.GetValueOrDefault(_action)?.GetString() ?? throw new UnreachableException();
-        var direction = context.Parameters.GetValueOrDefault(_direction)?.GetString() ?? _down;
+        var action = context.Parameters.GetValueOrDefault("action")?.GetString() ?? "start";
+        var direction = context.Parameters.GetValueOrDefault("direction")?.GetString() ?? "down";
 
         switch (action)
         {
-            case _start:
-                _ = Start(direction, _inputSimulator);
+            case "start":
+                _ = Start(direction, _inputSimulator, _environmentStateProvider);
                 break;
 
-            case _stop:
-                await Stop();
+            case "stop":
+                await Stop(_environmentStateProvider);
                 break;
         }
     }
 
-    private static async Task Start(string direction, IInputSimulator inputSimulator)
+    private static async Task Start(string direction, 
+                                    IInputSimulator inputSimulator,
+                                    IEnvironmentStateProvider environmentStateProvider)
     {
         using var unlocker = await _lock.LockAsync();
-        
+
         if (_cts is not null)
         {
             return;
         }
+
         _cts = new();
 
         try
         {
+            environmentStateProvider.AddTag(ScrollingTag);
             while (!_cts.IsCancellationRequested)
             {
                 inputSimulator.Scroll(GetFromDirection(direction));
@@ -71,10 +73,11 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
         }
     }
 
-    private static async Task Stop()
+    private static async Task Stop(IEnvironmentStateProvider environmentStateProvider)
     {
         if (_cts is not null)
         {
+            environmentStateProvider.RemoveTag(ScrollingTag);
             await _cts.CancelAsync();
         }
     }
@@ -83,8 +86,8 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
     {
         return direction switch
         {
-            _up => new(0, -1),
-            _down => new(0, 1),
+            "up" => new(0, -1),
+            "down" => new(0, 1),
             _ => throw new UnreachableException()
         };
     }

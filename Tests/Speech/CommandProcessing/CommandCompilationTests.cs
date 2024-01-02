@@ -8,7 +8,7 @@ using Willow.Speech.VoiceCommandCompilation.Models;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
-namespace Tests.VoiceCommands.CommandProcessing;
+namespace Tests.Speech.CommandProcessing;
 
 public class CommandCompilationTests
 {

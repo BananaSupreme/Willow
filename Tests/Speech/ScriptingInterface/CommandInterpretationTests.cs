@@ -5,7 +5,7 @@ using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
-namespace Tests.VoiceCommands.ScriptingInterface;
+namespace Tests.Speech.ScriptingInterface;
 
 public class CommandInterpretationTests
 {

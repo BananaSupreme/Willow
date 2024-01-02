@@ -12,7 +12,7 @@ using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Models;
 
-namespace Tests.VoiceCommands.ScriptingInterface;
+namespace Tests.Core;
 
 public class RegistrarTests
 {

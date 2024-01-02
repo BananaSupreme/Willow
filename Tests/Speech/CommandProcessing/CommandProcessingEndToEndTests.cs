@@ -16,7 +16,7 @@ using Willow.Speech.VoiceCommandCompilation.Registration;
 using Willow.Speech.VoiceCommandParsing.Eventing.Events;
 using Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 
-namespace Tests.VoiceCommands.CommandProcessing;
+namespace Tests.Speech.CommandProcessing;
 
 public class CommandProcessingEndToEndTests
 {
