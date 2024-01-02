@@ -1,6 +1,6 @@
-﻿namespace Willow.Core.Logging.Loggers;
+﻿namespace Willow.Helpers.Logging.Loggers;
 
-internal readonly struct EnumeratorLogger<T>
+public readonly struct EnumeratorLogger<T>
 {
     private readonly IEnumerable<T> _internalEnumerable;
 
@@ -11,7 +11,7 @@ internal readonly struct EnumeratorLogger<T>
 
     public override string ToString()
     {
-        return string.Join(System.Environment.NewLine, _internalEnumerable);
+        return string.Join(Environment.NewLine, _internalEnumerable);
     }
 
     public static implicit operator EnumeratorLogger<T>(List<T> item)

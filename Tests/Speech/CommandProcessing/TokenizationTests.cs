@@ -1,4 +1,4 @@
-﻿using Willow.Core.Helpers.Extensions;
+﻿using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Tokens;

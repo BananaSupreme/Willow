@@ -4,9 +4,9 @@ using Microsoft.Extensions.Options;
 
 using Python.Included;
 
-using Willow.Core.Helpers;
-using Willow.Core.Logging.Loggers;
-using Willow.Core.Logging.Settings;
+using Willow.Core.Privacy.Settings;
+using Willow.Helpers.Locking;
+using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
 using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
 using Willow.WhisperServer.Extensions;

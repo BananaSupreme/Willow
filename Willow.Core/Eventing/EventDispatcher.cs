@@ -3,9 +3,9 @@
 using System.Threading.Channels;
 
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Helpers;
-using Willow.Core.Helpers.Extensions;
-using Willow.Core.Logging.Extensions;
+using Willow.Helpers;
+using Willow.Helpers.Extensions;
+using Willow.Helpers.Logging.Extensions;
 
 namespace Willow.Core.Eventing;
 

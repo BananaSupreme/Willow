@@ -2,7 +2,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-using Willow.Core.Helpers;
+using Willow.Helpers.Locking;
 using Willow.Speech.SpeechRecognition.Microphone.Abstractions;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
 using Willow.Speech.SpeechRecognition.Microphone.Settings;

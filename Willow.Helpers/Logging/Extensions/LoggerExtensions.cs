@@ -1,10 +1,12 @@
-﻿using Serilog.Context;
+﻿using Microsoft.Extensions.Logging;
+
+using Serilog.Context;
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Willow.Core.Logging.Extensions;
+namespace Willow.Helpers.Logging.Extensions;
 
-internal static class LoggerExtensions
+public static class LoggerExtensions
 {
     [SuppressMessage("Style", "IDE0060:Remove unused parameter",
         Justification = "Its here so we can use it as an extension method")]

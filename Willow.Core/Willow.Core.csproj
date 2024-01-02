@@ -23,4 +23,8 @@
       <Folder Include="SpeechCommands\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Willow.Helpers\Willow.Helpers.csproj" />
+    </ItemGroup>
+
 </Project>

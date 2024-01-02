@@ -1,6 +1,6 @@
 ﻿using System.Buffers;
 
-namespace Willow.Core.Helpers;
+namespace Willow.Helpers;
 
 internal static class CachedSearchValues
 {

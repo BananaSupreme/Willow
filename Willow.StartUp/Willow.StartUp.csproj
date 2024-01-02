@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj" />
+      <ProjectReference Include="..\Willow.Core\Willow.Core.csproj" />
+      <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj" />
+      <ProjectReference Include="..\Willow.Speech\Willow.Speech.csproj" />
+      <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj" />
+    </ItemGroup>
+
+</Project>

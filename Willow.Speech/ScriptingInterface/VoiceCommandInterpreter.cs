@@ -4,7 +4,7 @@ using System.Reflection;
 
 using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
-using Willow.Core.Logging.Loggers;
+using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;

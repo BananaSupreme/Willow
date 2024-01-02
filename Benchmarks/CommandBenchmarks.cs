@@ -10,12 +10,12 @@ using NSubstitute;
 using Willow.BuiltInCommands;
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Registration;
 using Willow.Core.Registration.Abstractions;
 using Willow.DeviceAutomation;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
 using Willow.Speech;
 using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
+using Willow.StartUp;
 
 namespace Benchmarks;
 

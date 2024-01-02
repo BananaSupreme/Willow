@@ -2,8 +2,8 @@
 
 using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.ActiveWindowDetectors;
-using Willow.Core.Helpers;
 using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.OS;
 
 namespace Willow.Core.Environment.Registration;
 

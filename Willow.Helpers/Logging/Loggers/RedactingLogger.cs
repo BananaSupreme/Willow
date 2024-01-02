@@ -1,6 +1,6 @@
-﻿namespace Willow.Core.Logging.Loggers;
+﻿namespace Willow.Helpers.Logging.Loggers;
 
-internal readonly struct RedactingLogger<T>
+public readonly struct RedactingLogger<T>
 {
     private const string _redacted = "**REDACTED**";
     private readonly T _item;

@@ -3,8 +3,8 @@
 using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Attributes;
 using Willow.Core.Environment.Models;
-using Willow.Core.Logging.Loggers;
 using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.Logging.Loggers;
 
 namespace Willow.Core.Environment.Registration;
 

@@ -1,5 +1,5 @@
 ﻿using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Helpers;
+using Willow.Helpers;
 using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
 
 namespace Willow.Speech.Tokenization.Eventing.Interceptors;

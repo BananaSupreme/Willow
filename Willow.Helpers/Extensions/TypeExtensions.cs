@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Willow.Core.Helpers.Extensions;
+namespace Willow.Helpers.Extensions;
 
 internal static class TypeExtensions
 {

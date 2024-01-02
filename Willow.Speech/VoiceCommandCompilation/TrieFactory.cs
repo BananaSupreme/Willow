@@ -1,7 +1,7 @@
 ﻿using Willow.Core.Environment.Models;
-using Willow.Core.Helpers;
-using Willow.Core.Logging.Extensions;
-using Willow.Core.Logging.Loggers;
+using Willow.Helpers;
+using Willow.Helpers.Logging.Extensions;
+using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Models;
 using Willow.Speech.VoiceCommandParsing;

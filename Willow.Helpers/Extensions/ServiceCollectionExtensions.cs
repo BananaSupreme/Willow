@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Willow.Core.Helpers.Extensions;
+namespace Willow.Helpers.Extensions;
 
 internal static class ServiceCollectionExtensions
 {

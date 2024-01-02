@@ -1,6 +1,6 @@
-﻿using Willow.Core.Helpers;
-using Willow.Core.Logging.Loggers;
-using Willow.Core.Logging.Settings;
+﻿using Willow.Core.Privacy.Settings;
+using Willow.Helpers;
+using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Consts;
 using Willow.Speech.Tokenization.Models;

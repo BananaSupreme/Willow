@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Willow.Core.Helpers;
+namespace Willow.Helpers.OS;
 
 internal static class OsHelpers
 {

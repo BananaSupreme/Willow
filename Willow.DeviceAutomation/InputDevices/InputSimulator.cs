@@ -1,7 +1,7 @@
 ﻿using Desktop.Robot;
 
-using Willow.Core.Helpers;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
+using Willow.Helpers.Locking;
 
 namespace Willow.DeviceAutomation.InputDevices;
 

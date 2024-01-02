@@ -1,4 +1,4 @@
-﻿using Willow.Core.Helpers;
+﻿using Willow.Helpers;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.NodeProcessors;

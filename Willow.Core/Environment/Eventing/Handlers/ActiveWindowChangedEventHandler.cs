@@ -2,8 +2,8 @@
 using Willow.Core.Environment.Eventing.Events;
 using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Logging.Loggers;
-using Willow.Core.Logging.Settings;
+using Willow.Core.Privacy.Settings;
+using Willow.Helpers.Logging.Loggers;
 
 namespace Willow.Core.Environment.Eventing.Handlers;
 

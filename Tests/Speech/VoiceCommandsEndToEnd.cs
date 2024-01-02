@@ -4,13 +4,13 @@ using Microsoft.Extensions.Configuration;
 
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Registration;
 using Willow.Core.Registration.Abstractions;
 using Willow.Speech;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Tokens;
+using Willow.StartUp;
 
 namespace Tests.Speech;
 

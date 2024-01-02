@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Logging.Settings;
+using Willow.Core.Privacy.Settings;
 using Willow.Core.Registration.Abstractions;
 
-namespace Willow.Core.Logging.Registration;
+namespace Willow.Core.Privacy.Registration;
 
-internal sealed class LoggingRegistration : IConfigurationRegistrar
+internal sealed class PrivacyRegistration : IConfigurationRegistrar
 {
     public static void RegisterConfiguration(IServiceCollection services, IConfiguration configuration)
     {

@@ -3,8 +3,8 @@ using System.Numerics;
 
 using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Models;
-using Willow.Core.Helpers;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
+using Willow.Helpers.Locking;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Models;
 

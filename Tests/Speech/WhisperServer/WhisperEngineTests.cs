@@ -59,7 +59,7 @@ public class WhisperEngineTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var filePath = Path.Combine(Environment.CurrentDirectory, "VoiceCommands/WhisperServer/test.wav");
+        var filePath = Path.Combine(Environment.CurrentDirectory, "Speech/WhisperServer/test.wav");
         var audioData = await File.ReadAllBytesAsync(filePath);
         _audioData = GetFromWavFile(audioData);
     }

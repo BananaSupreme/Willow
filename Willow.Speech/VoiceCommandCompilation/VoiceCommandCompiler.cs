@@ -1,4 +1,4 @@
-﻿using Willow.Core.Logging.Loggers;
+﻿using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.Tokenization.Consts;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Exceptions;

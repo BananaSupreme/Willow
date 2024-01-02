@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Helpers.Extensions;
 using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization.Abstractions;
 
 namespace Willow.Speech.Tokenization.Registration;

@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using Willow.Core.Helpers.Extensions;
 using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.Extensions;
 using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
 using Willow.WhisperServer.Settings;
 

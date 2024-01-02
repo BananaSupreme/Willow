@@ -1,4 +1,4 @@
-﻿namespace Willow.Core.Logging.Settings;
+﻿namespace Willow.Core.Privacy.Settings;
 
 [ToString]
 public sealed class PrivacySettings

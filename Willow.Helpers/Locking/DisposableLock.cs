@@ -1,4 +1,4 @@
-﻿namespace Willow.Core.Helpers;
+﻿namespace Willow.Helpers.Locking;
 
 internal readonly struct DisposableLock : IDisposable
 {

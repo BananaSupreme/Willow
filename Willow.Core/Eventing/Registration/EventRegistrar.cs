@@ -3,8 +3,8 @@
 using System.Reflection;
 
 using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Helpers.Extensions;
-using Willow.Core.Logging.Loggers;
+using Willow.Helpers.Extensions;
+using Willow.Helpers.Logging.Loggers;
 
 namespace Willow.Core.Eventing.Registration;
 

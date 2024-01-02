@@ -1,4 +1,4 @@
-﻿using Willow.Core.Helpers;
+﻿using Willow.Helpers;
 using Willow.Speech.Tokenization.Consts;
 using Willow.Speech.VoiceCommandCompilation.Exceptions;
 

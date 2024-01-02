@@ -1,8 +1,10 @@
 ﻿using System.Text.Json;
 
-namespace Willow.Core.Logging.Loggers;
+// ReSharper disable MemberCanBePrivate.Global
 
-public class JsonLogger<T>
+namespace Willow.Helpers.Logging.Loggers;
+
+public readonly struct JsonLogger<T>
 {
     private readonly T? _item;
 

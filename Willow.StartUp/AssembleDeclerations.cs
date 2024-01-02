@@ -1,6 +1,4 @@
-﻿global using Microsoft.Extensions.Logging;
-global using Microsoft.Extensions.Options;
-
+﻿
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Tests")]

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Frozen;
 
-using Willow.Core.Logging.Extensions;
-using Willow.Core.Logging.Loggers;
-using Willow.Core.Logging.Settings;
+using Willow.Core.Privacy.Settings;
+using Willow.Helpers.Logging.Extensions;
+using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.CommandExecution.Abstraction;
 using Willow.Speech.CommandExecution.Exceptions;
 using Willow.Speech.CommandExecution.Models;
