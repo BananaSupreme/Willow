@@ -20,10 +20,8 @@ internal sealed partial class EventDispatcher
 
         var actualizedHandlers = handlers.Select(Actualize<IEventHandler<TEvent>>).ToList();
 
-        while (!_runningTasks.Writer.TryWrite(DispatchInternalAsync(@event, eventName, actualizedHandlers)))
-        {
-            //This item must be written before returning
-        }
+        //Only fails when channel marked completed
+        _ = _runningTasks.Writer.TryWrite(DispatchInternalAsync(@event, eventName, actualizedHandlers)); 
     }
 
     private async Task DispatchInternalAsync<TEvent>(TEvent @event, string eventName,

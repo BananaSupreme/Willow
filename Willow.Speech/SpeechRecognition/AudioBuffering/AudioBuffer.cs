@@ -1,4 +1,5 @@
-﻿using Willow.Speech.SpeechRecognition.AudioBuffering.Abstractions;
+﻿using Willow.Core.Settings.Abstractions;
+using Willow.Speech.SpeechRecognition.AudioBuffering.Abstractions;
 using Willow.Speech.SpeechRecognition.AudioBuffering.Exceptions;
 using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
@@ -16,7 +17,7 @@ internal sealed class AudioBuffer : IAudioBuffer
     private int _size;
     private int _tail;
 
-    public AudioBuffer(IOptionsMonitor<AudioBufferSettings> settings)
+    public AudioBuffer(ISettings<AudioBufferSettings> settings)
     {
         _buffer = new short[settings.CurrentValue.MaxSeconds * settings.CurrentValue.AcceptedSamplingRate];
         _samplingRateInBuffer = settings.CurrentValue.AcceptedSamplingRate;

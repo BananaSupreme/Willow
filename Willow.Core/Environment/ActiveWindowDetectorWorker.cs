@@ -13,13 +13,13 @@ internal sealed class ActiveWindowDetectorWorker : BackgroundService
 {
     private readonly IActiveWindowDetector _activeWindowDetector;
     private readonly IEventDispatcher _eventDispatcher;
-    private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
+    private readonly ISettings<PrivacySettings> _privacySettings;
     private readonly ILogger<ActiveWindowDetectorWorker> _log;
     private ActiveWindowInfo _currentWindow;
 
     public ActiveWindowDetectorWorker(IActiveWindowDetector activeWindowDetector,
                                       IEventDispatcher eventDispatcher,
-                                      IOptionsMonitor<PrivacySettings> privacySettings,  
+                                      ISettings<PrivacySettings> privacySettings,  
                                       ILogger<ActiveWindowDetectorWorker> log)
     {
         _activeWindowDetector = activeWindowDetector;

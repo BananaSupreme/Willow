@@ -1,6 +1,7 @@
 ﻿using System.Collections.Frozen;
 
 using Willow.Core.Privacy.Settings;
+using Willow.Core.Settings.Abstractions;
 using Willow.Helpers.Logging.Extensions;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.CommandExecution.Abstraction;
@@ -15,12 +16,12 @@ namespace Willow.Speech.CommandExecution;
 internal sealed class CommandStorage : ICommandStorage
 {
     private readonly ILogger<CommandStorage> _log;
-    private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
+    private readonly ISettings<PrivacySettings> _privacySettings;
 
     private FrozenDictionary<Guid, Func<IVoiceCommand>> _storage =
         new Dictionary<Guid, Func<IVoiceCommand>>().ToFrozenDictionary();
 
-    public CommandStorage(ILogger<CommandStorage> log, IOptionsMonitor<PrivacySettings> privacySettings)
+    public CommandStorage(ILogger<CommandStorage> log, ISettings<PrivacySettings> privacySettings)
     {
         _log = log;
         _privacySettings = privacySettings;

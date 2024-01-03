@@ -14,7 +14,7 @@ using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Tests.Core;
 
-public class RegistrarTests
+public sealed class RegistrarTests : IDisposable
 {
     private readonly IInterfaceRegistrar _registrar;
     private readonly IEventRegistrar _eventRegistrar;
@@ -25,7 +25,7 @@ public class RegistrarTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<IInterfaceRegistrar, InterfaceRegistrar>();
-        EventingServiceRegistrar.RegisterServices(services);
+        EventingRegistrar.RegisterServices(services);
         services.AddSingleton<TestHelper>();
         _serviceProvider = services.CreateServiceProvider();
         _registrar = _serviceProvider.GetRequiredService<IInterfaceRegistrar>();
@@ -33,13 +33,13 @@ public class RegistrarTests
     }
 
     [Fact]
-    public async Task When_RegisteringNewEventFromAssembly_EventCorrectlyLoaded()
+    public void When_RegisteringNewEventFromAssembly_EventCorrectlyLoaded()
     {
         _eventRegistrar.RegisterFromAssemblies([typeof(TestEventHandler).Assembly]);
         var dispatcher = _serviceProvider.GetRequiredService<IEventDispatcher>();
 
         dispatcher.Dispatch(new Event());
-        await dispatcher.FlushAsync();
+        dispatcher.Flush();
 
         var helper = _serviceProvider.GetRequiredService<TestHelper>();
         helper.Ran.Should().BeTrue();
@@ -75,6 +75,11 @@ public class RegistrarTests
     {
         _eventRegistrar.Invoking(x => x.RegisterFromAssemblies([])).Should().NotThrow();
         _registrar.Invoking(x => x.RegisterDeriving<IInterfaceRegistrar>([])).Should().NotThrow();
+    }
+
+    public void Dispose()
+    {
+        (_serviceProvider as IDisposable)?.Dispose();
     }
 }
 

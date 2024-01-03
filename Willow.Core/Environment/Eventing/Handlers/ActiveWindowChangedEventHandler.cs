@@ -12,12 +12,12 @@ internal sealed class ActiveWindowChangedEventHandler : IEventHandler<ActiveWind
     private readonly IActiveWindowTagStorage _activeWindowTagStorage;
     private readonly IEnvironmentStateProvider _environmentStateProvider;
     private readonly ILogger<ActiveWindowChangedEventHandler> _log;
-    private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
+    private readonly ISettings<PrivacySettings> _privacySettings;
 
     public ActiveWindowChangedEventHandler(IActiveWindowTagStorage activeWindowTagStorage,
                                            IEnvironmentStateProvider environmentStateProvider,
                                            ILogger<ActiveWindowChangedEventHandler> log,
-                                           IOptionsMonitor<PrivacySettings> privacySettings)
+                                           ISettings<PrivacySettings> privacySettings)
     {
         _activeWindowTagStorage = activeWindowTagStorage;
         _environmentStateProvider = environmentStateProvider;

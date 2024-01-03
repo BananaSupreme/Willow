@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
+﻿using Willow.Core.Settings.Abstractions;
 using Willow.Speech.SpeechRecognition.AudioBuffering;
 using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
@@ -13,7 +12,7 @@ public class AudioBufferTests
 
     public AudioBufferTests()
     {
-        var settings = Substitute.For<IOptionsMonitor<AudioBufferSettings>>();
+        var settings = Substitute.For<ISettings<AudioBufferSettings>>();
         settings.CurrentValue.Returns(new AudioBufferSettings { AcceptedSamplingRate = 10, MaxSeconds = 1 });
         _baseData = new([], settings.CurrentValue.AcceptedSamplingRate, 1, 16);
         _sut = new(settings);

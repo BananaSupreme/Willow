@@ -1,4 +1,7 @@
-﻿using Willow.Helpers.Extensions;
+﻿using Tests.Helpers;
+
+using Willow.Core.Settings.Abstractions;
+using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Tokens;
@@ -6,18 +9,20 @@ using Willow.Speech.Tokenization.Tokens.Abstractions;
 
 namespace Tests.Speech.CommandProcessing;
 
-public class TokenizationTests
+public sealed class TokenizationTests : IDisposable
 {
     private readonly ITokenizer _sut;
+    private readonly ServiceProvider _provider;
 
     public TokenizationTests()
     {
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
         services.AddSingleton<ITokenizer, Tokenizer>();
         services.AddAllTypesFromOwnAssembly<ISpecializedTokenProcessor>(ServiceLifetime.Singleton);
-        var serviceProvider = services.BuildServiceProvider();
-        _sut = serviceProvider.GetRequiredService<ITokenizer>();
+        _provider = services.BuildServiceProvider();
+        _sut = _provider.GetRequiredService<ITokenizer>();
     }
 
     public static object[][] ValidTestDataWrapper =>
@@ -54,5 +59,10 @@ public class TokenizationTests
         output = [.. output];
         var result = _sut.Tokenize(input);
         result.Should().BeEquivalentTo(output);
+    }
+
+    public void Dispose()
+    {
+        _provider.Dispose();
     }
 }

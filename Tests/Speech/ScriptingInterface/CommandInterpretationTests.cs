@@ -7,17 +7,18 @@ using Willow.Speech.ScriptingInterface.Models;
 
 namespace Tests.Speech.ScriptingInterface;
 
-public class CommandInterpretationTests
+public sealed class CommandInterpretationTests : IDisposable
 {
     private readonly IVoiceCommandInterpreter _sut;
+    private readonly ServiceProvider _provider;
 
     public CommandInterpretationTests()
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<IVoiceCommandInterpreter, VoiceCommandInterpreter>();
-        var serviceProvider = services.BuildServiceProvider();
-        _sut = serviceProvider.GetRequiredService<IVoiceCommandInterpreter>();
+        _provider = services.BuildServiceProvider();
+        _sut = _provider.GetRequiredService<IVoiceCommandInterpreter>();
     }
 
 
@@ -206,5 +207,10 @@ public class CommandInterpretationTests
         {
             throw new NotImplementedException();
         }
+    }
+
+    public void Dispose()
+    {
+        _provider.Dispose();
     }
 }

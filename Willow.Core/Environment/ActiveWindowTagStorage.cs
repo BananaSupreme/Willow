@@ -11,10 +11,10 @@ internal sealed class ActiveWindowTagStorage : IActiveWindowTagStorage
     private IDictionary<string, Tag[]> _storage = new Dictionary<string, Tag[]>();
 
     private readonly ILogger<ActiveWindowChangedEventHandler> _log;
-    private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
+    private readonly ISettings<PrivacySettings> _privacySettings;
 
     public ActiveWindowTagStorage(ILogger<ActiveWindowChangedEventHandler> log,
-                                  IOptionsMonitor<PrivacySettings> privacySettings)
+                                  ISettings<PrivacySettings> privacySettings)
     {
         _log = log;
         _privacySettings = privacySettings;

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using Python.Included;
 
+using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Privacy.Settings;
+using Willow.Core.Settings.Abstractions;
+using Willow.Core.Settings.Events;
 using Willow.Helpers.Locking;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
@@ -15,27 +17,30 @@ using Willow.WhisperServer.Settings;
 
 namespace Willow.WhisperServer;
 
-internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTextEngine, IHostedService
+internal sealed class WhisperEngine : 
+    IDisposable, 
+    IAsyncDisposable, 
+    ISpeechToTextEngine, 
+    IHostedService,
+    IEventHandler<SettingsUpdatedEvent<WhisperModelSettings>>
 {
     private bool _isRunning;
     private bool _disposed;
     private bool _firstLoadDone;
-    private WhisperModelSettings _lastModelSettings;
     private readonly DisposableLock _lock = new();
     private readonly ILogger<WhisperEngine> _log;
-    private readonly IOptionsMonitor<WhisperModelSettings> _modelSettings;
-    private readonly IOptionsMonitor<TranscriptionSettings> _transcriptionSettings;
-    private readonly IOptionsMonitor<PrivacySettings> _privateSettings;
+    private readonly ISettings<WhisperModelSettings> _modelSettings;
+    private readonly ISettings<TranscriptionSettings> _transcriptionSettings;
+    private readonly ISettings<PrivacySettings> _privateSettings;
     private PyModule? _scope;
     private nint _state;
 
-    public WhisperEngine(IOptionsMonitor<WhisperModelSettings> modelSettings,
-                         IOptionsMonitor<TranscriptionSettings> transcriptionSettings,
-                         IOptionsMonitor<PrivacySettings> privateSettings,
+    public WhisperEngine(ISettings<WhisperModelSettings> modelSettings,
+                         ISettings<TranscriptionSettings> transcriptionSettings,
+                         ISettings<PrivacySettings> privateSettings,
                          ILogger<WhisperEngine> log)
     {
         _modelSettings = modelSettings;
-        _lastModelSettings = _modelSettings.CurrentValue;
         _transcriptionSettings = transcriptionSettings;
         _privateSettings = privateSettings;
         _log = log;
@@ -56,18 +61,6 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
         InitPythonEngine();
         InitModule();
         InitializeModel();
-        _modelSettings.OnChange(newValue =>
-        {
-            //Weird way to test, but I was lazy to start implementing equals on all the types
-            if (newValue.ToString() == _lastModelSettings.ToString())
-            {
-                return;
-            }
-
-            _lastModelSettings = newValue;
-            _log.ModelReinitializing();
-            InitializeModel();
-        });
 
         _isRunning = true;
     }
@@ -179,6 +172,12 @@ internal sealed class WhisperEngine : IDisposable, IAsyncDisposable, ISpeechToTe
         }
     }
 
+    public Task HandleAsync(SettingsUpdatedEvent<WhisperModelSettings> @event)
+    {
+        _log.ModelReinitializing();
+        InitializeModel();
+        return Task.CompletedTask;
+    }
 }
 
 internal static partial class WhisperEngineLoggingExtensions

@@ -2,7 +2,6 @@
 
 using DryIoc.Microsoft.DependencyInjection;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using NSubstitute;
@@ -31,8 +30,7 @@ public class CommandBenchmarks
         services.AddLogging();
         WillowStartup.Register(
             [typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly],
-            services,
-            new ConfigurationManager());
+            services);
         services.AddSingleton(_ => Substitute.For<IInputSimulator>());
         DeviceAutomationRegistrator.RegisterServices(services);
         var provider = services.CreateServiceProvider();
@@ -46,17 +44,17 @@ public class CommandBenchmarks
     }
 
     [Benchmark]
-    public async Task MoveMouseUp()
+    public void MoveMouseUp()
     {
         _dispatcher.Dispatch(
             new AudioTranscribedEvent("move mouse up 72 move mouse down 72 move mouse left 72 move mouse right 72"));
-        await _dispatcher.FlushAsync();
+        _dispatcher.Flush();
     }
 
-    public static async Task Test()
+    public static void Test()
     {
         var container = new CommandBenchmarks();
         container.Setup();
-        await container.MoveMouseUp();
+        container.MoveMouseUp();
     }
 }

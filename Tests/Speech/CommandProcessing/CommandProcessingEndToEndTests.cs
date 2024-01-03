@@ -1,7 +1,10 @@
-﻿using Willow.Core.Environment.Abstractions;
+﻿using Tests.Helpers;
+
+using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
+using Willow.Core.Settings.Abstractions;
 using Willow.Helpers.Extensions;
 using Willow.Speech.ScriptingInterface.Events;
 using Willow.Speech.ScriptingInterface.Models;
@@ -18,27 +21,28 @@ using Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 
 namespace Tests.Speech.CommandProcessing;
 
-public class CommandProcessingEndToEndTests
+public sealed class CommandProcessingEndToEndTests : IDisposable
 {
     private readonly Fixture _fixture;
     private readonly IEventDispatcher _eventDispatcher;
     private readonly IEnvironmentStateProvider _environmentStateProvider;
     private readonly ITestHandler _handler;
+    private readonly ServiceProvider _provider;
 
     public CommandProcessingEndToEndTests()
     {
         _fixture = new();
 
-        _fixture.Register(() => new Dictionary<string, object>());
-        _fixture.Register(() => new TagRequirement[] { new([]) });
+        _fixture.Register(creator: () => new Dictionary<string, object>());
+        _fixture.Register(creator: () => new TagRequirement[] { new(Tags: []) });
 
         _handler = Substitute.For<ITestHandler>();
         _environmentStateProvider = Substitute.For<IEnvironmentStateProvider>();
         var services = new ServiceCollection();
-        RegisterServices(services);
-        services.AddAllTypesFromOwnAssembly<INodeCompiler>(ServiceLifetime.Singleton);
-        var serviceProvider = services.BuildServiceProvider();
-        _eventDispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
+        RegisterServices(services: services);
+        services.AddAllTypesFromOwnAssembly<INodeCompiler>(lifetime: ServiceLifetime.Singleton);
+        _provider = services.BuildServiceProvider();
+        _eventDispatcher = _provider.GetRequiredService<IEventDispatcher>();
         RegisterEvents();
     }
 
@@ -58,14 +62,14 @@ public class CommandProcessingEndToEndTests
         services.AddSingleton<AudioTranscribedEventHandler>();
         services.AddSingleton<CommandModifiedEventHandler>();
         services.AddSingleton<PunctuationRemoverInterceptor>();
-
+        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
         VoiceCommandCompilationRegistrar.RegisterServices(services: services);
         TokenizationRegistrar.RegisterServices(services: services);
-        EventingServiceRegistrar.RegisterServices(services: services);
+        EventingRegistrar.RegisterServices(services: services);
     }
 
     [Fact]
-    public async Task When_MatchingCommandsWithSingleRequirement_CommandIsProcessedCorrectly()
+    public void When_MatchingCommandsWithSingleRequirement_CommandIsProcessedCorrectly()
     {
         RawVoiceCommand[] commands =
         [
@@ -79,7 +83,7 @@ public class CommandProcessingEndToEndTests
             }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go",
             currentEnvironment: [new(Name: "Requirement")],
             expectedCommand: [commands[0].Id],
@@ -89,7 +93,7 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_MatchingCommandsWithMultipleSpecificRequirements_MoreSpecificCommandIsPrioritized()
+    public void When_MatchingCommandsWithMultipleSpecificRequirements_MoreSpecificCommandIsPrioritized()
     {
         RawVoiceCommand[] commands =
         [
@@ -113,7 +117,7 @@ public class CommandProcessingEndToEndTests
             }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go away now",
             currentEnvironment: [new(Name: "Requirement"), new(Name: "Other")],
             expectedCommand: [commands[1].Id],
@@ -124,7 +128,7 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_ProcessingRepeatingWildCardOrWildCardCommandWithNoWords_FailsAsExpected()
+    public void When_ProcessingRepeatingWildCardOrWildCardCommandWithNoWords_FailsAsExpected()
     {
         RawVoiceCommand[] commands =
         [
@@ -132,7 +136,7 @@ public class CommandProcessingEndToEndTests
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["[one|two|go]:enter *phrase"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go",
             currentEnvironment: [],
             expectedCommand: [],
@@ -140,16 +144,16 @@ public class CommandProcessingEndToEndTests
             commands: commands
         );
     }
-    
+
     [Fact]
-    public async Task When_OptionalCommandCaptures_AddsFlag()
+    public void When_OptionalCommandCaptures_AddsFlag()
     {
         RawVoiceCommand[] commands =
         [
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go ?[phrase]:found"] },
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go phrase",
             currentEnvironment: [],
             expectedCommand: [commands[0].Id],
@@ -159,7 +163,7 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_ProcessingEmptyRequirement_AlwaysSucceeds()
+    public void When_ProcessingEmptyRequirement_AlwaysSucceeds()
     {
         RawVoiceCommand[] commands =
         [
@@ -170,7 +174,7 @@ public class CommandProcessingEndToEndTests
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go ?[#away]:hit **now"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go now",
             currentEnvironment: [new(Name: "One"), new(Name: "Two")],
             expectedCommand: [commands[1].Id],
@@ -180,14 +184,14 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_CommandMatchesWithOneAdditionalWord_MatchesSuccessfully()
+    public void When_CommandMatchesWithOneAdditionalWord_MatchesSuccessfully()
     {
         RawVoiceCommand[] commands =
         [
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away #input"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go away 42 now",
             currentEnvironment: [],
             expectedCommand: [commands[0].Id],
@@ -197,14 +201,14 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_CommandMatchesWithOneLessWord_DoesNotMatch()
+    public void When_CommandMatchesWithOneLessWord_DoesNotMatch()
     {
         RawVoiceCommand[] commands =
         [
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away ?[*word]:hit"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go",
             currentEnvironment: [],
             expectedCommand: [],
@@ -214,7 +218,7 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_ProcessingSwallowedExpressions_Matches()
+    public void When_ProcessingSwallowedExpressions_Matches()
     {
         RawVoiceCommand[] commands =
         [
@@ -222,7 +226,7 @@ public class CommandProcessingEndToEndTests
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go ?[*away]:captured"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go away elsewhere",
             currentEnvironment: [],
             expectedCommand: [commands[1].Id],
@@ -232,7 +236,7 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_ProcessingCommandInChangingEnvironment_CorrectlyAdaptsToNewConditions()
+    public void When_ProcessingCommandInChangingEnvironment_CorrectlyAdaptsToNewConditions()
     {
         RawVoiceCommand[] commands =
         [
@@ -246,7 +250,7 @@ public class CommandProcessingEndToEndTests
             }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go away now",
             currentEnvironment: [new(Name: "Second")],
             expectedCommand: [commands[1].Id],
@@ -254,7 +258,7 @@ public class CommandProcessingEndToEndTests
             commands: commands
         );
 
-        await TestInternal(
+        TestInternal(
             input: "go away now",
             currentEnvironment: [new(Name: "First")],
             expectedCommand: [commands[0].Id],
@@ -264,14 +268,14 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_TranscriptionIsPunctuated_PunctuationIsIgnored()
+    public void When_TranscriptionIsPunctuated_PunctuationIsIgnored()
     {
         RawVoiceCommand[] commands =
         [
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away #input"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go! ~away, 42$",
             currentEnvironment: [],
             expectedCommand: [commands[0].Id],
@@ -279,16 +283,16 @@ public class CommandProcessingEndToEndTests
             commands: commands
         );
     }
-    
+
     [Fact]
-    public async Task When_CapitalizationIsMismatched_StillMatches()
+    public void When_CapitalizationIsMismatched_StillMatches()
     {
         RawVoiceCommand[] commands =
         [
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away NOW"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "Go AwAy now",
             currentEnvironment: [],
             expectedCommand: [commands[0].Id],
@@ -298,7 +302,7 @@ public class CommandProcessingEndToEndTests
     }
 
     [Fact]
-    public async Task When_CallingMultipleCommandsInSuccession_AllGetCalled()
+    public void When_CallingMultipleCommandsInSuccession_AllGetCalled()
     {
         RawVoiceCommand[] commands =
         [
@@ -306,7 +310,7 @@ public class CommandProcessingEndToEndTests
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["after you"] }
         ];
 
-        await TestInternal(
+        TestInternal(
             input: "go away 42, after you!",
             currentEnvironment: [],
             expectedCommand: [commands[0].Id, commands[1].Id],
@@ -315,8 +319,8 @@ public class CommandProcessingEndToEndTests
         );
     }
 
-    private async Task TestInternal(string input, Tag[] currentEnvironment, Guid[] expectedCommand,
-                                    Dictionary<string, Token>[] expectedCaptures, RawVoiceCommand[] commands)
+    private void TestInternal(string input, Tag[] currentEnvironment, Guid[] expectedCommand,
+                              Dictionary<string, Token>[] expectedCaptures, RawVoiceCommand[] commands)
     {
         _environmentStateProvider.Tags.Returns(returnThis: currentEnvironment);
         List<Guid> result = [];
@@ -331,11 +335,11 @@ public class CommandProcessingEndToEndTests
                 });
 
         _eventDispatcher.Dispatch(@event: new CommandModifiedEvent(Commands: commands));
-        await _eventDispatcher.FlushAsync();
+        _eventDispatcher.Flush();
 
         _eventDispatcher.Dispatch(@event: new AudioTranscribedEvent(Text: input));
-        await _eventDispatcher.FlushAsync();
-        await _eventDispatcher.FlushAsync(); //Second time because the event can trigger downstream events
+        _eventDispatcher.Flush();
+        _eventDispatcher.Flush(); //Second time because the event can trigger downstream events
 
         result.Should().BeEquivalentTo(expectation: expectedCommand);
         captured.Should().BeEquivalentTo(expectation: expectedCaptures);
@@ -343,4 +347,9 @@ public class CommandProcessingEndToEndTests
 
     // ReSharper disable once MemberCanBePrivate.Global
     public interface ITestHandler : IEventHandler<CommandParsedEvent>;
+
+    public void Dispose()
+    {
+        _provider.Dispose();
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using Willow.Core.Privacy.Settings;
+using Willow.Core.Settings.Abstractions;
 using Willow.Helpers;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.Tokenization.Abstractions;
@@ -12,12 +13,12 @@ namespace Willow.Speech.Tokenization;
 internal sealed class Tokenizer : ITokenizer
 {
     private readonly ILogger<Tokenizer> _log;
-    private readonly IOptionsMonitor<PrivacySettings> _privacySettings;
+    private readonly ISettings<PrivacySettings> _privacySettings;
     private readonly ISpecializedTokenProcessor[] _specializedTokenProcessors;
 
     public Tokenizer(IEnumerable<ISpecializedTokenProcessor> specializedTokenProcessors, 
                      ILogger<Tokenizer> log,
-                     IOptionsMonitor<PrivacySettings> privacySettings)
+                     ISettings<PrivacySettings> privacySettings)
     {
         _log = log;
         _privacySettings = privacySettings;

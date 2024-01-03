@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using System.Threading.Channels;
 
@@ -7,7 +8,7 @@ using Willow.Helpers.Extensions;
 
 namespace Willow.Core.Eventing;
 
-internal sealed partial class EventDispatcher : IEventDispatcher, IUnsafeEventRegistrar
+internal sealed partial class EventDispatcher : BackgroundService, IEventDispatcher, IUnsafeEventRegistrar
 {
     private readonly Dictionary<string, List<Type>> _eventHandlersStorage = [];
     private readonly Channel<Task> _runningTasks = Channel.CreateUnbounded<Task>();
@@ -19,7 +20,6 @@ internal sealed partial class EventDispatcher : IEventDispatcher, IUnsafeEventRe
     {
         _serviceProvider = serviceProvider;
         _log = log;
-        _ = RunQueue();
     }
 
     public void RegisterHandler<TEvent, TEventHandler>()
@@ -42,17 +42,22 @@ internal sealed partial class EventDispatcher : IEventDispatcher, IUnsafeEventRe
         _eventHandlersStorage.Add(eventName, [eventHandler]);
     }
 
-    public async Task FlushAsync()
+    public void Flush()
     {
         while (_runningTasks.Reader.TryRead(out var task))
         {
-            await RunAndIgnoreErrorsAsync(task);
+            RunAndIgnoreErrorsAsync(task).GetAwaiter().GetResult();
         }
     }
 
-    private async Task RunQueue()
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var task in _runningTasks.Reader.ReadAllAsync())
+        await Task.Run(async () => await RunQueue(stoppingToken), stoppingToken);
+    }
+
+    private async Task RunQueue(CancellationToken stoppingToken)
+    {
+        await foreach (var task in _runningTasks.Reader.ReadAllAsync(stoppingToken))
         {
             await RunAndIgnoreErrorsAsync(task);
         }

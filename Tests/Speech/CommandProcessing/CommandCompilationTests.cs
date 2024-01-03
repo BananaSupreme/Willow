@@ -10,7 +10,7 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Tests.Speech.CommandProcessing;
 
-public class CommandCompilationTests
+public sealed class CommandCompilationTests : IDisposable
 {
     private static readonly Dictionary<string, object> _capturedValues = new()
     {
@@ -24,6 +24,7 @@ public class CommandCompilationTests
     private readonly Guid _guid;
 
     private readonly IVoiceCommandCompiler _sut;
+    private readonly ServiceProvider _provider;
 
     public CommandCompilationTests()
     {
@@ -36,8 +37,8 @@ public class CommandCompilationTests
         services.AddLogging();
         services.AddSingleton<IVoiceCommandCompiler, VoiceCommandCompiler>();
         services.AddAllTypesFromOwnAssembly<INodeCompiler>(ServiceLifetime.Singleton);
-        var serviceProvider = services.BuildServiceProvider();
-        _sut = serviceProvider.GetRequiredService<IVoiceCommandCompiler>();
+        _provider = services.BuildServiceProvider();
+        _sut = _provider.GetRequiredService<IVoiceCommandCompiler>();
     }
 
     public static object[][] ValidTestDataWrapper =>
@@ -275,5 +276,10 @@ public class CommandCompilationTests
     {
         _sut.Invoking(x => x.Compile(_base with { InvocationPhrase = input }))
             .Should().Throw<CommandCompilationException>();
+    }
+
+    public void Dispose()
+    {
+        _provider.Dispose();
     }
 }

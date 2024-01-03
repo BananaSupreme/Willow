@@ -1,5 +1,5 @@
 ﻿global using Microsoft.Extensions.Logging;
-global using Microsoft.Extensions.Options;
+global using Willow.Core.Settings.Abstractions;
 
 using System.Runtime.CompilerServices;
 

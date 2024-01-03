@@ -40,7 +40,9 @@ internal sealed class EventRegistrar : IEventRegistrar
         _log.EventHandlersDetected(new(types.Select(x => x.Name)));
         foreach (var type in types)
         {
-            var handlerType = type.GetInterfaces().First(x => x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
+            var handlerType = type.GetInterfaces()
+                                  .Where(x => x.IsGenericType)
+                                  .First(x => x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
             var eventType = handlerType.GenericTypeArguments[0];
 
             _registrator.Register(type, Reuse.Singleton);

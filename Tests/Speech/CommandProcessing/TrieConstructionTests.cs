@@ -13,11 +13,12 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Tests.Speech.CommandProcessing;
 
-public class TrieConstructionTests
+public sealed class TrieConstructionTests : IDisposable
 {
     private readonly IVoiceCommandCompiler _compiler;
     private readonly ITrieFactory _sut;
     private readonly Fixture _fixture;
+    private readonly ServiceProvider _provider;
 
     public TrieConstructionTests()
     {
@@ -31,8 +32,8 @@ public class TrieConstructionTests
         services.AddLogging();
         services.AddSingleton<ITrieFactory, TrieFactory>();
         services.AddSingleton<IVoiceCommandCompiler>(implementationFactory: _ => _compiler);
-        var serviceProvider = services.BuildServiceProvider();
-        _sut = serviceProvider.GetRequiredService<ITrieFactory>();
+        _provider = services.BuildServiceProvider();
+        _sut = _provider.GetRequiredService<ITrieFactory>();
     }
 
     [Fact]
@@ -1248,5 +1249,10 @@ public class TrieConstructionTests
             });
             return props;
         }
+    }
+
+    public void Dispose()
+    {
+        _provider.Dispose();
     }
 }

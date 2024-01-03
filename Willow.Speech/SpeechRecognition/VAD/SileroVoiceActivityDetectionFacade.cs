@@ -1,5 +1,6 @@
 ﻿using SileroVad;
 
+using Willow.Core.Settings.Abstractions;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
 using Willow.Speech.SpeechRecognition.VAD.Abstractions;
 using Willow.Speech.SpeechRecognition.VAD.Models;
@@ -10,10 +11,10 @@ namespace Willow.Speech.SpeechRecognition.VAD;
 internal sealed class SileroVoiceActivityDetectionFacade : IVoiceActivityDetection, IDisposable
 {
     private readonly ILogger<SileroVoiceActivityDetectionFacade> _log;
-    private readonly IOptionsMonitor<SileroSettings> _sileroSettings;
+    private readonly ISettings<SileroSettings> _sileroSettings;
     private readonly Vad _sileroVad = new();
 
-    public SileroVoiceActivityDetectionFacade(IOptionsMonitor<SileroSettings> sileroSettings,
+    public SileroVoiceActivityDetectionFacade(ISettings<SileroSettings> sileroSettings,
                                               ILogger<SileroVoiceActivityDetectionFacade> log)
     {
         _sileroSettings = sileroSettings;

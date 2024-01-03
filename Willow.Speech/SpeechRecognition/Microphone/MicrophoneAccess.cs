@@ -2,6 +2,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 
+using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Settings.Abstractions;
+using Willow.Core.Settings.Events;
 using Willow.Helpers.Locking;
 using Willow.Speech.SpeechRecognition.Microphone.Abstractions;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
@@ -9,31 +12,26 @@ using Willow.Speech.SpeechRecognition.Microphone.Settings;
 
 namespace Willow.Speech.SpeechRecognition.Microphone;
 
-internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable
+internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable, IEventHandler<SettingsUpdatedEvent<MicrophoneSettings>>
 {
     private const int _frameSize = 512;
     private readonly ILogger<MicrophoneAccess> _log;
     private static readonly DisposableLock _lock = new();
 
-    private MicrophoneSettings _lastMicrophoneSettings;
-    private readonly IOptionsMonitor<MicrophoneSettings> _microphoneSettings;
+    private readonly ISettings<MicrophoneSettings> _microphoneSettings;
 
     private PvRecorder? _recorder;
-    private readonly IDisposable? _listener;
     private short[]? _buffer;
 
-    public MicrophoneAccess(IOptionsMonitor<MicrophoneSettings> microphoneSettings, ILogger<MicrophoneAccess> log)
+    public MicrophoneAccess(ISettings<MicrophoneSettings> microphoneSettings, ILogger<MicrophoneAccess> log)
     {
         _microphoneSettings = microphoneSettings;
-        _lastMicrophoneSettings = _microphoneSettings.CurrentValue;
         _log = log;
-        _listener = _microphoneSettings.OnChange(ChangeMicrophone);
     }
 
     public void Dispose()
     {
         StopRecording();
-        _listener?.Dispose();
         _recorder?.Dispose();
     }
 
@@ -101,17 +99,9 @@ internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable
         _log.RecordingStopped();
     }
 
-    private void ChangeMicrophone(MicrophoneSettings newValue, string? __)
+    public async Task HandleAsync(SettingsUpdatedEvent<MicrophoneSettings> @event)
     {
-        if (newValue.MicrophoneIndex == _lastMicrophoneSettings.MicrophoneIndex
-            && newValue.RecordingWindowTimeInMilliseconds ==
-            _lastMicrophoneSettings.RecordingWindowTimeInMilliseconds)
-        {
-            return;
-        }
-
-        using var _ = _lock.Lock();
-        _lastMicrophoneSettings = newValue;
+        using var _ = await _lock.LockAsync();
         StopRecording();
         _recorder?.Dispose();
         SetupMicrophone();

@@ -1,10 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using NSubstitute;
 
+using Willow.Core.Settings.Abstractions;
 using Willow.Speech.SpeechRecognition.AudioBuffering;
 using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
 using Willow.Speech.SpeechRecognition.Microphone.Events;
@@ -28,9 +28,9 @@ public class VadBenchmarks
         var audioData = GetFromWavFile(File.ReadAllBytes(filePath));
         audioData = audioData with { RawData = audioData.RawData[..audioData.SamplingRate] };
         _audioDataEvent = new(audioData);
-        var sileroSettings = Substitute.For<IOptionsMonitor<SileroSettings>>();
+        var sileroSettings = Substitute.For<ISettings<SileroSettings>>();
         sileroSettings.CurrentValue.Returns(_ => new());
-        var bufferSettings = Substitute.For<IOptionsMonitor<AudioBufferSettings>>();
+        var bufferSettings = Substitute.For<ISettings<AudioBufferSettings>>();
         bufferSettings.CurrentValue.Returns(_ => new());
         _interceptor = new(
             new SileroVoiceActivityDetectionFacade(sileroSettings,

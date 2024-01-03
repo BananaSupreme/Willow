@@ -2,9 +2,9 @@
 
 using DryIoc.Microsoft.DependencyInjection;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Willow.Core.Settings.Registration;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
 using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
 using Willow.WhisperServer;
@@ -22,7 +22,7 @@ public class WhisperBenchmarks
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        WillowWhisperServerRegistrar.RegisterConfiguration(services, new ConfigurationManager());
+        SettingsRegistrar.RegisterServices(services);
         WillowWhisperServerRegistrar.RegisterServices(services);
 
         var serviceProvider = services.CreateServiceProvider();

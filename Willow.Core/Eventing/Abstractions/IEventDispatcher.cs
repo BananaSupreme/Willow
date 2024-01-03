@@ -20,5 +20,5 @@ public interface IEventDispatcher
     /// Flushes the tasks to ensure all tasks ran to completion, primarily there for tests, which is why this method is internal.
     /// </summary>
     /// <returns></returns>
-    internal Task FlushAsync();
+    internal void Flush();
 }

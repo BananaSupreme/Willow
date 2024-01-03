@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 using System.Reflection;
 
@@ -24,10 +23,9 @@ public static class WillowStartup
         typeof(IBuiltInCommandsAssemblyMarker).Assembly,
     ];
     
-    public static void Register(IServiceCollection services, IConfiguration configuration)
+    public static void Register(IServiceCollection services)
     {
-        RegisterServices(_registeredAssemblies, services);
-        Configure(_registeredAssemblies, services, configuration);
+        Register(_registeredAssemblies, services);
     }
 
     public static void Run(IServiceProvider provider)
@@ -36,13 +34,7 @@ public static class WillowStartup
         registrar.RegisterAssemblies(_registeredAssemblies);
     }
 
-    internal static void Register(Assembly[] assemblies, IServiceCollection services, IConfiguration configuration)
-    {
-        RegisterServices(assemblies, services);
-        Configure(assemblies, services, configuration);
-    }
-
-    private static void RegisterServices(Assembly[] assemblies, IServiceCollection services)
+    internal static void Register(Assembly[] assemblies, IServiceCollection services)
     {
         var registrars =
             assemblies.SelectMany(assembly => typeof(IServiceRegistrar).GetAllDerivingInAssembly(assembly));
@@ -50,17 +42,6 @@ public static class WillowStartup
         {
             var registrationMethod = registrar.GetMethod(nameof(IServiceRegistrar.RegisterServices));
             registrationMethod?.Invoke(null, [services]);
-        }
-    }
-
-    private static void Configure(Assembly[] assemblies, IServiceCollection services, IConfiguration configuration)
-    {
-        var registrars =
-            assemblies.SelectMany(assembly => typeof(IConfigurationRegistrar).GetAllDerivingInAssembly(assembly));
-        foreach (var registrar in registrars)
-        {
-            var registrationMethod = registrar.GetMethod(nameof(IConfigurationRegistrar.RegisterConfiguration));
-            registrationMethod?.Invoke(null, [services, configuration]);
         }
     }
 }

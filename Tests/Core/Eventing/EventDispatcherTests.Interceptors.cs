@@ -1,32 +1,32 @@
 ﻿namespace Tests.Core.Eventing;
 
-public partial class EventDispatcherTests
+public sealed partial class EventDispatcherTests
 {
     [Fact]
-    public async Task When_NoEventConsumerRegisteredAndInterceptorsRegistered_InterceptorNotRun()
+    public void When_NoEventConsumerRegisteredAndInterceptorsRegistered_InterceptorNotRun()
     {
         _sut.RegisterInterceptor<StateWithTwoParameters, TestInterceptor<StateWithTwoParameters>>();
         _sut.Dispatch(new StateWithTwoParameters(1, 0));
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         _provider.GetRequiredService<TestInterceptor<StateWithTwoParameters>>()
                  .Called.Should().BeFalse();
     }
 
     [Fact]
-    public async Task When_NoInterceptors_StateRemainsTheSame()
+    public void When_NoInterceptors_StateRemainsTheSame()
     {
         var state = new StateWithTwoParameters(0, 0);
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
         _sut.Dispatch(state);
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
         state.Should().BeEquivalentTo(handler.Event);
     }
 
     [Fact]
-    public async Task When_SingleInterceptor_StateModifiedToWhatTheInterceptorDictated()
+    public void When_SingleInterceptor_StateModifiedToWhatTheInterceptorDictated()
     {
         var state = new StateWithTwoParameters(0, 0);
         _sut.RegisterInterceptor<StateWithTwoParameters, TestInterceptor<StateWithTwoParameters>>();
@@ -36,7 +36,7 @@ public partial class EventDispatcherTests
         interceptor.PerformAction = x => x with { State2 = 10 };
 
         _sut.Dispatch(state);
-        await _sut.FlushAsync();
+        _sut.Flush();
         
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
         handler.Event.State1.Should().Be(state.State1);
@@ -44,7 +44,7 @@ public partial class EventDispatcherTests
     }
 
     [Fact]
-    public async Task When_MultipleInterceptors_AllModifyStateOneAfterTheOther()
+    public void When_MultipleInterceptors_AllModifyStateOneAfterTheOther()
     {
         var state = new StateWithStringParameters("");
         _sut.RegisterInterceptor<StateWithStringParameters, TestInterceptor<StateWithStringParameters>>();
@@ -58,7 +58,7 @@ public partial class EventDispatcherTests
         interceptor2.PerformAction = x => new(x.State + "2");
 
         _sut.Dispatch(state);
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithStringParameters>>();
         interceptor.Called.Should().BeTrue();
@@ -68,7 +68,7 @@ public partial class EventDispatcherTests
 
     //This actually works with the previous test to show it happens since we're flipping the order of the interceptors
     [Fact]
-    public async Task When_MultipleInterceptors_RunAtOrderRegistered()
+    public void When_MultipleInterceptors_RunAtOrderRegistered()
     {
         var state = new StateWithStringParameters("");
         _sut.RegisterInterceptor<StateWithStringParameters,
@@ -83,7 +83,7 @@ public partial class EventDispatcherTests
         interceptor2.PerformAction = x => new(x.State + "2");
 
         _sut.Dispatch(state);
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithStringParameters>>();
         handler.Event.State.Should().Be("21");
@@ -91,7 +91,7 @@ public partial class EventDispatcherTests
 
     //For an edge case that was found in development
     [Fact]
-    public async Task When_OneInterceptor_ModifyOnce()
+    public void When_OneInterceptor_ModifyOnce()
     {
         var state = new StateWithStringParameters("");
         _sut.RegisterInterceptor<StateWithStringParameters, TestInterceptor<StateWithStringParameters>>();
@@ -101,20 +101,20 @@ public partial class EventDispatcherTests
         interceptor.PerformAction = x => new(x.State + "1");
 
         _sut.Dispatch(state);
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithStringParameters>>();
         handler.Event.State.Should().Be("1");
     }
 
     [Fact]
-    public async Task When_RegisteringUnrelatedInterceptor_Ignored()
+    public void When_RegisteringUnrelatedInterceptor_Ignored()
     {
         var state = new StateWithTwoParameters(0, 0);
         _sut.RegisterInterceptor<StateWithStringParameters, TestInterceptor<StateWithStringParameters>>();
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
         _sut.Dispatch(state);
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         var interceptor = _provider.GetRequiredService<TestInterceptor<StateWithStringParameters>>();
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
@@ -124,13 +124,13 @@ public partial class EventDispatcherTests
     }
 
     [Fact]
-    public async Task When_InterceptorDoesntCallNext_EventNotProcessed()
+    public void When_InterceptorDoesntCallNext_EventNotProcessed()
     {
         var state = new StateWithTwoParameters(0, 0);
         _sut.RegisterInterceptor<StateWithTwoParameters, BlockingInterceptor<StateWithTwoParameters>>();
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
         _sut.Dispatch(state);
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         var interceptor = _provider.GetRequiredService<BlockingInterceptor<StateWithTwoParameters>>();
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
@@ -140,7 +140,7 @@ public partial class EventDispatcherTests
     }
 
     [Fact]
-    public async Task When_RegisteringGenericInterceptor_AppliesToAllEvents()
+    public void When_RegisteringGenericInterceptor_AppliesToAllEvents()
     {
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
         _sut.RegisterHandler<StateWithStringParameters, TestEventHandler<StateWithStringParameters>>();
@@ -149,18 +149,18 @@ public partial class EventDispatcherTests
         var interceptor = _provider.GetRequiredService<TestGenericInterceptor>();
 
         _sut.Dispatch(new StateWithStringParameters(""));
-        await _sut.FlushAsync();
+        _sut.Flush();
 
         interceptor.Called.Should().BeTrue();
         interceptor.Called = false;
 
         _sut.Dispatch(new StateWithTwoParameters(0, 0));
-        await _sut.FlushAsync();
+        _sut.Flush();
         interceptor.Called.Should().BeTrue();
     }
 
     [Fact]
-    public async Task When_RegisteringGenericInterceptor_GenericRunsFirst()
+    public void When_RegisteringGenericInterceptor_GenericRunsFirst()
     {
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
         _sut.RegisterInterceptor<StateWithTwoParameters, TestInterceptor<StateWithTwoParameters>>();
@@ -176,7 +176,7 @@ public partial class EventDispatcherTests
         };
 
         _sut.Dispatch(new StateWithTwoParameters(0, 0));
-        await _sut.FlushAsync();
+        _sut.Flush();
         interceptor.Called.Should().BeTrue();
     }
 }

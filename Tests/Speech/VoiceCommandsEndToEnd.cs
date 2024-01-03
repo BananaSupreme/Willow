@@ -1,10 +1,11 @@
 ﻿using DryIoc.Microsoft.DependencyInjection;
 
-using Microsoft.Extensions.Configuration;
+using Tests.Helpers;
 
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Registration.Abstractions;
+using Willow.Core.Settings.Abstractions;
 using Willow.Speech;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Models;
@@ -22,26 +23,24 @@ public class VoiceCommandsEndToEnd
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        var config = new ConfigurationManager();
         WillowStartup.Register(
-            [typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly],
-            services,
-            config);
+            [typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly], services);
+        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
         _serviceProvider = services.CreateServiceProvider();
         var registrar = _serviceProvider.GetRequiredService<IAssemblyRegistrationEntry>();
         registrar.RegisterAssemblies([
-                                         typeof(ICoreAssemblyMarker).Assembly, 
+                                         typeof(ICoreAssemblyMarker).Assembly,
                                          typeof(ISpeechAssemblyMarker).Assembly,
                                          this.GetType().Assembly
                                      ]);
     }
 
     [Fact]
-    public async Task Sanity()
+    public void Sanity()
     {
         var eventDispatcher = _serviceProvider.GetRequiredService<IEventDispatcher>();
         eventDispatcher.Dispatch(new AudioTranscribedEvent("Test mario Repeat Repeat"));
-        await eventDispatcher.FlushAsync();
+        eventDispatcher.Flush();
 
         var testVoiceCommand = _serviceProvider.GetRequiredService<TestVoiceCommand>();
         var testVoiceCommandModifer = _serviceProvider.GetRequiredService<TestVoiceCommandModifer>();
