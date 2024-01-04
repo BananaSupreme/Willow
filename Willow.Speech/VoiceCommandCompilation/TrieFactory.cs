@@ -46,6 +46,7 @@ internal sealed class TrieFactory : ITrieFactory
     
     private void LogException(PreCompiledVoiceCommand command, NodeBuilder _, Exception ex)
     {
+        _log.CompilationFailed(command, ex);
     }
 
     public ITrie? Get()

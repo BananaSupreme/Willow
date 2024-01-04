@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 using Willow.Core.Registration.Abstractions;
-using Willow.Helpers.Extensions;
 
 namespace Willow.Core.Settings.Registration;
 

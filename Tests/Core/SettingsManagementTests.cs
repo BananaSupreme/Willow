@@ -68,6 +68,8 @@ public sealed class SettingsManagementTests : IDisposable
     {
         var settings = _provider.GetRequiredService<ISettings<TestSettings>>();
         settings.Update(new(_newGuid));
+        settings.Update(new(_defaultGuid));
+        settings.Update(new(_newGuid));
         settings.Flush();
 
         ((IDisposable)settings).Dispose();
@@ -88,11 +90,27 @@ public sealed class SettingsManagementTests : IDisposable
 
         settings.Update(new(_newGuid));
         settings.Flush();
+        dispatcher.Flush();
 
         var handler = _provider.GetRequiredService<TestHandler>();
         handler.Event.HasValue.Should().BeTrue();
         handler.Event!.Value.OldValue.Should().Be(oldValue);
         handler.Event!.Value.NewValue.Should().Be(settings.CurrentValue);
+    }
+    
+    [Fact]
+    public void When_UpdateCalledWithSameValue_SettingsChangedEventShouldNotBeTriggered()
+    {
+        var dispatcher = _provider.GetRequiredService<IEventDispatcher>();
+        dispatcher.RegisterHandler<SettingsUpdatedEvent<TestSettings>, TestHandler>();
+        var settings = _provider.GetRequiredService<ISettings<TestSettings>>();
+
+        settings.Update(new(_defaultGuid));
+        settings.Flush();
+        dispatcher.Flush();
+
+        var handler = _provider.GetRequiredService<TestHandler>();
+        handler.Event.HasValue.Should().BeFalse();
     }
 
     [Fact]
