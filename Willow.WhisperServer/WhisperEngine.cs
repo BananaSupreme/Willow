@@ -141,8 +141,7 @@ internal sealed class WhisperEngine :
         _log.TranscriptionRequested(transcriptionSettings, transcriptionParameters);
         var transcription = _scope?.TranscribeAudio(transcriptionParameters, transcriptionSettings)
                             ?? throw new InvalidOperationException("Transcribe was called without the start method");
-        _log.AudioTranscribed();
-        _log.TranscriptionDetails(new(transcription, _privateSettings.CurrentValue.AllowLoggingTranscriptions));
+        _log.AudioTranscribed(new(transcription, _privateSettings.CurrentValue.AllowLoggingTranscriptions));
         return transcription;
     }
 
@@ -183,50 +182,44 @@ internal sealed class WhisperEngine :
 internal static partial class WhisperEngineLoggingExtensions
 {
     [LoggerMessage(
-        EventId = 1,
+        EventId = 2,
         Level = LogLevel.Information,
-        Message = "Transcribed Audio.")]
-    public static partial void AudioTranscribed(this ILogger log);
+        Message = "Transcribed Audio: ({transcription})")]
+    public static partial void AudioTranscribed(this ILogger log, RedactingLogger<string> transcription);
 
     [LoggerMessage(
         EventId = 2,
-        Level = LogLevel.Debug,
-        Message = "Transcribed Audio: ({transcription})")]
-    public static partial void TranscriptionDetails(this ILogger log, RedactingLogger<string> transcription);
-
-    [LoggerMessage(
-        EventId = 3,
         Level = LogLevel.Debug,
         Message = "Transcription Requested: ({transcriptionSettings}, {transcriptionParameters})")]
     public static partial void TranscriptionRequested(this ILogger log, TranscriptionSettings transcriptionSettings,
                                                       TranscriptionParameters transcriptionParameters);
 
     [LoggerMessage(
-        EventId = 4,
+        EventId = 3,
         Level = LogLevel.Debug,
         Message = "Model initializing: ({modelSettings})")]
     public static partial void ModelInitializing(this ILogger log, WhisperModelSettings modelSettings);
 
     [LoggerMessage(
-        EventId = 5,
+        EventId = 4,
         Level = LogLevel.Information,
         Message = "Model initialized: ({modelSettings})")]
     public static partial void ModelInitialized(this ILogger log, WhisperModelSettings modelSettings);
 
     [LoggerMessage(
-        EventId = 6,
+        EventId = 5,
         Level = LogLevel.Trace,
         Message = "Settings changed,model re-initialization requested")]
     public static partial void ModelReinitializing(this ILogger log);
 
     [LoggerMessage(
-        EventId = 7,
+        EventId = 6,
         Level = LogLevel.Trace,
         Message = "Whisper server stopping")]
     public static partial void ServerStopping(this ILogger log);
 
     [LoggerMessage(
-        EventId = 8,
+        EventId = 7,
         Level = LogLevel.Trace,
         Message = "Whisper server stopped")]
     public static partial void ServerStopped(this ILogger log);

@@ -67,7 +67,7 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
 
         try
         {
-            environmentStateProvider.AddTag(_autoScrollingTag);
+            environmentStateProvider.ActivateTag(_autoScrollingTag);
             while (!_cts.IsCancellationRequested)
             {
                 inputSimulator.Scroll(GetFromDirection(direction));
@@ -85,7 +85,7 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
     {
         if (_cts is not null)
         {
-            environmentStateProvider.RemoveTag(_autoScrollingTag);
+            environmentStateProvider.DeactivateTag(_autoScrollingTag);
             await _cts.CancelAsync();
         }
     }

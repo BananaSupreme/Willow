@@ -9,7 +9,7 @@ public sealed record WordToken(string Value) : Token
 
     public override string GetString()
     {
-        return Value;
+        return Value.ToLower();
     }
 
     public override string ToString()

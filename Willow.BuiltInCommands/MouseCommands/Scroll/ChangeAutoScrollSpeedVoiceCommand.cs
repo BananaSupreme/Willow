@@ -27,10 +27,10 @@ internal sealed class ChangeAutoScrollSpeedVoiceCommand : IVoiceCommand
         switch (change)
         {
             case "faster":
-                _settings.Update(new(Speed: _settings.CurrentValue.Speed + 10));
+                _settings.Update(new(Speed: _settings.CurrentValue.Speed - 10));
                 break;
             case "slower":
-                _settings.Update(new(Speed: _settings.CurrentValue.Speed - 10));
+                _settings.Update(new(Speed: _settings.CurrentValue.Speed + 10));
                 break;
             default:
                 throw new UnreachableException();

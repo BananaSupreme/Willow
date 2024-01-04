@@ -2,7 +2,7 @@
 
 public readonly record struct ScrollSettings(int Speed)
 {
-    public ScrollSettings() : this(10)
+    public ScrollSettings() : this(100)
     {
         
     }

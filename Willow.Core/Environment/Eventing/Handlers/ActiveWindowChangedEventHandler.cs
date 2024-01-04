@@ -29,8 +29,8 @@ internal sealed class ActiveWindowChangedEventHandler : IEventHandler<ActiveWind
     {
         var tags = _activeWindowTagStorage.GetByProcessName(@event.NewWindow.ProcessName);
         
-        _environmentStateProvider.EnvironmentTags = tags;
-        _environmentStateProvider.ActiveWindow = @event.NewWindow;
+        _environmentStateProvider.SetEnvironmentTags(tags);
+        _environmentStateProvider.SetActiveWindowInfo(@event.NewWindow);
         
         _log.TagsFoundInStorage(
             new(@event.NewWindow.ProcessName, _privacySettings.CurrentValue.AllowLoggingActiveWindow),
