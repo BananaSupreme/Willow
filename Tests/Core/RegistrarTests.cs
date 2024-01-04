@@ -38,7 +38,7 @@ public sealed class RegistrarTests : IDisposable
         _eventRegistrar.RegisterFromAssemblies([typeof(TestEventHandler).Assembly]);
         var dispatcher = _serviceProvider.GetRequiredService<IEventDispatcher>();
 
-        dispatcher.Dispatch(new Event());
+        dispatcher.Dispatch(new Event(Guid.NewGuid()));
         dispatcher.Flush();
 
         var helper = _serviceProvider.GetRequiredService<TestHelper>();
@@ -83,7 +83,8 @@ public sealed class RegistrarTests : IDisposable
     }
 }
 
-public record Event;
+// ReSharper disable once NotAccessedPositionalProperty.Global
+public record Event(Guid Id);
 
 public class TestHelper
 {

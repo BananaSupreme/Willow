@@ -11,25 +11,19 @@ internal sealed class ClickVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
 
-    private const string _right = "right";
-    private const string _middle = "middle";
-    private const string _left = "left";
-    private const string _button = "button";
-    private const string _doubleClick = "doubleClick";
-
     public ClickVoiceCommand(IInputSimulator inputSimulator)
     {
         _inputSimulator = inputSimulator;
     }
 
-    public string InvocationPhrase => $"click ?[[{_right}|{_middle}|{_left}]:{_button}]:_ ?[double]:{_doubleClick}";
+    public string InvocationPhrase => $"click ?[[right|middle|left]:button]:_ ?[double]:doubleClick";
 
     public Task ExecuteAsync(VoiceCommandContext context)
     {
-        var button = context.Parameters.GetValueOrDefault(_button)?.GetString() ?? _left;
+        var button = context.Parameters.GetValueOrDefault("button")?.GetString() ?? "left";
 
         PerformClick(button);
-        if (context.Parameters.TryGetValue(_doubleClick, out _))
+        if (context.Parameters.TryGetValue("doubleClick", out _))
         {
             PerformClick(button);
         }
@@ -41,15 +35,15 @@ internal sealed class ClickVoiceCommand : IVoiceCommand
     {
         switch (button)
         {
-            case _left:
+            case "left":
                 _inputSimulator.Click();
                 break;
             
-            case _middle:
+            case "middle":
                 _inputSimulator.Click(MouseButton.Middle);
                 break;
             
-            case _right:
+            case "right":
                 _inputSimulator.Click(MouseButton.Right);
                 break;
             
