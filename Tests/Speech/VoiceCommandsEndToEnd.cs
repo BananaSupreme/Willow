@@ -9,7 +9,7 @@ using Willow.Core.Settings.Abstractions;
 using Willow.Speech;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Models;
-using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
+using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.StartUp;
 

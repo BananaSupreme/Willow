@@ -5,13 +5,15 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 using Willow.Core.Settings.Abstractions;
-using Willow.Speech.SpeechRecognition.AudioBuffering;
-using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
-using Willow.Speech.SpeechRecognition.Microphone.Eventing.Events;
-using Willow.Speech.SpeechRecognition.Microphone.Models;
+using Willow.Speech.AudioBuffering;
+using Willow.Speech.AudioBuffering.Settings;
+using Willow.Speech.Microphone.Eventing.Events;
+using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechRecognition.VAD;
 using Willow.Speech.SpeechRecognition.VAD.Eventing.Interceptors;
-using Willow.Speech.SpeechRecognition.VAD.Settings;
+using Willow.Speech.VAD;
+using Willow.Speech.VAD.Eventing.Interceptors;
+using Willow.Speech.VAD.Settings;
 
 namespace Benchmarks;
 

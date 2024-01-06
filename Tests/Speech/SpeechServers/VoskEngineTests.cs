@@ -4,7 +4,7 @@ using Tests.Helpers;
 
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Settings.Abstractions;
-using Willow.Speech.SpeechRecognition.Microphone.Models;
+using Willow.Speech.Microphone.Models;
 using Willow.Vosk;
 
 using Xunit.Abstractions;

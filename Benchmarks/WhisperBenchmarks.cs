@@ -5,8 +5,8 @@ using DryIoc.Microsoft.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
 using Willow.Core.Settings.Registration;
-using Willow.Speech.SpeechRecognition.Microphone.Models;
-using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
+using Willow.Speech.Microphone.Models;
+using Willow.Speech.SpeechToText.Abstractions;
 using Willow.WhisperServer;
 
 namespace Benchmarks;

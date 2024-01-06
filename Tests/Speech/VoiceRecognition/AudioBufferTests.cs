@@ -1,7 +1,7 @@
 ﻿using Willow.Core.Settings.Abstractions;
-using Willow.Speech.SpeechRecognition.AudioBuffering;
-using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
-using Willow.Speech.SpeechRecognition.Microphone.Models;
+using Willow.Speech.AudioBuffering;
+using Willow.Speech.AudioBuffering.Settings;
+using Willow.Speech.Microphone.Models;
 
 namespace Tests.Speech.VoiceRecognition;
 

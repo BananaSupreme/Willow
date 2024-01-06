@@ -13,7 +13,7 @@ using Willow.Core.Registration.Abstractions;
 using Willow.DeviceAutomation;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
 using Willow.Speech;
-using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
+using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.StartUp;
 
 namespace Benchmarks;

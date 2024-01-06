@@ -2,8 +2,8 @@ using Tests.Helpers;
 
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Settings.Abstractions;
-using Willow.Speech.SpeechRecognition.Microphone.Models;
-using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
+using Willow.Speech.Microphone.Models;
+using Willow.Speech.SpeechToText.Abstractions;
 using Willow.WhisperServer;
 
 namespace Tests.Speech.SpeechServers;

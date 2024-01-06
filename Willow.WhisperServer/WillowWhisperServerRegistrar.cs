@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 using Willow.Core.Registration.Abstractions;
 using Willow.Helpers.Extensions;
-using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
+using Willow.Speech.SpeechToText.Abstractions;
 
 namespace Willow.WhisperServer;
 

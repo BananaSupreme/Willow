@@ -6,8 +6,8 @@ using System.Text.Json.Serialization;
 using Vosk;
 
 using Willow.Helpers.Locking;
-using Willow.Speech.SpeechRecognition.Microphone.Models;
-using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
+using Willow.Speech.Microphone.Models;
+using Willow.Speech.SpeechToText.Abstractions;
 
 namespace Willow.Vosk;
 

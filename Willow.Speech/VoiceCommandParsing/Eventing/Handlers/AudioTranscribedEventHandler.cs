@@ -1,7 +1,7 @@
 ﻿using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
-using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
+using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
