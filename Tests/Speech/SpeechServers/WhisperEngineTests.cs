@@ -1,5 +1,3 @@
-using Python.Included;
-
 using Tests.Helpers;
 
 using Willow.Core.Eventing.Registration;
@@ -8,9 +6,7 @@ using Willow.Speech.SpeechRecognition.Microphone.Models;
 using Willow.Speech.SpeechRecognition.SpeechToText.Abstractions;
 using Willow.WhisperServer;
 
-using Xunit.Abstractions;
-
-namespace Tests.Speech.WhisperServer;
+namespace Tests.Speech.SpeechServers;
 
 public class WhisperEngineTests : IAsyncLifetime
 {
@@ -18,7 +14,7 @@ public class WhisperEngineTests : IAsyncLifetime
     private AudioData _audioData;
     private readonly ServiceProvider _serviceProvider;
 
-    public WhisperEngineTests(ITestOutputHelper outputHelper)
+    public WhisperEngineTests()
     {
         var services = new ServiceCollection();
         EventingRegistrar.RegisterServices(services);
@@ -26,7 +22,6 @@ public class WhisperEngineTests : IAsyncLifetime
         WillowWhisperServerRegistrar.RegisterServices(services);
         services.AddLogging();
         _serviceProvider = services.BuildServiceProvider();
-        Installer.LogMessage += outputHelper.WriteLine;
     }
     
     [Fact]
@@ -62,7 +57,7 @@ public class WhisperEngineTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var filePath = Path.Combine(Environment.CurrentDirectory, "Speech/WhisperServer/test.wav");
+        var filePath = Path.Combine(Environment.CurrentDirectory, "Speech/SpeechServers/test.wav");
         var audioData = await File.ReadAllBytesAsync(filePath);
         _audioData = GetFromWavFile(audioData);
     }

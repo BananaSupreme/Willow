@@ -2,7 +2,7 @@
 using Willow.Speech.CommandExecution.Abstraction;
 using Willow.Speech.CommandExecution.Models;
 using Willow.Speech.ScriptingInterface.Abstractions;
-using Willow.Speech.ScriptingInterface.Events;
+using Willow.Speech.ScriptingInterface.Eventing.Events;
 
 namespace Willow.Speech.CommandExecution.Eventing.Handlers;
 

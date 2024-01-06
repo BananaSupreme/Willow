@@ -1,5 +1,5 @@
 ﻿using Willow.Core.Eventing.Abstractions;
-using Willow.Speech.SpeechRecognition.Microphone.Events;
+using Willow.Speech.SpeechRecognition.Microphone.Eventing.Events;
 using Willow.Speech.SpeechRecognition.Resampling.Abstractions;
 using Willow.Speech.SpeechRecognition.VAD.Eventing.Interceptors;
 

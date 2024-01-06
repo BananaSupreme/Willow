@@ -2,7 +2,7 @@
 
 using Willow.Core.Eventing.Abstractions;
 using Willow.Speech.SpeechRecognition.Microphone.Abstractions;
-using Willow.Speech.SpeechRecognition.Microphone.Events;
+using Willow.Speech.SpeechRecognition.Microphone.Eventing.Events;
 
 namespace Willow.Speech.SpeechRecognition.Microphone;
 

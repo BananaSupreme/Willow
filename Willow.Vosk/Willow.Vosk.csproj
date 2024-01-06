@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj" />
+      <PackageReference Include="Vosk" Version="0.3.38" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\Willow.Core\Willow.Core.csproj" />
-      <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj" />
       <ProjectReference Include="..\Willow.Speech\Willow.Speech.csproj" />
-      <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj" />
-      <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj" />
     </ItemGroup>
 
 </Project>

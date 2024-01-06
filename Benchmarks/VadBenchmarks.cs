@@ -7,7 +7,7 @@ using NSubstitute;
 using Willow.Core.Settings.Abstractions;
 using Willow.Speech.SpeechRecognition.AudioBuffering;
 using Willow.Speech.SpeechRecognition.AudioBuffering.Settings;
-using Willow.Speech.SpeechRecognition.Microphone.Events;
+using Willow.Speech.SpeechRecognition.Microphone.Eventing.Events;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
 using Willow.Speech.SpeechRecognition.VAD;
 using Willow.Speech.SpeechRecognition.VAD.Eventing.Interceptors;

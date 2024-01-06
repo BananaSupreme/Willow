@@ -31,6 +31,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Willow.Core\Willow.Core.csproj"/>
         <ProjectReference Include="..\Willow.StartUp\Willow.StartUp.csproj" />
+        <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj" />
         <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>
 
@@ -42,6 +43,9 @@
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Speech\WhisperServer\test.wav">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Speech\SpeechServers\test.wav">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

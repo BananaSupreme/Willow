@@ -1,12 +1,10 @@
 ﻿using Willow.DeviceAutomation.InputDevices.Abstractions;
 using Willow.DeviceAutomation.InputDevices.Enums;
 using Willow.Speech.ScriptingInterface.Abstractions;
-using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.WindowFocus;
 
-[Tag("windows")]
 internal class FocusVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;

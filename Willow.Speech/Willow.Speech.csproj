@@ -15,4 +15,8 @@
       <ProjectReference Include="..\Willow.Core\Willow.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="ScriptingInterface\Eventing\" />
+    </ItemGroup>
+
 </Project>

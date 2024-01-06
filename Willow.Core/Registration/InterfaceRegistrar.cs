@@ -32,7 +32,7 @@ internal sealed class InterfaceRegistrar : IInterfaceRegistrar
                                    .Where(typeToDeriveFrom.IsAssignableFrom)
                                    .Where(type => type.IsConcrete()))
                               .ToArray();
-
+        
         _log.ImplementationsFound(new(types.Select(x => x.Name)));
         foreach (var type in types)
         {

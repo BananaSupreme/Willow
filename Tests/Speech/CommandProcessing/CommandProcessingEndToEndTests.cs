@@ -6,7 +6,7 @@ using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Settings.Abstractions;
 using Willow.Helpers.Extensions;
-using Willow.Speech.ScriptingInterface.Events;
+using Willow.Speech.ScriptingInterface.Eventing.Events;
 using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.SpeechRecognition.SpeechToText.Eventing.Events;
 using Willow.Speech.SpeechRecognition.SpeechToText.Registration;

@@ -5,6 +5,9 @@
 - WE ARE SUPER SLOW! BTW, still slow, but much quicker now that the mic recording time was lowered.
 
 - We can support officialy VOSK and Deepspeech, they are known to be on device AIs...
+- Vosk Nuget doesn't support macOS, mac doesn't have nvidia GPUs either, so we are a bit stuck here with mac support,
+  eventually we would need to create our own binaries for Vosk.
+  Also we need to have some way to start and stop engines, and to choose the correct engines.
 
 - SileroVAD was implemented using some code from the internet, theres much improvments that can be made there, really,
   batching, GPU and quantization might all be possible, some are certainly possible and should be looked into.
@@ -31,7 +34,7 @@
 
 - Further down the line, noise filtration?
 
-- Further down the line, We can find tune the AI by using synthetic data created by GPT model to create various
+- Further down the line, We can fine tune the AI by using synthetic data created by GPT model to create various
   commands, then we can fit the data into audio synthesis to create a pluralistic example of sounds and data which we
   will than feed back into whisper.
 

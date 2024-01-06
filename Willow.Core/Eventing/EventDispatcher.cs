@@ -122,41 +122,47 @@ internal static partial class EventDispatcherLoggingExtensions
     [LoggerMessage(
         EventId = 7,
         Level = LogLevel.Error,
+        Message = "Error encountered while handling interceptor:\r\n")]
+    public static partial void InterceptorHandlingError(this ILogger logger, Exception ex);
+    
+    [LoggerMessage(
+        EventId = 8,
+        Level = LogLevel.Error,
         Message = "Error encountered while handling event:\r\n")]
     public static partial void EventHandlingError(this ILogger logger, Exception ex);
 
     [LoggerMessage(
-        EventId = 8,
+        EventId = 9,
         Level = LogLevel.Debug,
         Message = "Successfully handled event.")]
     public static partial void EventHandledSuccessfully(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 9,
+        EventId = 10,
         Level = LogLevel.Debug,
         Message = "Starting event handler.")]
     public static partial void EventHandlerStarting(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 10,
+        EventId = 11,
         Level = LogLevel.Debug,
         Message = "Event dispatch completed.")]
     public static partial void EventDispatchCompleted(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 11,
+        EventId = 12,
         Level = LogLevel.Trace,
         Message = "Starting interceptor.")]
     public static partial void InterceptorExecutionStarting(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 12,
+        EventId = 13,
         Level = LogLevel.Debug,
         Message = "Starting event dispatch for event type ({eventType}).")]
     public static partial void EventDispatchStarting(this ILogger logger, string eventType);
 
     [LoggerMessage(
-        EventId = 13,
+        EventId = 14,
         Level = LogLevel.Trace,
         Message = "Aggregated exceptions details.")]
     public static partial void AggregateExceptionEncountered(this ILogger logger, AggregateException ex);

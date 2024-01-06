@@ -1,6 +1,6 @@
 ﻿using Willow.Core.Eventing.Abstractions;
 using Willow.Speech.SpeechRecognition.AudioBuffering.Abstractions;
-using Willow.Speech.SpeechRecognition.Microphone.Events;
+using Willow.Speech.SpeechRecognition.Microphone.Eventing.Events;
 using Willow.Speech.SpeechRecognition.Microphone.Models;
 using Willow.Speech.SpeechRecognition.VAD.Abstractions;
 

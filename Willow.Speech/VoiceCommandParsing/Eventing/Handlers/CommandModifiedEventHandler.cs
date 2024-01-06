@@ -1,5 +1,5 @@
 ﻿using Willow.Core.Eventing.Abstractions;
-using Willow.Speech.ScriptingInterface.Events;
+using Willow.Speech.ScriptingInterface.Eventing.Events;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Models;
 

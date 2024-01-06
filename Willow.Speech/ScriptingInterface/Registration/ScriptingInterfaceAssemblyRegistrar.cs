@@ -5,7 +5,7 @@ using System.Reflection;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Registration.Abstractions;
 using Willow.Speech.ScriptingInterface.Abstractions;
-using Willow.Speech.ScriptingInterface.Events;
+using Willow.Speech.ScriptingInterface.Eventing.Events;
 
 namespace Willow.Speech.ScriptingInterface.Registration;
 

@@ -68,7 +68,14 @@ internal sealed partial class EventDispatcher
     {
         using var _ = _log.AddContext("interceptorName", TypeExtensions.GetFullName(interceptor.GetType()));
         _log.InterceptorExecutionStarting();
-        await interceptor(@event, next);
+        try
+        {
+            await interceptor(@event, next);
+        }
+        catch (Exception ex)
+        {
+            _log.InterceptorHandlingError(ex);
+        }
     }
 
     private List<InterceptorFunction<TEvent>> GetInterceptors<TEvent>()
