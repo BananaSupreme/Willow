@@ -20,9 +20,6 @@ internal sealed class EnvironmentRegistrar : IServiceRegistrar
 
     private static void RegisterActiveWindow(IServiceCollection services)
     {
-        OsHelpers.MatchOs(
-            services.AddSingleton<IActiveWindowDetector, WindowsActiveWindowDetector>,
-            services.AddSingleton<IActiveWindowDetector, EmptyActiveWindowDetector>,
-            services.AddSingleton<IActiveWindowDetector, EmptyActiveWindowDetector>);
+        OsHelpers.MatchOs(services.AddSingleton<IActiveWindowDetector, WindowsActiveWindowDetector>);
     }
 }

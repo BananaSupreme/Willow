@@ -4,6 +4,8 @@ internal readonly struct DisposableLock : IDisposable
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
+    public bool CanEnter => _semaphore.CurrentCount > 0;
+
     public DisposableLock() { }
 
     public SemaphoreReleaser Lock()

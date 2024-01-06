@@ -56,12 +56,13 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
                                     IEnvironmentStateProvider environmentStateProvider,
                                     ISettings<ScrollSettings> settings)
     {
-        using var unlocker = await _lock.LockAsync();
-
-        if (_cts is not null)
+        if (_cts is not null
+            || !_lock.CanEnter)
         {
             return;
         }
+        
+        using var unlocker = await _lock.LockAsync();
 
         _cts = new();
 

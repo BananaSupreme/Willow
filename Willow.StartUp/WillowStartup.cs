@@ -30,8 +30,13 @@ public static class WillowStartup
 
     public static void Run(IServiceProvider provider)
     {
+        Run(_registeredAssemblies, provider);
+    }
+    
+    internal static void Run(Assembly[] assemblies, IServiceProvider provider)
+    {
         var registrar = provider.GetRequiredService<IAssemblyRegistrationEntry>();
-        registrar.RegisterAssemblies(_registeredAssemblies);
+        registrar.RegisterAssemblies(assemblies);
     }
 
     internal static void Register(Assembly[] assemblies, IServiceCollection services)

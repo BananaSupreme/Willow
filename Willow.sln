@@ -16,46 +16,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6FCA3B24-EF60-46BB-BF95-93B32476B5AC}"
 	ProjectSection(SolutionItems) = preProject
-		Docs\Notes.md = Docs\Notes.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7C29D665-D9E4-4AFD-BA9E-292682C7D2A4}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Core\Core_LLD.md = Docs\Core\Core_LLD.md
+		Docs\Blocking.md = Docs\Blocking.md
 		Docs\Core\Core_TODO.md = Docs\Core\Core_TODO.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project Wide", "Project Wide", "{847FDC37-F670-469E-AEBD-A7F8575279C8}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Project Wide\Voice_Control_System_HLD.md = Docs\Project Wide\Voice_Control_System_HLD.md
-		Docs\Project Wide\Voice_Control_System_PRD.md = Docs\Project Wide\Voice_Control_System_PRD.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Voice Recognition Module", "Voice Recognition Module", "{240AA7B2-7DA6-4727-B94C-FDEED051A3ED}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Voice Recognition Module\Voice_Recognition_Module_LLD.md = Docs\Voice Recognition Module\Voice_Recognition_Module_LLD.md
+		Docs\Command Processing Module\Command_Processing_Module_TODO.md = Docs\Command Processing Module\Command_Processing_Module_TODO.md
+		Docs\Command Processing Module\Command_Syntax.md = Docs\Command Processing Module\Command_Syntax.md
+		Docs\Scripting Interface Module\Scripting_Interface_Module_TODO.md = Docs\Scripting Interface Module\Scripting_Interface_Module_TODO.md
 		Docs\Voice Recognition Module\Voice_Recognition_Module_TODO.md = Docs\Voice Recognition Module\Voice_Recognition_Module_TODO.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Command Processing Module", "Command Processing Module", "{7344C674-6112-40CE-A034-CFC007F92B2F}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Command Processing Module\Command_Processing_Module_LLD.md = Docs\Command Processing Module\Command_Processing_Module_LLD.md
-		Docs\Command Processing Module\Command_Syntax.md = Docs\Command Processing Module\Command_Syntax.md
-		Docs\Command Processing Module\Command_Processing_Module_TODO.md = Docs\Command Processing Module\Command_Processing_Module_TODO.md
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Core", "Willow.Core\Willow.Core.csproj", "{9443C7F9-914C-4144-BB3C-84DF37530F98}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripting Interface Module", "Scripting Interface Module", "{63536E7C-C3F4-4F27-8AE4-2C9C32D9822B}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Scripting Interface Module\Scripting_Interface_Module_LLD.md = Docs\Scripting Interface Module\Scripting_Interface_Module_LLD.md
-		Docs\Scripting Interface Module\Scripting_Interface_Module_TODO.md = Docs\Scripting Interface Module\Scripting_Interface_Module_TODO.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Environment Module", "Environment Module", "{F75BEED7-589C-4E63-878C-1438FF68202E}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Environment Module\Environment_Module_LLD.md = Docs\Environment Module\Environment_Module_LLD.md
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.DeviceAutomation", "Willow.DeviceAutomation\Willow.DeviceAutomation.csproj", "{8224CEEA-E50B-4154-BE6B-94BF4ECE7219}"
 EndProject
@@ -120,12 +89,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7C29D665-D9E4-4AFD-BA9E-292682C7D2A4} = {6FCA3B24-EF60-46BB-BF95-93B32476B5AC}
-		{847FDC37-F670-469E-AEBD-A7F8575279C8} = {6FCA3B24-EF60-46BB-BF95-93B32476B5AC}
-		{240AA7B2-7DA6-4727-B94C-FDEED051A3ED} = {6FCA3B24-EF60-46BB-BF95-93B32476B5AC}
-		{7344C674-6112-40CE-A034-CFC007F92B2F} = {6FCA3B24-EF60-46BB-BF95-93B32476B5AC}
-		{63536E7C-C3F4-4F27-8AE4-2C9C32D9822B} = {6FCA3B24-EF60-46BB-BF95-93B32476B5AC}
-		{F75BEED7-589C-4E63-878C-1438FF68202E} = {6FCA3B24-EF60-46BB-BF95-93B32476B5AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EEA186D-C3DC-4350-ADD7-E9EE7C0BCD47}

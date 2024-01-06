@@ -4,41 +4,21 @@ namespace Willow.Helpers.OS;
 
 internal static class OsHelpers
 {
-    public static T MatchOs<T>(Func<T> windowsFunc, Func<T> macFunc, Func<T> linuxFunc)
+    public static T MatchOs<T>(Func<T> windowsFunc)
     {
         if (OperatingSystem.IsWindows())
         {
             return windowsFunc();
         }
 
-        else if (OperatingSystem.IsMacOS())
-        {
-            return macFunc();
-        }
-
-        else if (OperatingSystem.IsLinux())
-        {
-            return linuxFunc();
-        }
-
         throw new UnreachableException();
     }
 
-    public static void MatchOs(Action windowsFunc, Action macFunc, Action linuxFunc)
+    public static void MatchOs(Action windowsFunc)
     {
         if (OperatingSystem.IsWindows())
         {
             windowsFunc();
-        }
-
-        else if (OperatingSystem.IsMacOS())
-        {
-            macFunc();
-        }
-
-        else if (OperatingSystem.IsLinux())
-        {
-            linuxFunc();
         }
     }
 }
