@@ -5,7 +5,6 @@ public with the project
 - homophones comparison when proessing commands
 - Vosk speech engine option, it needs a downloader for the model.
 - warning when commands that are equivilent are processed
-- Basically having UI friendly names for stuff, or a way to get it
 - Plugin store
 - Nugets, and how do we compose the project, and manage dependencies, i feel like this part will cause us a lot of
   headaches

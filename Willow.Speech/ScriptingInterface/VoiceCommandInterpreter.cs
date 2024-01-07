@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using System.Reflection;
-using System.Text;
-
 using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
-using Willow.Helpers;
+using Willow.Helpers.Extensions;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Attributes;
@@ -71,26 +69,9 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
     private static string ProcessNameFromTypeName(Type type)
     {
         var typeName = GetTypeNameWithoutEndings(type);
-        return ProcessName(typeName);
+        return typeName.GetTitleFromPascal().ToString();
     }
-
-    private static string ProcessName(ReadOnlySpan<char> typeName)
-    {
-        StringBuilder stringBuilder = new();
-        stringBuilder.Append(typeName[0]);
-
-        for (var i = 1; i < typeName.Length; i++)
-        {
-            if (char.IsUpper(typeName[i]))
-            {
-                stringBuilder.Append(' ');
-            }
-            stringBuilder.Append(typeName[i]);
-        }
-
-        return stringBuilder.ToString();
-    }
-
+    
     private static ReadOnlySpan<char> GetTypeNameWithoutEndings(Type type)
     {
         const string command = "Command";
