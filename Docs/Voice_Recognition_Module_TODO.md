@@ -4,7 +4,6 @@
 
 - WE ARE SUPER SLOW! BTW, still slow, but much quicker now that the mic recording time was lowered.
 
-- We can support officialy Deepspeech, they are known to be on device AIs...
 - Vosk Nuget doesn't support macOS, mac doesn't have nvidia GPUs either, so we are a bit stuck here with mac support,
   eventually we would need to create our own binaries for Vosk.
   Also we need to have some way to start and stop engines, and to choose the correct engines.
