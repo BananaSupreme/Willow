@@ -37,7 +37,7 @@ internal sealed class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class ActiveWindowsTagAssemblyRegistrarLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

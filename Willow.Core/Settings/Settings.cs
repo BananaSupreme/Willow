@@ -113,7 +113,7 @@ internal sealed class Settings<T> : ISettings<T>, IDisposable, IAsyncDisposable
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class SettingsLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

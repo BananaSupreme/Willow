@@ -81,7 +81,7 @@ internal sealed class FileWritingWorker : BackgroundService, IQueuedFileWriter
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class FileWritingWorkerLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

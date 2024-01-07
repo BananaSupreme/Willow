@@ -90,7 +90,7 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class EnvironmentStateProviderLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

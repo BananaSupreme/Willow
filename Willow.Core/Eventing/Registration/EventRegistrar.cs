@@ -76,7 +76,7 @@ internal sealed class EventRegistrar : IEventRegistrar
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class EventRegistrarLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

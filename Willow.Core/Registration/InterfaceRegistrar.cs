@@ -42,7 +42,7 @@ internal sealed class InterfaceRegistrar : IInterfaceRegistrar
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class InterfaceRegistrarLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

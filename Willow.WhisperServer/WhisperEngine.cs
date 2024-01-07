@@ -189,7 +189,7 @@ internal sealed class WhisperEngine :
 internal static partial class WhisperEngineLoggingExtensions
 {
     [LoggerMessage(
-        EventId = 2,
+        EventId = 1,
         Level = LogLevel.Information,
         Message = "Transcribed Audio: ({transcription})")]
     public static partial void AudioTranscribed(this ILogger log, RedactingLogger<string> transcription);

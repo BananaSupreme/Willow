@@ -129,7 +129,7 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class VoiceCommandInterpreterLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

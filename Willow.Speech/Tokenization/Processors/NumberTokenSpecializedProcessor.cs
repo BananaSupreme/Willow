@@ -27,7 +27,7 @@ internal sealed class NumberTokenSpecializedProcessor : ISpecializedTokenProcess
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class NumberTokenSpecializedProcessorLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

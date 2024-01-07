@@ -4,7 +4,7 @@
 
 - WE ARE SUPER SLOW! BTW, still slow, but much quicker now that the mic recording time was lowered.
 
-- We can support officialy VOSK and Deepspeech, they are known to be on device AIs...
+- We can support officialy Deepspeech, they are known to be on device AIs...
 - Vosk Nuget doesn't support macOS, mac doesn't have nvidia GPUs either, so we are a bit stuck here with mac support,
   eventually we would need to create our own binaries for Vosk.
   Also we need to have some way to start and stop engines, and to choose the correct engines.
@@ -22,15 +22,12 @@
 - Whisper is still reading it as a WAV file, we should probably convert it to a float array, and then we can use the
   same code for both models.
 
-- Should create a way to change mics in runtime...
-
-- Further down the line, should test if it makes more sense to not cut audio to speech points but rather just feed whole
-  speech points.
-
 - Further down the line, maybe some tests and benchmarks so we can see how good are our models performing, consider
   trade offs in deafults, allows us to offer more than a single default. Also if we ever consider different solutions to
   some of the problems we face we can actually have data to understand our problem domain. We can consider testing
   against a ground of just taking the sample and feeding it into whisper
+
+- Lets vectorize the conversion between short samples and floats
 
 - Further down the line, noise filtration?
 
@@ -60,5 +57,3 @@ Mozilla Common Voice: An open-source dataset that's continually growing, contain
 Custom Datasets: For very specific command structures like "move to place X," sometimes researchers create their own datasets by recording commands in controlled environments. This allows for tailoring the dataset to the exact requirements of the project.
 
 These datasets can be used not on
-
-- Lets vectorize the conversion between short samples and floats

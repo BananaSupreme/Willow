@@ -52,7 +52,7 @@ internal sealed class ActiveWindowDetectorWorker : BackgroundService
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class ActiveWindowDetectorWorkerLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

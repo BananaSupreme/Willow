@@ -39,7 +39,7 @@ internal sealed class ActiveWindowChangedEventHandler : IEventHandler<ActiveWind
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class ActiveWindowChangedEventHandlerLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

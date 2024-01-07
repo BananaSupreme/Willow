@@ -92,7 +92,7 @@ internal sealed class TrieFactory : ITrieFactory
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class TrieFactoryLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

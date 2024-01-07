@@ -34,7 +34,7 @@ internal sealed class AssemblyRegistrationEntry : IAssemblyRegistrationEntry
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class AssemblyRegistrationEntryLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

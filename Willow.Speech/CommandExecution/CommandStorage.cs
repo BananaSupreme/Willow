@@ -51,7 +51,7 @@ internal sealed class CommandStorage : ICommandStorage
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class CommandStorageLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

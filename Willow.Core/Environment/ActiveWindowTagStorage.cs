@@ -45,7 +45,7 @@ internal sealed class ActiveWindowTagStorage : IActiveWindowTagStorage
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class ActiveWindowTagStorageLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

@@ -10,7 +10,7 @@ using Willow.Speech.SpeechToText.Abstractions;
 using Willow.Speech.SpeechToText.Enums;
 
 namespace Willow.Vosk;
-
+//TODO logs
 internal sealed class VoskEngine : ISpeechToTextEngine, IDisposable, IAsyncDisposable
 {
     private readonly DisposableLock _lock = new();

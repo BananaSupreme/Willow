@@ -65,7 +65,7 @@ internal sealed class VoiceActivityDetectionInterceptor : IEventInterceptor<Audi
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class VoiceActivityDetectionInterceptorLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

@@ -87,7 +87,7 @@ internal sealed class Tokenizer : ITokenizer
     }
 }
 
-internal static partial class LoggingExtensions
+internal static partial class TokenizerLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

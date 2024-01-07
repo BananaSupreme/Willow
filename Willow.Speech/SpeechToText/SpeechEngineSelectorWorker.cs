@@ -8,7 +8,7 @@ using Willow.Speech.SpeechToText.Abstractions;
 using Willow.Speech.SpeechToText.Settings;
 
 namespace Willow.Speech.SpeechToText;
-
+//TODO logs
 internal sealed class SpeechEngineSelectorWorker : IHostedService,
     IEventHandler<SettingsUpdatedEvent<SelectedSpeechEngineSettings>>
 {

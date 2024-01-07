@@ -1,7 +1,5 @@
 - We should consider how to let the user know when errors occur in the pipeline, maybe we can capture Error level logs
   for ui displays? can we plug into the ILogger in that way? -- a sink on serilog.
-- Environment should expose a current platform value and supported platforms enumeration, that way we can trigger only
-  voice commands that are relevant for the OS, and speech engines that are relevant
 - safe keeping this one when we will consider how to enable smart moving around the text we are in, for example "
   change *word *second" to switch the word for another... 
     Windows
