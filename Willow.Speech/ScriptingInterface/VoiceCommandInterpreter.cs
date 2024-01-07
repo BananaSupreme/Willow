@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using System.Reflection;
+using System.Text;
 
 using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
+using Willow.Helpers;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Attributes;
@@ -26,13 +28,16 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
     {
         var voiceCommandType = voiceCommand.GetType();
         var capturedValues = CaptureValues(voiceCommand);
-        capturedValues.Add("_command", () => (IVoiceCommand)_serviceProvider.GetRequiredService(voiceCommand.GetType()));
-        
+        capturedValues.Add("_command",
+            () => (IVoiceCommand)_serviceProvider.GetRequiredService(voiceCommand.GetType()));
+
         RawVoiceCommand command = new(
             Guid.NewGuid(),
             [voiceCommand.InvocationPhrase, ..GetAliases(voiceCommandType)],
             GetTags(voiceCommandType),
             capturedValues,
+            GetSupportedOperatingSystem(voiceCommandType),
+            GetName(voiceCommandType),
             GetDescription(voiceCommandType)
         );
 
@@ -57,16 +62,64 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
                            .ToDictionary();
     }
 
+    private string GetName(Type type)
+    {
+        var nameAttribute = type.GetCustomAttributes(false).OfType<NameAttribute>().FirstOrDefault();
+        return nameAttribute?.Name ?? ProcessNameFromTypeName(type);
+    }
+
+    private static string ProcessNameFromTypeName(Type type)
+    {
+        var typeName = GetTypeNameWithoutEndings(type);
+        return ProcessName(typeName);
+    }
+
+    private static string ProcessName(ReadOnlySpan<char> typeName)
+    {
+        StringBuilder stringBuilder = new();
+        stringBuilder.Append(typeName[0]);
+
+        for (var i = 1; i < typeName.Length; i++)
+        {
+            if (char.IsUpper(typeName[i]))
+            {
+                stringBuilder.Append(' ');
+            }
+            stringBuilder.Append(typeName[i]);
+        }
+
+        return stringBuilder.ToString();
+    }
+
+    private static ReadOnlySpan<char> GetTypeNameWithoutEndings(Type type)
+    {
+        const string command = "Command";
+        const string voiceCommand = "VoiceCommand";
+        var typeName = type.Name.AsSpan();
+        if (typeName.EndsWith(voiceCommand))
+        {
+            typeName = typeName[..^voiceCommand.Length];
+        }
+        else if (typeName.EndsWith(command))
+        {
+            typeName = typeName[..^command.Length];
+        }
+
+        return typeName;
+    }
+
     private string GetDescription(Type type)
     {
-        var descriptionAttribute = type.GetCustomAttributes(false).OfType<DescriptionAttribute>().SingleOrDefault();
+        var descriptionAttribute = type.GetCustomAttributes(false).OfType<DescriptionAttribute>().FirstOrDefault();
         return descriptionAttribute?.Description ?? string.Empty;
     }
 
     private TagRequirement[] GetTags(Type type)
     {
         Tag activationTag = new(GetActivationMode(type).ToString());
-        var tagAttribute = type.GetCustomAttributes(false).OfType<TagAttribute>().ToArray();
+        var tagAttribute = type.GetCustomAttributes(false)
+                               .OfType<TagAttribute>()
+                               .ToArray();
         return tagAttribute.Any()
                    ? tagAttribute.Select(x => new TagRequirement([activationTag, ..x.Tags])).ToArray()
                    : [new([activationTag])];
@@ -74,8 +127,9 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
 
     private ActivationMode GetActivationMode(Type type)
     {
-        var activationModeAttribute =
-            type.GetCustomAttributes(false).OfType<ActivationModeAttribute>().SingleOrDefault();
+        var activationModeAttribute = type.GetCustomAttributes(false)
+                                          .OfType<ActivationModeAttribute>()
+                                          .FirstOrDefault();
         return activationModeAttribute?.ActivationMode ?? ActivationMode.Command;
     }
 
@@ -83,6 +137,14 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
     {
         var aliasAttributes = type.GetCustomAttributes(false).OfType<AliasAttribute>();
         return aliasAttributes.SelectMany(x => x.Aliases).ToArray();
+    }
+
+    private SupportedOperatingSystems GetSupportedOperatingSystem(Type type)
+    {
+        var supportsOperatingSystemAttribute = type.GetCustomAttributes(false)
+                                                   .OfType<SupportedOperatingSystemsAttribute>()
+                                                   .FirstOrDefault();
+        return supportsOperatingSystemAttribute?.SupportedOperatingSystems ?? SupportedOperatingSystems.All;
     }
 }
 

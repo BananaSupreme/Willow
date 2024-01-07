@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using Vosk;
 
+using Willow.Core.Environment.Enums;
 using Willow.Helpers.Locking;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
@@ -17,6 +18,7 @@ internal sealed class VoskEngine : ISpeechToTextEngine, IDisposable, IAsyncDispo
     private VoskRecognizer _recognizer = null!;
 
     public string Name => nameof(SelectedSpeechEngine.Vosk);
+    public SupportedOperatingSystems SupportedOperatingSystems => SupportedOperatingSystems.Windows;
     public bool IsRunning { get; private set; }
 
     public async Task<string> TranscribeAudioAsync(AudioData audioData)

@@ -6,6 +6,7 @@ namespace Willow.Core.Environment.Abstractions;
 public interface IEnvironmentStateProvider
 {
     IReadOnlyList<Tag> Tags { get; }
+    SupportedOperatingSystems ActiveOperatingSystem { get; }
     internal void SetActiveWindowInfo(ActiveWindowInfo activeWindow);
     internal void SetEnvironmentTags(Tag[] tags);
     void SetActivationMode(ActivationMode activationMode);

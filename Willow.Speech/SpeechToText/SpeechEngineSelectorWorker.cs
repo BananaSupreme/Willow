@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 
+using Willow.Core.Environment.Abstractions;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Settings.Abstractions;
 using Willow.Core.Settings.Events;
@@ -11,13 +12,16 @@ namespace Willow.Speech.SpeechToText;
 internal sealed class SpeechEngineSelectorWorker : IHostedService,
     IEventHandler<SettingsUpdatedEvent<SelectedSpeechEngineSettings>>
 {
-    private readonly IEnumerable<ISpeechToTextEngine> _localSpeechEngines;
+    private readonly ISpeechToTextEngine[] _localSpeechEngines;
     private readonly ISettings<SelectedSpeechEngineSettings> _settings;
 
     public SpeechEngineSelectorWorker(IEnumerable<ISpeechToTextEngine> localSpeechEngines,
-                                      ISettings<SelectedSpeechEngineSettings> settings)
+                                      ISettings<SelectedSpeechEngineSettings> settings,
+                                      IEnvironmentStateProvider environmentStateProvider)
     {
-        _localSpeechEngines = localSpeechEngines;
+        _localSpeechEngines = localSpeechEngines.Where(x =>
+            x.SupportedOperatingSystems.HasFlag(environmentStateProvider.ActiveOperatingSystem))
+                                                .ToArray();
         _settings = settings;
     }
 
@@ -32,9 +36,10 @@ internal sealed class SpeechEngineSelectorWorker : IHostedService,
         {
             await engine.StopAsync();
         }
+
         await StartSelectedEngineAsync(CancellationToken.None);
     }
-    
+
     private async Task StartSelectedEngineAsync(CancellationToken cancellationToken)
     {
         var speechEngine = _localSpeechEngines

@@ -7,6 +7,9 @@ internal static class CachedSearchValues
     public static readonly SearchValues<char> Alphanumeric =
         SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     
+    public static readonly SearchValues<char> CapitalAlphabet =
+        SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    
     public static readonly SearchValues<char> AlphanumericAndSpaces =
         SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ");
 

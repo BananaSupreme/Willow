@@ -2,6 +2,7 @@
 
 using Python.Included;
 
+using Willow.Core.Environment.Enums;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Privacy.Settings;
 using Willow.Core.Settings.Abstractions;
@@ -34,6 +35,7 @@ internal sealed class WhisperEngine :
     private nint _state;
 
     public string Name => nameof(SelectedSpeechEngine.Whisper);
+    public SupportedOperatingSystems SupportedOperatingSystems => SupportedOperatingSystems.Windows;
     public bool IsRunning { get; private set; }
     
     public WhisperEngine(ISettings<WhisperModelSettings> modelSettings,

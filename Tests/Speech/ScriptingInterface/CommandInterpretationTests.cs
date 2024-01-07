@@ -132,12 +132,92 @@ public sealed class CommandInterpretationTests : IDisposable
     [Fact]
     public void When_VoiceCommandRequiresCapturing_CapturedValuesAreIncluded()
     {
-        var voiceCommand = new CapturingCommand();
+        var voiceCommand = new CapturingVoiceCommand();
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.CapturedValues.Should().ContainKey(CapturingCommand.CapturedName);
-        result1.CapturedValues[CapturingCommand.CapturedName].Should().BeEquivalentTo(new[] { "1", "2" });
+        result1.CapturedValues.Should().ContainKey(CapturingVoiceCommand.CapturedName);
+        result1.CapturedValues[CapturingVoiceCommand.CapturedName].Should().BeEquivalentTo(new[] { "1", "2" });
+    }
+    
+    [Fact]
+    public void When_VoiceCommandDoesntStateSupportedOs_AllIsAssumed()
+    {
+        var voiceCommand = new CapturingVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.SupportedOperatingSystems.Should().Be(SupportedOperatingSystems.All);
+    }
+    
+    [Fact]
+    public void When_VoiceCommandStatesSupportedOs_UseFromAttribute()
+    {
+        var voiceCommand = new FullyAnnotatedVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.SupportedOperatingSystems.Should().Be(SupportedOperatingSystems.Windows);
+    }
+    
+    [Fact]
+    public void When_VoiceCommandHasName_UseFromAttribute()
+    {
+        var voiceCommand = new FullyAnnotatedVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.Name.Should().Be(_name);
+    }
+    
+    [Fact]
+    public void When_VoiceCommandDoesntHaveName_NameAfterCommandWithoutVoiceCommand()
+    {
+        var voiceCommand = new DictationTestVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.Name.Should().Be("Dictation Test");
+    }
+    
+    [Fact]
+    public void When_VoiceCommandDoesntHaveNameAndDoesntHaveVoiceCommand_NameAfterCommand()
+    {
+        var voiceCommand = new NoEnding();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.Name.Should().Be("No Ending");
+    }
+    
+    [Fact]
+    public void When_SingleLetterVoiceCommandName_NameDoesntFail()
+    {
+        var voiceCommand = new A();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.Name.Should().Be("A");
+    }
+    
+    [Fact]
+    public void When_NoLetterVoiceCommand_NameDoesntFail()
+    {
+        var voiceCommand = new _();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.Name.Should().Be("_");
+    }
+    
+    [Fact]
+    public void When_VoiceCommandWithReallyLongName_NameDoesntFail()
+    {
+        var voiceCommand = new ThisIsAReallyLongNameABCDAndSomethingSomethingVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.Name.Should().Be("This Is A Really Long Name A B C D And Something Something");
     }
 
     private class EmptyTestVoiceCommand : IVoiceCommand
@@ -150,7 +230,6 @@ public sealed class CommandInterpretationTests : IDisposable
         }
     }
 
-
     private const string _invocationPhrase = "invocationPhrase";
     private const string _testTag = "TestTag";
     private const string _testTag2 = "TestTag2";
@@ -159,12 +238,15 @@ public sealed class CommandInterpretationTests : IDisposable
     private const string _alias2 = "AliasTwo";
     private const string _alias3 = "AliasThree";
     private const string _description = "Description";
+    private const string _name = "name";
 
     [Tag(_testTag)]
     [Tag(_testTag2, _testTag3)]
     [Alias(_alias, _alias2)]
     [Alias(_alias3)]
+    [Name(_name)]
     [Description(_description)]
+    [SupportedOperatingSystems(SupportedOperatingSystems.Windows)]
     private class FullyAnnotatedVoiceCommand : IVoiceCommand
     {
         public string InvocationPhrase => _invocationPhrase;
@@ -175,7 +257,7 @@ public sealed class CommandInterpretationTests : IDisposable
         }
     }
 
-    private class CapturingCommand : IVoiceCommand
+    private class CapturingVoiceCommand : IVoiceCommand
     {
         public const string CapturedName = nameof(_captured);
         private static readonly string[] _captured = ["1", "2"];
@@ -200,6 +282,46 @@ public sealed class CommandInterpretationTests : IDisposable
 
     [Tag]
     private class EmptyTagTestVoiceCommand : IVoiceCommand
+    {
+        public string InvocationPhrase => _invocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    private class NoEnding : IVoiceCommand
+    {
+        public string InvocationPhrase => _invocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    private class A : IVoiceCommand
+    {
+        public string InvocationPhrase => _invocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    private class _ : IVoiceCommand
+    {
+        public string InvocationPhrase => _invocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    private class ThisIsAReallyLongNameABCDAndSomethingSomethingVoiceCommand : IVoiceCommand
     {
         public string InvocationPhrase => _invocationPhrase;
 

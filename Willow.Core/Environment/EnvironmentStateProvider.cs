@@ -12,9 +12,10 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     private readonly ISettings<PrivacySettings> _privacySettings;
     private Tag[]? _cache;
     private ActivationMode _activationMode = ActivationMode.Command;
-    private readonly string _operatingSystem = System.Environment.OSVersion.Platform.ToString();
     private Tag[] _environmentTags = [];
     private ActiveWindowInfo _activeWindow = new(string.Empty);
+
+    public SupportedOperatingSystems ActiveOperatingSystem { get; } = GetSupportedOperatingSystems();
 
     public IReadOnlyList<Tag> Tags => _cache ?? RestoreCache();
 
@@ -66,7 +67,7 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     {
         _cache =
         [
-            new(_operatingSystem),
+            new(ActiveOperatingSystem.ToString()),
             new(_activationMode.ToString()),
             .. _environmentTags,
             .. _customTags,
@@ -76,6 +77,16 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
             _privacySettings.CurrentValue.AllowLoggingCommands
             && _privacySettings.CurrentValue.AllowLoggingActiveWindow));
         return _cache;
+    }
+
+    private static SupportedOperatingSystems GetSupportedOperatingSystems()
+    {
+        return System.Environment.OSVersion.Platform switch
+        {
+            PlatformID.Win32NT => SupportedOperatingSystems.Windows,
+            _ => throw new PlatformNotSupportedException(
+                     $"We do not support yet the ({System.Environment.OSVersion.Platform}) platform")
+        };
     }
 }
 
