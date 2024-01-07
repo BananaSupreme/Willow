@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using Python.Included;
 
@@ -11,6 +10,7 @@ using Willow.Helpers.Locking;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
+using Willow.Speech.SpeechToText.Enums;
 using Willow.WhisperServer.Extensions;
 using Willow.WhisperServer.Models;
 using Willow.WhisperServer.Settings;
@@ -21,10 +21,8 @@ internal sealed class WhisperEngine :
     IDisposable, 
     IAsyncDisposable, 
     ISpeechToTextEngine, 
-    IHostedService,
     IEventHandler<SettingsUpdatedEvent<WhisperModelSettings>>
 {
-    private bool _isRunning;
     private bool _disposed;
     private bool _firstLoadDone;
     private readonly DisposableLock _lock = new();
@@ -35,6 +33,9 @@ internal sealed class WhisperEngine :
     private PyModule? _scope;
     private nint _state;
 
+    public string Name => nameof(SelectedSpeechEngine.Whisper);
+    public bool IsRunning { get; private set; }
+    
     public WhisperEngine(ISettings<WhisperModelSettings> modelSettings,
                          ISettings<TranscriptionSettings> transcriptionSettings,
                          ISettings<PrivacySettings> privateSettings,
@@ -46,13 +47,13 @@ internal sealed class WhisperEngine :
         _log = log;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         using var _ = await _lock.LockAsync();
 
         EnsureNotDisposed();
 
-        if (_isRunning)
+        if (IsRunning)
         {
             return;
         }
@@ -62,25 +63,29 @@ internal sealed class WhisperEngine :
         InitModule();
         InitializeModel();
 
-        _isRunning = true;
+        IsRunning = true;
     }
 
     
-    public async Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken = default)
     {
         using var locker = await _lock.LockAsync();
 
-        if (!_isRunning)
+        if (!IsRunning)
         {
             return;
         }
 
         using var gil = Py.GIL();
+        _scope?.Exec(
+            """
+            model = None
+            """);
         _scope?.Dispose();
         RuntimeData.ClearStash();
         _ = Runtime.TryCollectingGarbage(5);
 
-        _isRunning = false;
+        IsRunning = false;
     }
 
     private async Task InitPythonDependenciesAsync()
@@ -125,7 +130,7 @@ internal sealed class WhisperEngine :
     public async Task<string> TranscribeAudioAsync(AudioData audioData)
     {
         EnsureNotDisposed();
-        if (!_isRunning)
+        if (!IsRunning)
         {
             return string.Empty;
         }

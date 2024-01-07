@@ -9,8 +9,6 @@ using Willow.Speech.AudioBuffering;
 using Willow.Speech.AudioBuffering.Settings;
 using Willow.Speech.Microphone.Eventing.Events;
 using Willow.Speech.Microphone.Models;
-using Willow.Speech.SpeechRecognition.VAD;
-using Willow.Speech.SpeechRecognition.VAD.Eventing.Interceptors;
 using Willow.Speech.VAD;
 using Willow.Speech.VAD.Eventing.Interceptors;
 using Willow.Speech.VAD.Settings;

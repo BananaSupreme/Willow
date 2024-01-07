@@ -2,13 +2,21 @@
 
 namespace Willow.WhisperServer.Settings;
 
-[ToString]
-public sealed class WhisperModelSettings
+public readonly record struct WhisperModelSettings(
+    ModelSize ModelSize,
+    bool EnglishOnly,
+    DeviceType Device,
+    int[] DeviceIndex,
+    ComputeType ComputeType,
+    int CpuThreads)
 {
-    public ModelSize ModelSize { get; set; } = ModelSize.Tiny;
-    public bool EnglishOnly { get; set; } = true;
-    public DeviceType Device { get; set; } = DeviceType.Auto;
-    public int[] DeviceIndex { get; set; } = [];
-    public ComputeType ComputeType { get; set; } = ComputeType.Int8;
-    public int CpuThreads { get; init; } = 1;
+    public WhisperModelSettings()
+        : this(ModelSize.Tiny,
+            true,
+            DeviceType.Auto,
+            [],
+            ComputeType.Default,
+            1)
+    {
+    }
 }

@@ -1,7 +1,7 @@
 ﻿namespace Willow.Speech.ScriptingInterface.Attributes;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class DescriptionAttribute : Attribute
+public sealed class DescriptionAttribute : Attribute
 {
     public string Description { get; }
 

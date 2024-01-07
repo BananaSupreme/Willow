@@ -8,7 +8,7 @@ using Willow.DeviceAutomation.InputDevices.Abstractions;
 
 namespace Willow.DeviceAutomation;
 
-public class DeviceAutomationRegistrator : IServiceRegistrar
+public sealed class DeviceAutomationRegistrator : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

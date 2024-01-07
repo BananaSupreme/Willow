@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using Vosk;
@@ -8,14 +6,18 @@ using Vosk;
 using Willow.Helpers.Locking;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
+using Willow.Speech.SpeechToText.Enums;
 
 namespace Willow.Vosk;
 
-internal sealed class VoskEngine : ISpeechToTextEngine, IHostedService, IDisposable, IAsyncDisposable
+internal sealed class VoskEngine : ISpeechToTextEngine, IDisposable, IAsyncDisposable
 {
     private readonly DisposableLock _lock = new();
     private Model _model = null!;
     private VoskRecognizer _recognizer = null!;
+
+    public string Name => nameof(SelectedSpeechEngine.Vosk);
+    public bool IsRunning { get; private set; }
 
     public async Task<string> TranscribeAudioAsync(AudioData audioData)
     {
@@ -30,10 +32,11 @@ internal sealed class VoskEngine : ISpeechToTextEngine, IHostedService, IDisposa
         var result = JsonSerializer.Deserialize<VoskResult>(resultJson);
         return result.Text;
     }
-
-    public async Task StartAsync(CancellationToken cancellationToken)
+    
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         using var __ = await _lock.LockAsync();
+        IsRunning = true;
         await Task.Run(() =>
         {
             _model = new("./model");
@@ -41,9 +44,10 @@ internal sealed class VoskEngine : ISpeechToTextEngine, IHostedService, IDisposa
         }, cancellationToken);
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken = default)
     {
         using var __ = await _lock.LockAsync();
+        IsRunning = false;
         _model.Dispose();
         _recognizer.Dispose();
     }

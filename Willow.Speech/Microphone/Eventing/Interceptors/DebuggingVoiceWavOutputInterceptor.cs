@@ -6,7 +6,7 @@ using Willow.Speech.Microphone.Extensions;
 
 namespace Willow.Speech.Microphone.Eventing.Interceptors;
 
-internal class DebuggingVoiceWavOutputInterceptor : IEventInterceptor<AudioCapturedEvent>
+internal sealed class DebuggingVoiceWavOutputInterceptor : IEventInterceptor<AudioCapturedEvent>
 {
     private const string _folderName = "./wavFiles";
 

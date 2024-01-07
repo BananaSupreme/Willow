@@ -9,6 +9,7 @@ using Willow.DeviceAutomation;
 using Willow.Helpers.Extensions;
 using Willow.Speech;
 using Willow.Vosk;
+using Willow.WhisperServer;
 
 namespace Willow.StartUp;
 
@@ -19,6 +20,7 @@ public static class WillowStartup
         typeof(ICoreAssemblyMarker).Assembly,
         typeof(ISpeechAssemblyMarker).Assembly,
         typeof(IVoskAssemblyMarker).Assembly,
+        typeof(IWhisperServerAssemblyMarker).Assembly,
         typeof(IDeviceAutomationAssemblyMarker).Assembly,
         typeof(IBuiltInCommandsAssemblyMarker).Assembly,
     ];

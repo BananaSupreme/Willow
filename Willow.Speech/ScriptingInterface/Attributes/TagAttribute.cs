@@ -3,7 +3,7 @@
 namespace Willow.Speech.ScriptingInterface.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class TagAttribute : Attribute
+public sealed class TagAttribute : Attribute
 {
     public Tag[] Tags { get; }
 

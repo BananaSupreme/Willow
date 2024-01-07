@@ -1,7 +1,7 @@
 ﻿namespace Willow.Speech.ScriptingInterface.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AliasAttribute : Attribute
+public sealed class AliasAttribute : Attribute
 {
     public string[] Aliases { get; }
 

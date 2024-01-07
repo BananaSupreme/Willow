@@ -1,8 +1,11 @@
 ﻿namespace Willow.Speech.Microphone.Settings;
 
-[ToString]
-public sealed class MicrophoneSettings
+public readonly record struct MicrophoneSettings(
+    int RecordingWindowTimeInMilliseconds,
+    int MicrophoneIndex)
 {
-    public int RecordingWindowTimeInMilliseconds { get; set; } = 300;
-    public int MicrophoneIndex { get; set; } = -1;
+    public MicrophoneSettings()
+        : this(500, -1)
+    {
+    }
 }

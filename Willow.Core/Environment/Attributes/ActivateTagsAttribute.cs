@@ -1,7 +1,7 @@
 ﻿namespace Willow.Core.Environment.Attributes;
 
 [AttributeUsage(AttributeTargets.Assembly)]
-public class ActivateTagsAttribute : Attribute
+public sealed class ActivateTagsAttribute : Attribute
 {
     public string ProcessName { get; }
     public string[] Tags { get; }

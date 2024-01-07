@@ -1,8 +1,11 @@
 ﻿namespace Willow.Speech.AudioBuffering.Settings;
 
-[ToString]
-public sealed class AudioBufferSettings
+public readonly record struct AudioBufferSettings(
+    int AcceptedSamplingRate,
+    int MaxSeconds)
 {
-    public int AcceptedSamplingRate { get; set; } = 16000;
-    public int MaxSeconds { get; set; } = 10;
+    public AudioBufferSettings()
+        : this(16000, 10)
+    {
+    }
 }

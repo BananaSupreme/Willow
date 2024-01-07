@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Willow.Core.Registration.Abstractions;
-using Willow.Helpers.Extensions;
-using Willow.Speech.SpeechToText.Abstractions;
+using Willow.Speech.SpeechToText.Extensions;
 
 namespace Willow.WhisperServer;
 
@@ -12,7 +10,6 @@ public sealed class WillowWhisperServerRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {
-        services.AddHostedService<WhisperEngine>();
-        services.AddSingleton(provider => (ISpeechToTextEngine)provider.GetRegisteredAs<WhisperEngine, IHostedService>());
+        services.AddSpeechToTextEngine<WhisperEngine>();
     }
 }

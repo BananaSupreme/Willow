@@ -5,7 +5,7 @@ using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.WindowFocus;
 
-internal class FocusVoiceCommand : IVoiceCommand
+internal sealed class FocusVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
 

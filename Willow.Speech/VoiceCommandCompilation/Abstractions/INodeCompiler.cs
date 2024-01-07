@@ -16,7 +16,7 @@ public interface INodeCompiler
         return (false, new FailedNodeProcessor());
     }
 
-    public class FailedNodeProcessor : INodeProcessor
+    public sealed class FailedNodeProcessor : INodeProcessor
     {
         public bool IsLeaf => false;
         public uint Weight => 0;

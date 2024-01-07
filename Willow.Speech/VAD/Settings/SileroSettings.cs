@@ -1,12 +1,20 @@
 ﻿namespace Willow.Speech.VAD.Settings;
 
-[ToString]
-public sealed class SileroSettings
+public readonly record struct SileroSettings(
+    float Threshold,
+    int MinSpeechDurationMilliseconds,
+    float MaxSpeechDurationSeconds,
+    int MinSilenceDurationMilliseconds,
+    int WindowSizeSamples,
+    int SpeechPadMilliseconds)
 {
-    public float Threshold { get; set; } = 0.3f;
-    public int MinSpeechDurationMilliseconds { get; set; } = 30;
-    public float MaxSpeechDurationSeconds { get; set; } = float.PositiveInfinity;
-    public int MinSilenceDurationMilliseconds { get; set; } = 300;
-    public int WindowSizeSamples { get; set; } = 1536;
-    public int SpeechPadMilliseconds { get; set; } = 300;
+    public SileroSettings()
+        : this(0.5f,
+            10,
+            float.PositiveInfinity,
+            10,
+            1536,
+            100)
+    {
+    }
 }

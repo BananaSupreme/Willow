@@ -5,7 +5,7 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Eventing.Registration;
 
-public class EventingRegistrar : IServiceRegistrar
+public sealed class EventingRegistrar : IServiceRegistrar
 {
     public static void RegisterServices(IServiceCollection services)
     {

@@ -2,7 +2,7 @@
 
 namespace Willow.Speech.ScriptingInterface.Attributes;
 
-public class ActivationModeAttribute : Attribute
+public sealed class ActivationModeAttribute : Attribute
 {
     public ActivationMode ActivationMode { get; }
 

@@ -1,6 +1,6 @@
 ﻿namespace Willow.Speech.CommandExecution.Exceptions;
 
-public class CommandNotFoundException : InvalidOperationException
+public sealed class CommandNotFoundException : InvalidOperationException
 {
     public CommandNotFoundException(Guid id)
         : base($"Tried to locate and failed command {id})")
