@@ -44,7 +44,7 @@ internal static partial class ActiveWindowChangedEventHandlerLoggingExtensions
     [LoggerMessage(
         EventId = 1,
         Level = LogLevel.Information,
-        Message = "tags found from storage for process ({processName}): {tags}")]
+        Message = "Tags found from storage for process ({processName}): {tags}")]
     public static partial void TagsFoundInStorage(this ILogger logger, RedactingLogger<string> processName,
                                                   RedactingLogger<EnumeratorLogger<Tag>> tags);
 }

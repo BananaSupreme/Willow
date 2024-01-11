@@ -50,19 +50,19 @@ internal static partial class ActiveWindowTagStorageLoggingExtensions
     [LoggerMessage(
         EventId = 1,
         Level = LogLevel.Trace,
-        Message = "looking for tags on process ({processName})")]
+        Message = "Looking for tags on process ({processName})")]
     public static partial void LookingForProcessName(this ILogger logger, RedactingLogger<string> processName);
 
     [LoggerMessage(
         EventId = 2,
         Level = LogLevel.Debug,
-        Message = "tags found on process ({processName})")]
+        Message = "Tags found on process ({processName})")]
     public static partial void ProcessFoundRegistered(this ILogger logger, RedactingLogger<string> processName);
 
     [LoggerMessage(
         EventId = 3,
         Level = LogLevel.Debug,
-        Message = "tags not found on process ({processName})")]
+        Message = "Tags not found on process ({processName})")]
     public static partial void ProcessNotFoundRegistered(this ILogger logger, RedactingLogger<string> processName);
 
 

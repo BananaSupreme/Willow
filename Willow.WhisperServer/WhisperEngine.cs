@@ -30,7 +30,7 @@ internal sealed class WhisperEngine :
     private readonly ILogger<WhisperEngine> _log;
     private readonly ISettings<WhisperModelSettings> _modelSettings;
     private readonly ISettings<TranscriptionSettings> _transcriptionSettings;
-    private readonly ISettings<PrivacySettings> _privateSettings;
+    private readonly ISettings<PrivacySettings> _privacySettings;
     private PyModule? _scope;
     private nint _state;
 
@@ -40,19 +40,19 @@ internal sealed class WhisperEngine :
     
     public WhisperEngine(ISettings<WhisperModelSettings> modelSettings,
                          ISettings<TranscriptionSettings> transcriptionSettings,
-                         ISettings<PrivacySettings> privateSettings,
+                         ISettings<PrivacySettings> privacySettings,
                          ILogger<WhisperEngine> log)
     {
         _modelSettings = modelSettings;
         _transcriptionSettings = transcriptionSettings;
-        _privateSettings = privateSettings;
+        _privacySettings = privacySettings;
         _log = log;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         using var _ = await _lock.LockAsync();
-
+        _log.StartingWhisper();
         EnsureNotDisposed();
 
         if (IsRunning)
@@ -64,7 +64,7 @@ internal sealed class WhisperEngine :
         InitPythonEngine();
         InitModule();
         InitializeModel();
-
+        _log.WhisperStarted();
         IsRunning = true;
     }
 
@@ -72,7 +72,7 @@ internal sealed class WhisperEngine :
     public async Task StopAsync(CancellationToken cancellationToken = default)
     {
         using var locker = await _lock.LockAsync();
-
+        _log.StoppingWhisper();
         if (!IsRunning)
         {
             return;
@@ -86,7 +86,7 @@ internal sealed class WhisperEngine :
         _scope?.Dispose();
         RuntimeData.ClearStash();
         _ = Runtime.TryCollectingGarbage(5);
-
+        _log.WhisperStopped();
         IsRunning = false;
     }
 
@@ -148,7 +148,7 @@ internal sealed class WhisperEngine :
         _log.TranscriptionRequested(transcriptionSettings, transcriptionParameters);
         var transcription = _scope?.TranscribeAudio(transcriptionParameters, transcriptionSettings)
                             ?? throw new InvalidOperationException("Transcribe was called without the start method");
-        _log.AudioTranscribed(new(transcription, _privateSettings.CurrentValue.AllowLoggingTranscriptions));
+        _log.AudioTranscribed(new(transcription, _privacySettings.CurrentValue.AllowLoggingTranscriptions));
         return transcription;
     }
 
@@ -215,19 +215,31 @@ internal static partial class WhisperEngineLoggingExtensions
 
     [LoggerMessage(
         EventId = 5,
-        Level = LogLevel.Trace,
-        Message = "Settings changed,model re-initialization requested")]
+        Level = LogLevel.Debug,
+        Message = "Settings changed, Whisper model re-initialization requested")]
     public static partial void ModelReinitializing(this ILogger log);
 
     [LoggerMessage(
         EventId = 6,
         Level = LogLevel.Trace,
-        Message = "Whisper server stopping")]
-    public static partial void ServerStopping(this ILogger log);
+        Message = "Whisper server starting")]
+    public static partial void StartingWhisper(this ILogger log);
 
     [LoggerMessage(
         EventId = 7,
         Level = LogLevel.Trace,
+        Message = "Whisper server started")]
+    public static partial void WhisperStarted(this ILogger log);
+    
+    [LoggerMessage(
+        EventId = 8,
+        Level = LogLevel.Trace,
+        Message = "Whisper server stopping")]
+    public static partial void StoppingWhisper(this ILogger log);
+
+    [LoggerMessage(
+        EventId = 9,
+        Level = LogLevel.Trace,
         Message = "Whisper server stopped")]
-    public static partial void ServerStopped(this ILogger log);
+    public static partial void WhisperStopped(this ILogger log);
 }

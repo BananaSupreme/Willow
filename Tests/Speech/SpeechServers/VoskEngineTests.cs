@@ -1,31 +1,36 @@
-using Python.Included;
-
 using Tests.Helpers;
 
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Settings.Abstractions;
 using Willow.Speech.Microphone.Models;
 using Willow.Vosk;
-
-using Xunit.Abstractions;
+using Willow.Vosk.Abstractions;
+using Willow.Vosk.Enums;
+using Willow.Vosk.Registration;
+using Willow.Vosk.Settings;
 
 namespace Tests.Speech.SpeechServers;
 
+[Collection("vosk")]
 public class VoskEngineTests : IAsyncLifetime
 {
     private const string _expected = "i think i will cry";
     private AudioData _audioData;
     private readonly ServiceProvider _serviceProvider;
 
-    public VoskEngineTests(ITestOutputHelper outputHelper)
+    public VoskEngineTests()
     {
+        var _downloader = Substitute.For<IVoskModelDownloader>();
         var services = new ServiceCollection();
         EventingRegistrar.RegisterServices(services);
         services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
         services.AddLogging();
-        services.AddSingleton<VoskEngine>();
+        VoskServerRegistrar.RegisterServices(services);
+        services.AddSingleton(_downloader);
         _serviceProvider = services.BuildServiceProvider();
-        Installer.LogMessage += outputHelper.WriteLine;
+        _downloader.GetVoskModelZip(Arg.Any<VoskModel>())
+                   .Returns(_ =>
+                       Task.FromResult((Stream)File.Open("Speech/SpeechServers/vosk-model-small-en-us-0.15.zip", FileMode.Open)));
     }
     
     [Fact]
@@ -69,6 +74,15 @@ public class VoskEngineTests : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await _serviceProvider.DisposeAsync();
+        EnsureDeletedFolder();
+    }
+    
+    private void EnsureDeletedFolder()
+    {
+        if (Directory.Exists(VoskSettings.VoskFolder))
+        {
+            Directory.Delete(VoskSettings.VoskFolder, true);
+        }
     }
 }
 /*

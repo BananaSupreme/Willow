@@ -40,7 +40,7 @@ internal sealed class CommandStorage : ICommandStorage
         if (_storage.TryGetValue(id, out var commandActivator))
         {
             var command = commandActivator();
-            _log.CommandMatched(new(command.GetType().Name, _privacySettings.CurrentValue.AllowLoggingCommands),
+            _log.CommandMatched(new(new TypeNameLogger<IVoiceCommand>(command), _privacySettings.CurrentValue.AllowLoggingCommands),
                 new(new(context.Parameters), _privacySettings.CurrentValue.AllowLoggingCommands));
             await command.ExecuteAsync(context);
             return;
@@ -76,6 +76,6 @@ internal static partial class CommandStorageLoggingExtensions
         Level = LogLevel.Information,
         Message = "Command matched, executing ({commandName}) with parameters: {parameters}")]
     public static partial void CommandMatched(this ILogger logger, 
-                                              RedactingLogger<string> commandName,
+                                              RedactingLogger<TypeNameLogger<IVoiceCommand>> commandName,
                                               RedactingLogger<EnumeratorLogger<KeyValuePair<string, Token>>> parameters);
 }

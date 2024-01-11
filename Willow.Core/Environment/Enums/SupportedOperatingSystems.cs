@@ -5,7 +5,7 @@ public enum SupportedOperatingSystems
 {
     None = 0,
     Windows = 1,
-    All = 0b111111
+    All = 1
 }
 
 public static class SupportedOperatingSystemsExtensions

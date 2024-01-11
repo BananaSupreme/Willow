@@ -48,6 +48,9 @@
         <None Update="Speech\SpeechServers\test.wav">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Speech\SpeechServers\vosk-model-small-en-us-0.15.zip">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

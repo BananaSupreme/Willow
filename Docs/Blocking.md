@@ -2,8 +2,7 @@
 public with the project
 
 - commands and tags for common use cases (this can be built upon later, but at least the basics)
-- homophones comparison when proessing commands
-- Vosk speech engine option, it needs a downloader for the model.
+- homophones comparison when proessing commands, and user added dictionary
 - warning when commands that are equivilent are processed
 - Plugin store
 - Nugets, and how do we compose the project, and manage dependencies, i feel like this part will cause us a lot of

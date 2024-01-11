@@ -23,7 +23,7 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
     public INodeProcessor[] Compile(PreCompiledVoiceCommand command)
     {
         _log.CompilationStarted(command);
-        _log.CompilersFound(new(_internalParsers.Select(x => x.GetType().Name)));
+        _log.CompilersFound(new(_internalParsers.Select(x => new TypeNameLogger<INodeCompiler>(x))));
         if (string.IsNullOrWhiteSpace(command.InvocationPhrase))
         {
             throw new CommandCompilationException("Command string cannot be empty");
@@ -70,8 +70,8 @@ internal static partial class VoiceCommandCompilerLoggingExtensions
     [LoggerMessage(
         EventId = 2,
         Level = LogLevel.Debug,
-        Message = "compilers found: {nodeCompilers}")]
-    public static partial void CompilersFound(this ILogger logger, EnumeratorLogger<string> nodeCompilers);
+        Message = "Compilers found: {nodeCompilers}")]
+    public static partial void CompilersFound(this ILogger logger, EnumeratorLogger<TypeNameLogger<INodeCompiler>> nodeCompilers);
 
     
     [LoggerMessage(
