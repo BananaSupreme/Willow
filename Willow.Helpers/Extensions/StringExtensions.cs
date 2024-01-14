@@ -2,8 +2,20 @@
 
 namespace Willow.Helpers.Extensions;
 
-internal static class StringExtensions
+public static class StringExtensions
 {
+    /// <summary>
+    /// Converts a pascal cased string to title cased.
+    /// </summary>
+    /// <example>
+    /// <c>ThisIsPascal -> This Is Pascal</c>
+    /// </example>
+    /// <remarks>
+    /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
+    /// IT WITHOUT NOTICE!
+    /// </remarks>
+    /// <param name="span">Input string as pascal case.</param>
+    /// <returns>The input string as a title case.</returns>
     public static ReadOnlySpan<char> GetTitleFromPascal(this ReadOnlySpan<char> span)
     {
         StringBuilder stringBuilder = new();

@@ -6,6 +6,12 @@ namespace Willow.Speech.VoiceCommandCompilation.Extensions;
 
 internal static partial class SpanExtensions
 {
+    /// <summary>
+    /// Guards that the input is <c>"[...]"</c>.
+    /// </summary>
+    /// <param name="word">The input to test.</param>
+    /// <returns>The input without the square brackets.</returns>
+    /// <exception cref="CommandCompilationException">Throws if it does not fit the template.</exception>
     public static ReadOnlySpan<char> GuardWrappedInSquares(this ReadOnlySpan<char> word)
     {
         var isValidStructure = word.Length > 2
@@ -17,6 +23,12 @@ internal static partial class SpanExtensions
                    : throw new CommandCompilationException("Node contained illeagel values");
     }
 
+    /// <summary>
+    /// Guards that the input is none empty and does not contain none alphabet chars.
+    /// </summary>
+    /// <param name="word">Input to test.</param>
+    /// <returns>The original input.</returns>
+    /// <exception cref="CommandCompilationException">Throws if it does not fit the template.</exception>
     public static ReadOnlySpan<char> GuardAlphabet(this ReadOnlySpan<char> word)
     {
         var isValidStructure = !word.IsEmpty
@@ -27,6 +39,13 @@ internal static partial class SpanExtensions
                    : throw new CommandCompilationException("Node contained illeagel values");
     }
 
+    /// <summary>
+    /// Guards that the input only contains values valid as variables that is fit the following regex
+    /// [a-zA-Z@_][a-zA-Z0-9@_]*
+    /// </summary>
+    /// <param name="word">Input to test.</param>
+    /// <returns>The original input.</returns>
+    /// <exception cref="CommandCompilationException">Throws if it does not fit the template.</exception>
     public static ReadOnlySpan<char> GuardValidVariableName(this ReadOnlySpan<char> word)
     {
         var isValidStructure = !word.IsEmpty
@@ -35,6 +54,6 @@ internal static partial class SpanExtensions
 
         return isValidStructure
                    ? word
-                   : throw new CommandCompilationException("Node contained illeagel values");
+                   : throw new CommandCompilationException("Node contained illegal values");
     }
 }

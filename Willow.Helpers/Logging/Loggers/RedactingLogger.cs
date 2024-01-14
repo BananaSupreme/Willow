@@ -1,5 +1,9 @@
 ﻿namespace Willow.Helpers.Logging.Loggers;
 
+/// <summary>
+/// Wrapper around <typeparamref name="T"/> where the output is redacted when the incoming boolean is false. <br/>
+/// This is the primary way logging sensitive information should be accomplished.
+/// </summary>
 public readonly struct RedactingLogger<T>
 {
     private const string _redacted = "**REDACTED**";

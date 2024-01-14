@@ -28,7 +28,7 @@ internal sealed class AudioBuffer : IAudioBuffer
 
     public bool TryLoadData(AudioData audioData)
     {
-        if (!IsEmpty && !IsSameAudioFeaures(audioData))
+        if (!IsEmpty && !IsSameAudioFeatures(audioData))
         {
             throw new MismatchedFeaturesException(audioData, _samplingRateInBuffer, _channelCountInBuffer,
                 _bitDepthInBuffer);
@@ -123,7 +123,7 @@ internal sealed class AudioBuffer : IAudioBuffer
         return new(rawData, _samplingRateInBuffer, _channelCountInBuffer, _bitDepthInBuffer);
     }
 
-    private bool IsSameAudioFeaures(AudioData audioData)
+    private bool IsSameAudioFeatures(AudioData audioData)
     {
         return audioData.ChannelCount == _channelCountInBuffer
                && audioData.SamplingRate == _samplingRateInBuffer

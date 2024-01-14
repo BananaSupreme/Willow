@@ -2,14 +2,21 @@
 
 namespace Willow.Helpers;
 
-internal static class CachedSearchValues
+/// <summary>
+/// A cache of <see cref="SearchValues"/>.
+/// </summary>
+/// <remarks>
+/// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
+/// IT WITHOUT NOTICE!
+/// </remarks>
+public static class CachedSearchValues
 {
     public static readonly SearchValues<char> Alphanumeric =
         SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-    
+
     public static readonly SearchValues<char> CapitalAlphabet =
         SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    
+
     public static readonly SearchValues<char> AlphanumericAndSpaces =
         SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ");
 

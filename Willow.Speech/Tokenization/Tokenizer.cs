@@ -14,16 +14,16 @@ internal sealed class Tokenizer : ITokenizer
 {
     private readonly ILogger<Tokenizer> _log;
     private readonly ISettings<PrivacySettings> _privacySettings;
-    private readonly ISpecializedTokenProcessor[] _specializedTokenProcessors;
+    private readonly ITranscriptionTokenizer[] _specializedNodeProcessors;
 
-    public Tokenizer(IEnumerable<ISpecializedTokenProcessor> specializedTokenProcessors, 
+    public Tokenizer(IEnumerable<ITranscriptionTokenizer> specializedNodeProcessors, 
                      ILogger<Tokenizer> log,
                      ISettings<PrivacySettings> privacySettings)
     {
         _log = log;
         _privacySettings = privacySettings;
-        FallBackProcessor fallBackProcessor = new(log);
-        _specializedTokenProcessors = [.. specializedTokenProcessors, fallBackProcessor];
+        FallBackTranscriptionTokenizer fallBackTranscriptionTokenizer = new(log);
+        _specializedNodeProcessors = [.. specializedNodeProcessors, fallBackTranscriptionTokenizer];
     }
 
     public Token[] Tokenize(string input)
@@ -52,9 +52,9 @@ internal sealed class Tokenizer : ITokenizer
 
     private ReadOnlySpan<char> ProcessSpan(ReadOnlySpan<char> inputSpan, List<Token> tokens)
     {
-        foreach (var specializedTokenProcessor in _specializedTokenProcessors)
+        foreach (var specializedNodeProcessor in _specializedNodeProcessors)
         {
-            var (isSuccessful, token, charsProcessed) = specializedTokenProcessor.Process(inputSpan);
+            var (isSuccessful, token, charsProcessed) = specializedNodeProcessor.Process(inputSpan);
             if (isSuccessful)
             {
                 _log.TokenProcessed(new(token, _privacySettings.CurrentValue.AllowLoggingTranscriptions));
@@ -67,11 +67,11 @@ internal sealed class Tokenizer : ITokenizer
         return inputSpan;
     }
 
-    private sealed class FallBackProcessor : ISpecializedTokenProcessor
+    private sealed class FallBackTranscriptionTokenizer : ITranscriptionTokenizer
     {
         private readonly ILogger _log;
 
-        public FallBackProcessor(ILogger log)
+        public FallBackTranscriptionTokenizer(ILogger log)
         {
             _log = log;
         }

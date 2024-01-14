@@ -6,6 +6,9 @@ using Willow.Speech.Microphone.Extensions;
 
 namespace Willow.Speech.Microphone.Eventing.Interceptors;
 
+/// <summary>
+/// Intercepts the <see cref="AudioCapturedEvent"/> to create WAV files, only works in debug mode.
+/// </summary>
 internal sealed class DebuggingVoiceWavOutputInterceptor : IEventInterceptor<AudioCapturedEvent>
 {
     private const string _folderName = "./wavFiles";

@@ -10,6 +10,9 @@ using Willow.Speech.VoiceCommandParsing.Eventing.Events;
 
 namespace Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 
+/// <summary>
+/// Parses a transcription and executes all the consecutive commands in the input.
+/// </summary>
 internal sealed class AudioTranscribedEventHandler : IEventHandler<AudioTranscribedEvent>
 {
     private readonly ITrieFactory _trieFactory;

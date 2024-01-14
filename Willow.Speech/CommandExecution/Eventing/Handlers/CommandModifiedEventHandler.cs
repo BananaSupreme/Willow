@@ -6,6 +6,9 @@ using Willow.Speech.ScriptingInterface.Eventing.Events;
 
 namespace Willow.Speech.CommandExecution.Eventing.Handlers;
 
+/// <summary>
+/// Loads the command into <see cref="ICommandStorage"/> when the available commands are modified.
+/// </summary>
 internal sealed class CommandModifiedEventHandler : IEventHandler<CommandModifiedEvent>
 {
     private readonly ICommandStorage _commandStorage;
@@ -20,7 +23,7 @@ internal sealed class CommandModifiedEventHandler : IEventHandler<CommandModifie
         var executableCommands = @event.Commands
                                        .Select(x => new ExecutableCommands(x.Id,
                                            (Func<IVoiceCommand>)x.CapturedValues[
-                                               IVoiceCommand.CommandFunctionName]))
+                                               IVoiceCommand._commandFunctionName]))
                                        .ToArray();
         _commandStorage.SetAvailableCommands(executableCommands);
         return Task.CompletedTask;

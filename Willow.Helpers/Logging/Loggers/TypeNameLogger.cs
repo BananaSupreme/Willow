@@ -2,6 +2,10 @@
 
 namespace Willow.Helpers.Logging.Loggers;
 
+/// <summary>
+/// Wrapper around <typeparamref name="T"/> that returns <see cref="TypeExtensions.GetFullName{T}"/> when
+/// <see cref="ToString"/> is called.
+/// </summary>
 public readonly struct TypeNameLogger<T>
 {
     private readonly T _item;

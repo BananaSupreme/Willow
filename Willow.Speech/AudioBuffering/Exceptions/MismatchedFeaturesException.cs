@@ -2,6 +2,12 @@
 
 namespace Willow.Speech.AudioBuffering.Exceptions;
 
+/// <summary>
+/// Thrown when adding a new sample into the audio buffer but the sample features, such as sampling rate or channel
+/// buffer are different from the already included input. <br/>
+/// The system throws this exception as a sample when there is a different sampling rate, or a different channel count
+/// is not the same as another sample with different parameters.
+/// </summary>
 public sealed class MismatchedFeaturesException : ArgumentException
 {
     public MismatchedFeaturesException(AudioData audioData, int samplingRateInBuffer, ushort channelCountInBuffer,

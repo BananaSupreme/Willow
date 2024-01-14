@@ -12,10 +12,10 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     private readonly ISettings<PrivacySettings> _privacySettings;
     private Tag[]? _cache;
     private ActivationMode _activationMode = ActivationMode.Command;
-    private Tag[] _environmentTags = [];
+    private Tag[] _windowTags = [];
     private ActiveWindowInfo _activeWindow = new(string.Empty);
 
-    public SupportedOperatingSystems ActiveOperatingSystem { get; } = GetSupportedOperatingSystems();
+    public SupportedOss ActiveOs { get; } = GetSupportedOss();
 
     public IReadOnlyList<Tag> Tags => _cache ?? RestoreCache();
 
@@ -42,10 +42,10 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
         RestoreCache();
     }
 
-    public void SetEnvironmentTags(Tag[] tags)
+    public void SetWindowTags(Tag[] tags)
     {
-        _log.EnvironmentTagsChanged(new(tags, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
-        _environmentTags = tags;
+        _log.WindowTagsChanged(new(tags, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
+        _windowTags = tags;
         RestoreCache();
     }
 
@@ -67,9 +67,9 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     {
         _cache =
         [
-            new(ActiveOperatingSystem.ToString()),
+            new(ActiveOs.ToString()),
             new(_activationMode.ToString()),
-            .. _environmentTags,
+            .. _windowTags,
             .. _customTags,
             new(_activeWindow.ProcessName)
         ];
@@ -79,11 +79,11 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
         return _cache;
     }
 
-    private static SupportedOperatingSystems GetSupportedOperatingSystems()
+    private static SupportedOss GetSupportedOss()
     {
         return System.Environment.OSVersion.Platform switch
         {
-            PlatformID.Win32NT => SupportedOperatingSystems.Windows,
+            PlatformID.Win32NT => SupportedOss.Windows,
             _ => throw new PlatformNotSupportedException(
                      $"We do not support yet the ({System.Environment.OSVersion.Platform}) platform")
         };
@@ -108,7 +108,7 @@ internal static partial class EnvironmentStateProviderLoggingExtensions
         EventId = 3,
         Level = LogLevel.Debug,
         Message = "Environment tags changed: {tags}")]
-    public static partial void EnvironmentTagsChanged(this ILogger log, RedactingLogger<EnumeratorLogger<Tag>> tags);
+    public static partial void WindowTagsChanged(this ILogger log, RedactingLogger<EnumeratorLogger<Tag>> tags);
 
     [LoggerMessage(
         EventId = 4,

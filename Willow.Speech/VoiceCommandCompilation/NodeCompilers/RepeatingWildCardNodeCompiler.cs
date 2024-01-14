@@ -6,6 +6,20 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
+/// <summary>
+/// Compiles the patterns
+/// <code>
+/// RepeatingWildCard:variableName
+/// RepeatingWildCard:variableName{number}
+/// **variableName
+/// **variableName{number}
+/// </code>
+/// Those patterns are compiled into the <see cref="RepeatingWildCardNodeProcessor"/> where the value is captured as
+/// a single token into the variable name after the colon.<br/>
+/// Optionally accepts a single integer, -1 (capture all) or larger than 0 representing the maximum amount of words to
+/// be captured.<br/>
+/// Meant to represent a capturing of many words.
+/// </summary>
 internal sealed class RepeatingWildCardNodeCompiler : INodeCompiler
 {
     private static readonly char[][] _startSymbols = ["RepeatingWildCard:".ToCharArray(), "**".ToCharArray()];

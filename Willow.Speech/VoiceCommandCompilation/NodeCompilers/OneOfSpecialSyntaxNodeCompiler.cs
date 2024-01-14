@@ -8,6 +8,15 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
+/// <summary>
+/// Compiles the patterns
+/// <code>
+/// [capturedVariableName]:variableName
+/// [..|..]:variableName
+/// </code>
+/// Same as <see cref="OneOfNodeCompiler"/> but the capturing comes at the square brackets in the beginning instead.
+/// </summary>
+/// <seealso cref="OneOfNodeCompiler"/>
 internal sealed class OneOfSpecialSyntaxNodeCompiler : INodeCompiler
 {
     private static readonly char[] _startSymbols = "[".ToCharArray();

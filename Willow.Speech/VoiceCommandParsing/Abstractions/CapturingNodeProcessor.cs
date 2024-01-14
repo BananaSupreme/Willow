@@ -1,15 +1,17 @@
-﻿using Willow.Core.Environment.Models;
-using Willow.Speech.Tokenization.Tokens.Abstractions;
+﻿using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Willow.Speech.VoiceCommandParsing.Abstractions;
 
+/// <summary>
+/// A specialized <see cref="INodeProcessor"/> That captures the token if <see cref="IsTokenMatch"/> returns true.
+/// </summary>
+/// <param name="CaptureName">The variable name the token should go into.</param>
 internal abstract record CapturingNodeProcessor(string CaptureName) : INodeProcessor
 {
     public bool IsLeaf => false;
     public abstract uint Weight { get; }
-    public virtual NodeProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder,
-                                                     Tag[] environmentTags)
+    public virtual TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         if (tokens.Length == 0)
         {

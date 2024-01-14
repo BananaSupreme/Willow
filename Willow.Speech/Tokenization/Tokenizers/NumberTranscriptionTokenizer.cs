@@ -3,13 +3,16 @@ using Willow.Speech.Tokenization.Consts;
 using Willow.Speech.Tokenization.Models;
 using Willow.Speech.Tokenization.Tokens;
 
-namespace Willow.Speech.Tokenization.Processors;
+namespace Willow.Speech.Tokenization.Tokenizers;
 
-internal sealed class NumberTokenSpecializedProcessor : ISpecializedTokenProcessor
+/// <summary>
+/// Captures a numeric value
+/// </summary>
+internal sealed class NumberTranscriptionTokenizer : ITranscriptionTokenizer
 {
-    private readonly ILogger<NumberTokenSpecializedProcessor> _log;
+    private readonly ILogger<NumberTranscriptionTokenizer> _log;
 
-    public NumberTokenSpecializedProcessor(ILogger<NumberTokenSpecializedProcessor> log)
+    public NumberTranscriptionTokenizer(ILogger<NumberTranscriptionTokenizer> log)
     {
         _log = log;
     }
@@ -23,11 +26,11 @@ internal sealed class NumberTokenSpecializedProcessor : ISpecializedTokenProcess
         _log.ProcessedWord();
         return int.TryParse(word, out var num)
                    ? new(true, new NumberToken(num), wordEnd)
-                   : ISpecializedTokenProcessor.Fail();
+                   : ITranscriptionTokenizer.Fail();
     }
 }
 
-internal static partial class NumberTokenSpecializedProcessorLoggingExtensions
+internal static partial class NumberTranscriptionTokenizerLoggingExtensions
 {
     [LoggerMessage(
         EventId = 1,

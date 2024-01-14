@@ -33,9 +33,9 @@ internal sealed class SileroVoiceActivityDetectionFacade : IVoiceActivityDetecti
         var result = _sileroVad.GetSpeechTimestamps(audioSegment.NormalizedData,
             currentValue.Threshold,
             currentValue.MinSpeechDurationMilliseconds,
-            currentValue.MaxSpeechDurationSeconds,
-            currentValue.MinSilenceDurationMilliseconds,
-            currentValue.WindowSizeSamples,
+            float.PositiveInfinity,
+            1,
+            1024, //One of three constants used by Silero. <512,1024,1536>
             currentValue.SpeechPadMilliseconds);
         
         var vadResult = ProcessVadResult(audioSegment, result);

@@ -20,7 +20,7 @@ public sealed class TokenizationTests : IDisposable
         services.AddLogging();
         services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
         services.AddSingleton<ITokenizer, Tokenizer>();
-        services.AddAllTypesFromOwnAssembly<ISpecializedTokenProcessor>(ServiceLifetime.Singleton);
+        services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>(ServiceLifetime.Singleton);
         _provider = services.BuildServiceProvider();
         _sut = _provider.GetRequiredService<ITokenizer>();
     }
@@ -56,9 +56,8 @@ public sealed class TokenizationTests : IDisposable
     public void TestInputs(int index, string input)
     {
         var output = ValidTestData[index].Item2;
-        output = [.. output];
         var result = _sut.Tokenize(input);
-        result.Should().BeEquivalentTo(output);
+        result.Should().BeEquivalentTo(output, options => options.ComparingByValue<Token>());
     }
 
     public void Dispose()

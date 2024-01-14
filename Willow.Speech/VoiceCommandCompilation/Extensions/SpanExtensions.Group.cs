@@ -1,4 +1,5 @@
-﻿using Willow.Speech.Tokenization.Consts;
+﻿using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.Tokenization.Consts;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Exceptions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
@@ -7,6 +8,13 @@ namespace Willow.Speech.VoiceCommandCompilation.Extensions;
 
 internal static partial class SpanExtensions
 {
+    /// <summary>
+    /// Parses the incoming string for a group of processors seperated by a | mark. 
+    /// </summary>
+    /// <param name="processors">The incoming string.</param>
+    /// <param name="compilers">All the compilers available in the system.</param>
+    /// <param name="capturedValues">The values captured from the <see cref="IVoiceCommand"/> instance.</param>
+    /// <returns>The processors that build the compilation.</returns>
     public static INodeProcessor[] ExtractNodeProcessors(this ReadOnlySpan<char> processors,
                                                          INodeCompiler[] compilers,
                                                          IDictionary<string, object> capturedValues)

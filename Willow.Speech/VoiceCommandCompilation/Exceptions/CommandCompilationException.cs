@@ -1,5 +1,8 @@
 ﻿namespace Willow.Speech.VoiceCommandCompilation.Exceptions;
 
+/// <summary>
+/// An error was found in the compilation process, the message should introduce more details.
+/// </summary>
 public sealed class CommandCompilationException : Exception
 {
     public CommandCompilationException()

@@ -1,12 +1,12 @@
-﻿using Willow.Speech.Tokenization.Enums;
-using Willow.Speech.Tokenization.Tokens.Abstractions;
+﻿using Willow.Speech.Tokenization.Tokens.Abstractions;
 
 namespace Willow.Speech.Tokenization.Tokens;
 
+/// <summary>
+/// A token representing alphabet based words.
+/// </summary>
 public sealed record WordToken(string Value) : Token
 {
-    public override TokenType Type => TokenType.Word;
-
     public override string GetString()
     {
         return Value.ToLower();

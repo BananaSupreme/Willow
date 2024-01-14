@@ -29,8 +29,8 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.CapturedValues.Should().ContainKey(IVoiceCommand.CommandFunctionName);
-        result1.CapturedValues[IVoiceCommand.CommandFunctionName]
+        result1.CapturedValues.Should().ContainKey(IVoiceCommand._commandFunctionName);
+        result1.CapturedValues[IVoiceCommand._commandFunctionName]
                .Should()
                .BeOfType<Func<IVoiceCommand>>();
     }
@@ -147,7 +147,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.SupportedOperatingSystems.Should().Be(SupportedOperatingSystems.All);
+        result1.SupportedOss.Should().Be(SupportedOss.All);
     }
     
     [Fact]
@@ -157,7 +157,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.SupportedOperatingSystems.Should().Be(SupportedOperatingSystems.Windows);
+        result1.SupportedOss.Should().Be(SupportedOss.Windows);
     }
     
     [Fact]
@@ -246,7 +246,7 @@ public sealed class CommandInterpretationTests : IDisposable
     [Alias(_alias3)]
     [Name(_name)]
     [Description(_description)]
-    [SupportedOperatingSystems(SupportedOperatingSystems.Windows)]
+    [SupportedOss(SupportedOss.Windows)]
     private class FullyAnnotatedVoiceCommand : IVoiceCommand
     {
         public string InvocationPhrase => _invocationPhrase;

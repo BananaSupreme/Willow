@@ -6,6 +6,9 @@ using Willow.Speech.VAD.Abstractions;
 
 namespace Willow.Speech.VAD.Eventing.Interceptors;
 
+/// <summary>
+/// Detects speech in the audio, if found it buffers the audio until the user stops speaking or the buffer is full.
+/// </summary>
 internal sealed class VoiceActivityDetectionInterceptor : IEventInterceptor<AudioCapturedEvent>
 {
     private readonly IAudioBuffer _audioBuffer;

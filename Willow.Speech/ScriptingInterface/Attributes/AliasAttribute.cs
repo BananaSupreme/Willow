@@ -1,8 +1,16 @@
-﻿namespace Willow.Speech.ScriptingInterface.Attributes;
+﻿using Willow.Speech.ScriptingInterface.Abstractions;
 
+namespace Willow.Speech.ScriptingInterface.Attributes;
+
+/// <summary>
+/// Defines alternative invocation phrases for a <see cref="IVoiceCommand"/>.
+/// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class AliasAttribute : Attribute
 {
+    /// <summary>
+    /// Alternative invocation phrases.
+    /// </summary>
     public string[] Aliases { get; }
 
     public AliasAttribute(string tag)

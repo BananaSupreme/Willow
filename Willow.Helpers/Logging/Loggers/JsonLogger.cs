@@ -1,9 +1,11 @@
 ﻿using System.Text.Json;
 
-// ReSharper disable MemberCanBePrivate.Global
-
 namespace Willow.Helpers.Logging.Loggers;
 
+/// <summary>
+/// A wrapper around <typeparamref name="T"/> that outputs its <i>JSON</i> representation when <see cref="ToString"/>.
+/// is called
+/// </summary>
 public readonly struct JsonLogger<T>
 {
     private readonly T? _item;

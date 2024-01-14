@@ -12,6 +12,11 @@ internal static class RawAudioDataExtension
     private static readonly byte[] _fmtHeader = "fmt "u8.ToArray();
     private static readonly byte[] _dataHeader = "data"u8.ToArray();
 
+    /// <summary>
+    /// Converts <see cref="AudioData"/> to a proper WAV file.
+    /// </summary>
+    /// <param name="audioData">The input data.</param>
+    /// <returns>Array of bytes representing a WAV file.</returns>
     public static byte[] ToWavFile(this AudioData audioData)
     {
         var sampleCount = audioData.RawData.Length;

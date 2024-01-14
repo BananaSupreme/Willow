@@ -4,6 +4,11 @@
 
 - WE ARE SUPER SLOW! BTW, still slow, but much quicker now that the mic recording time was lowered.
 
+- Allowing plugins to add speech recognition systems can be extremely powerful!
+
+- The VAD is currently swollowing some audio at the edges, we should solve this because it is making detection harder.
+- Also we might want to pad audio that is too short as well
+
 - Vosk Nuget doesn't support macOS, mac doesn't have nvidia GPUs either, so we are a bit stuck here with mac support,
   eventually we would need to create our own binaries for Vosk.
   Also we need to have some way to start and stop engines, and to choose the correct engines.
@@ -29,6 +34,7 @@
 - Lets vectorize the conversion between short samples and floats
 
 - Further down the line, noise filtration?
+- Double speed the audio for when running on whisper?
 
 - Further down the line, We can fine tune the AI by using synthetic data created by GPT model to create various
   commands, then we can fit the data into audio synthesis to create a pluralistic example of sounds and data which we

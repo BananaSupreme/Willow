@@ -5,6 +5,9 @@ using Willow.Speech.VAD.Eventing.Interceptors;
 
 namespace Willow.Speech.Resampling.Eventing.Interceptors;
 
+/// <summary>
+/// Intercepts the <see cref="AudioCapturedEvent"/> to 16Khz.
+/// </summary>
 internal sealed class ResamplingInterceptor : IEventInterceptor<AudioCapturedEvent>
 {
     private const int _desiredSampleRate = 16000;

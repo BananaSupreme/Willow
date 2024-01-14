@@ -22,7 +22,7 @@ internal sealed class Node
         ReadOnlyMemory<Token> tokens, CommandBuilder builder, Tag[] environmentTags)
     {
         var (isSuccessful, builderResult, remainingTokens) =
-            _nodeProcessor.ProcessToken(tokens, builder, environmentTags);
+            _nodeProcessor.ProcessToken(tokens, builder);
         return isSuccessful
                    ? ProcessChildren(remainingTokens, builderResult, environmentTags)
                    : (builder, tokens);

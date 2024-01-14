@@ -1,12 +1,12 @@
-﻿using Willow.Speech.Tokenization.Enums;
-using Willow.Speech.Tokenization.Tokens.Abstractions;
+﻿using Willow.Speech.Tokenization.Tokens.Abstractions;
 
 namespace Willow.Speech.Tokenization.Tokens;
 
+/// <summary>
+/// A token representing a value. 
+/// </summary>
 public sealed record NumberToken(int Value) : Token
 {
-    public override TokenType Type => TokenType.Number;
-
     public override string GetString()
     {
         return Value.ToString();

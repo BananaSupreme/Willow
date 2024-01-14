@@ -1,24 +1,26 @@
-﻿using Willow.Core.Environment.Models;
-using Willow.Speech.Tokenization.Tokens.Abstractions;
+﻿using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
+/// <summary>
+/// Processes an input that should match all the processors as processed one by one, otherwise fails the entire thing.
+/// </summary>
+/// <param name="InnerNodes">All the processors that should succeed.</param>
 internal sealed record AndNodeProcessor(INodeProcessor[] InnerNodes) : INodeProcessor
 {
     public bool IsLeaf => false;
     public uint Weight => CalculateWeight();
 
-    public NodeProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder,
-                                             Tag[] environmentTags)
+    public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         var remainingTokens = tokens;
         var innerBuilder = builder;
         foreach (var innerNode in InnerNodes)
         {
             (var isSuccessful, innerBuilder, remainingTokens) =
-                innerNode.ProcessToken(remainingTokens, innerBuilder, environmentTags);
+                innerNode.ProcessToken(remainingTokens, innerBuilder);
 
             if (!isSuccessful)
             {

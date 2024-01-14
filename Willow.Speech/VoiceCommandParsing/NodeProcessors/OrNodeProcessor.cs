@@ -1,24 +1,28 @@
-﻿using Willow.Core.Environment.Models;
-using Willow.Speech.Tokenization.Tokens;
+﻿using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
+/// <summary>
+/// A processor that succeeds whenever any of the inner processors succeeds.
+/// </summary>
+/// <param name="SuccessIndexName">The variable name in the command parameters to store the index of the successful
+/// item.</param>
+/// <param name="InnerNodes">The nodes to test against.</param>
 internal sealed record OrNodeProcessor(string SuccessIndexName, INodeProcessor[] InnerNodes) : INodeProcessor
 {
     public bool IsLeaf => false;
     public uint Weight => InnerNodes.Min(x => x.Weight);
 
-    public NodeProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder,
-                                             Tag[] environmentTags)
+    public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         var i = 0;
         foreach (var innerNode in InnerNodes)
         {
             var (isSuccessful, innerBuilder, remainingTokens) =
-                innerNode.ProcessToken(tokens, builder, environmentTags);
+                innerNode.ProcessToken(tokens, builder);
             
             if (isSuccessful)
             {

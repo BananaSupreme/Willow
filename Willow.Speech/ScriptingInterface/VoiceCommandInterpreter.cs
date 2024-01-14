@@ -34,7 +34,7 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
             [voiceCommand.InvocationPhrase, ..GetAliases(voiceCommandType)],
             GetTags(voiceCommandType),
             capturedValues,
-            GetSupportedOperatingSystem(voiceCommandType),
+            GetSupportedOs(voiceCommandType),
             GetName(voiceCommandType),
             GetDescription(voiceCommandType)
         );
@@ -120,12 +120,12 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
         return aliasAttributes.SelectMany(x => x.Aliases).ToArray();
     }
 
-    private SupportedOperatingSystems GetSupportedOperatingSystem(Type type)
+    private SupportedOss GetSupportedOs(Type type)
     {
-        var supportsOperatingSystemAttribute = type.GetCustomAttributes(false)
-                                                   .OfType<SupportedOperatingSystemsAttribute>()
+        var supportsOsAttribute = type.GetCustomAttributes(false)
+                                                   .OfType<SupportedOssAttribute>()
                                                    .FirstOrDefault();
-        return supportsOperatingSystemAttribute?.SupportedOperatingSystems ?? SupportedOperatingSystems.All;
+        return supportsOsAttribute?.SupportedOss ?? SupportedOss.All;
     }
 }
 

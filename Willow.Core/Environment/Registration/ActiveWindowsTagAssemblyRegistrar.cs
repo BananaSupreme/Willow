@@ -8,6 +8,9 @@ using Willow.Helpers.Logging.Loggers;
 
 namespace Willow.Core.Environment.Registration;
 
+/// <summary>
+/// Registers all the <see cref="ActivateTagsAttribute"/> in the assembly.
+/// </summary>
 internal sealed class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IActiveWindowTagStorage _activeWindowTagStorage;

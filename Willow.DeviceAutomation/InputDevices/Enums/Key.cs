@@ -1,5 +1,11 @@
 ﻿namespace Willow.DeviceAutomation.InputDevices.Enums;
 
+/// <summary>
+/// Keyboard key.
+/// </summary>
+/// <remarks>
+/// The system does not guarantee numbering and position of this enum and it should never be used by its underlying value.
+/// </remarks>
 //Keys commented off are not yet implemented in the package we are actually using to press keys
 public enum Key
 {
@@ -36,13 +42,13 @@ public enum Key
     //Multimedia
     //PlayPause, Stop, NextTrack, PreviousTrack,
     //VolumeUp, VolumeDown, Mute,
-    
+
     //Special
     Dollar, Percent, //Tilde, Exclamation, At, Hash, Caret, Ampersand, Asterisk,
     OpenParenthesis, CloseParenthesis, Minus, Plus, Equal, //Underscore, 
     OpenBracket, CloseBracket, OpenBrace, CloseBrace, Backslash, //Pipe, Apostrophe,
     Semicolon, Colon, Quotation, Comma, LessThan, Dot, GreaterThan, Slash, Question,
-    
+
     //Locks    
-    CapsLock, NumLock, ScrollLock//, FnLock
+    CapsLock, NumLock, ScrollLock //, FnLock
 }

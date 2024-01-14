@@ -10,7 +10,8 @@ internal sealed class AssemblyRegistrationEntry : IAssemblyRegistrationEntry
 {
     private readonly IEnumerable<IAssemblyRegistrar> _registrars;
 
-    //We hold a special reference to this because it should be loaded in case any other registrar triggers events like registering commands
+    //We hold a special reference to this because it should be loaded first
+    //in case any other registrar triggers events like registering commands
     private readonly IEventRegistrar _eventRegistrar;
     private readonly ILogger<AssemblyRegistrationEntry> _log;
 

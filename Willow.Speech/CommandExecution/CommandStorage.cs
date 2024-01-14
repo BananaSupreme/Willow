@@ -40,7 +40,7 @@ internal sealed class CommandStorage : ICommandStorage
         if (_storage.TryGetValue(id, out var commandActivator))
         {
             var command = commandActivator();
-            _log.CommandMatched(new(new TypeNameLogger<IVoiceCommand>(command), _privacySettings.CurrentValue.AllowLoggingCommands),
+            _log.CommandMatched(new(new(command), _privacySettings.CurrentValue.AllowLoggingCommands),
                 new(new(context.Parameters), _privacySettings.CurrentValue.AllowLoggingCommands));
             await command.ExecuteAsync(context);
             return;

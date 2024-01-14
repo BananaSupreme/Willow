@@ -5,6 +5,9 @@ using Willow.Speech.Tokenization.Abstractions;
 
 namespace Willow.Speech.Tokenization.Registration;
 
+/// <summary>
+/// Registers all the <see cref="ITranscriptionTokenizer"/> in the assemblies.
+/// </summary>
 internal sealed class TokenizationAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IInterfaceRegistrar _interfaceRegistrar;
@@ -15,6 +18,6 @@ internal sealed class TokenizationAssemblyRegistrar : IAssemblyRegistrar
     }
     public void RegisterFromAssemblies(Assembly[] assemblies)
     {
-        _interfaceRegistrar.RegisterDeriving<ISpecializedTokenProcessor>(assemblies);
+        _interfaceRegistrar.RegisterDeriving<ITranscriptionTokenizer>(assemblies);
     }
 }

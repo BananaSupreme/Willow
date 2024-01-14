@@ -5,6 +5,17 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
+/// <summary>
+/// Compiles the patterns
+/// <code>
+/// Number:variableName
+/// N:variableName
+/// #variableName
+/// </code>
+/// Those patterns are compiled into the <see cref="NumberNodeProcessor"/> with the variable in the captured values
+/// being the name after the colon. <br/>
+/// Meant to represent a number token.
+/// </summary>
 internal sealed class NumberNodeCompiler : INodeCompiler
 {
     private static readonly char[][] _startSymbols = ["Number:".ToCharArray(), "N:".ToCharArray(), "#".ToCharArray()];

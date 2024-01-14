@@ -5,6 +5,9 @@ using Willow.Speech.SpeechToText.Eventing.Events;
 
 namespace Willow.Speech.SpeechToText.Eventing.Handlers;
 
+/// <summary>
+/// Handles the audio after the entire processing pipeline and uses the selected STT engine to transcribe the message.
+/// </summary>
 internal sealed class AudioCapturedTranscriptionEventHandler : IEventHandler<AudioCapturedEvent>
 {
     private readonly IEventDispatcher _eventDispatcher;

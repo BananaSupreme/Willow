@@ -5,7 +5,7 @@ using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Willow.Speech.VoiceCommandParsing;
 
-internal sealed class Trie : ITrie 
+internal sealed class Trie : ITrie
 {
     private readonly Node _root;
 
@@ -14,10 +14,12 @@ internal sealed class Trie : ITrie
         _root = root;
     }
 
-    public (bool IsSuccessful, ParsedCommand Command, ReadOnlyMemory<Token> RemainingTokens) TryTraverse(ReadOnlyMemory<Token> tokens, Tag[] tags)
+    public TrieTraversalResult TryTraverse(ReadOnlyMemory<Token> tokens, Tag[] tags)
     {
-        var (builder, remainingTokens) =  _root.ProcessToken(tokens, CommandBuilder.Create(), tags);
+        var (builder, remainingTokens) = _root.ProcessToken(tokens, CommandBuilder.Create(), tags);
         var (isSuccessful, command) = builder.TryBuild();
-        return (isSuccessful, command, remainingTokens);
+        return isSuccessful
+                   ? new(isSuccessful, command, remainingTokens)
+                   : new(isSuccessful, default, tokens);
     }
 }

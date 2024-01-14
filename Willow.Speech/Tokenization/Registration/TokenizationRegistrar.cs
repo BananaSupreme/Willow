@@ -12,6 +12,6 @@ internal sealed class TokenizationRegistrar : IServiceRegistrar
     {
         services.AddSingleton<IAssemblyRegistrar, TokenizationAssemblyRegistrar>();
         services.AddSingleton<ITokenizer, Tokenizer>();
-        services.AddAllTypesFromOwnAssembly<ISpecializedTokenProcessor>(ServiceLifetime.Singleton);
+        services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>(ServiceLifetime.Singleton);
     }
 }

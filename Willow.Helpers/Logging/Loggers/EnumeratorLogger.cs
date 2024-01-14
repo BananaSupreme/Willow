@@ -1,5 +1,8 @@
 ﻿namespace Willow.Helpers.Logging.Loggers;
 
+/// <summary>
+/// Wraps an enumerable and returns a string representation of each of its members when <see cref="ToString"/> is called.
+/// </summary>
 public readonly struct EnumeratorLogger<T>
 {
     private readonly IEnumerable<T> _internalEnumerable;
@@ -18,8 +21,8 @@ public readonly struct EnumeratorLogger<T>
     {
         return new(item);
     }
-    
-    public static implicit operator EnumeratorLogger<T>(T[] item) 
+
+    public static implicit operator EnumeratorLogger<T>(T[] item)
     {
         return new(item);
     }

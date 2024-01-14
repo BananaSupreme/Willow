@@ -1,19 +1,20 @@
-﻿using Willow.Core.Environment.Models;
-using Willow.Speech.Tokenization.Enums;
-using Willow.Speech.Tokenization.Tokens;
+﻿using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Models;
 
 namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
+/// <summary>
+/// A processor that succeeds when the input token matches a specific word.
+/// </summary>
+/// <param name="Value">The word to match.</param>
 internal sealed record WordNodeProcessor(WordToken Value) : INodeProcessor
 {
     public bool IsLeaf => false;
     public uint Weight => 1;
 
-    public NodeProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder,
-                                             Tag[] environmentTags)
+    public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         return !tokens.IsEmpty && IsTokenMatch(tokens.Span[0])
                    ? new(true, builder, tokens[1..])
@@ -22,7 +23,7 @@ internal sealed record WordNodeProcessor(WordToken Value) : INodeProcessor
 
     private bool IsTokenMatch(Token token)
     {
-        return token.Type == TokenType.Word
-               && (WordToken)token == Value;
+        return token is WordToken wordToken
+               && wordToken == Value;
     }
 }

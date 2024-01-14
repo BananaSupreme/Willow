@@ -1,14 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using Willow.Speech.Tokenization.Enums;
 using Willow.Speech.Tokenization.Exceptions;
 
 namespace Willow.Speech.Tokenization.Tokens.Abstractions;
 
 public abstract record Token
 {
-    public abstract TokenType Type { get; }
-
     public virtual string GetString()
     {
         ThrowInvalid(typeof(string));
@@ -21,9 +18,14 @@ public abstract record Token
         return 0;
     }
 
+    public virtual bool Match(Token other)
+    {
+        return this.Equals(other);
+    }
+
     [DoesNotReturn]
     private void ThrowInvalid(Type requested)
     {
-        throw new IncorrectTokenTypeException(Type, requested);
+        throw new IncorrectTokenTypeException(this.GetType(), requested);
     }
 }

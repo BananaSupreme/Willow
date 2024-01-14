@@ -4,6 +4,9 @@ using Willow.Speech.SpeechToText.Eventing.Events;
 
 namespace Willow.Speech.Tokenization.Eventing.Interceptors;
 
+/// <summary>
+/// Intercepts the <see cref="AudioTranscribedEvent"/> to remove any symbol that is not alphanumeric or space.
+/// </summary>
 internal sealed class PunctuationRemoverInterceptor : IEventInterceptor<AudioTranscribedEvent>
 {
     public async Task InterceptAsync(AudioTranscribedEvent @event, Func<AudioTranscribedEvent, Task> next)

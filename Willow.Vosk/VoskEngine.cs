@@ -20,6 +20,10 @@ using Willow.Vosk.Settings;
 
 namespace Willow.Vosk;
 
+/// <summary>
+/// This engine manages the downloading of the model and transcription using the VOSK model.
+/// </summary>
+/// <seealso href="https://alphacephei.com/vosk/"/>
 internal sealed class VoskEngine : 
     ISpeechToTextEngine, 
     IDisposable, 
@@ -46,7 +50,7 @@ internal sealed class VoskEngine :
     }
 
     public string Name => nameof(SelectedSpeechEngine.Vosk);
-    public SupportedOperatingSystems SupportedOperatingSystems => SupportedOperatingSystems.Windows;
+    public SupportedOss SupportedOss => SupportedOss.Windows;
     public bool IsRunning { get; private set; }
 
     public async Task<string> TranscribeAudioAsync(AudioData audioData)

@@ -3,6 +3,9 @@ using System.Text;
 
 namespace Willow.Helpers.Logging.Loggers;
 
+/// <summary>
+/// Wraps a byte array and returns a Base64 representation of it when <see cref="ToString"/> is called.
+/// </summary>
 public readonly struct Base64Logger
 {
     private readonly ReadOnlyMemory<byte> _bytes;

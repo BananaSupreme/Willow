@@ -10,24 +10,24 @@ internal partial class InputSimulator
 {
     public Vector2 CursorPosition => _robot.GetMousePosition().FromPoint();
 
-    public IInputSimulator Click(MouseButton key = MouseButton.Left)
+    public IInputSimulator Click(MouseButton button = MouseButton.Left)
     {
         using var locker = _lock.Lock();
-        _robot.Click(key.ToRobotClick());
+        _robot.Click(button.ToRobotClick());
         return this;
     }
 
-    public IInputSimulator MouseButtonDown(MouseButton key = MouseButton.Left)
+    public IInputSimulator MouseButtonDown(MouseButton button = MouseButton.Left)
     {
         using var locker = _lock.Lock();
-        _robot.MouseDown(key.ToRobotClick());
+        _robot.MouseDown(button.ToRobotClick());
         return this;
     }
 
-    public IInputSimulator MouseButtonUp(MouseButton key = MouseButton.Left)
+    public IInputSimulator MouseButtonUp(MouseButton button = MouseButton.Left)
     {
         using var locker = _lock.Lock();
-        _robot.MouseUp(key.ToRobotClick());
+        _robot.MouseUp(button.ToRobotClick());
         return this;
     }
 

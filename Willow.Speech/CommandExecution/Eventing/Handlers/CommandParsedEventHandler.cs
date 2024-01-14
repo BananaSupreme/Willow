@@ -4,6 +4,9 @@ using Willow.Speech.VoiceCommandParsing.Eventing.Events;
 
 namespace Willow.Speech.CommandExecution.Eventing.Handlers;
 
+/// <summary>
+/// Executes the parsed command.
+/// </summary>
 internal sealed class CommandParsedEventHandler : IEventHandler<CommandParsedEvent>
 {
     private readonly ICommandStorage _commandStorage;

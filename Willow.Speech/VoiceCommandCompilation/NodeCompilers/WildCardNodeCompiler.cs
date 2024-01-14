@@ -5,6 +5,16 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
+/// <summary>
+/// Compiles the patterns
+/// <code>
+/// WildCard:variableName
+/// *variableName
+/// </code>
+/// Those patterns are compiled into the <see cref="WildCardNodeProcessor"/> where the value is captured into the
+/// variable name after the colon.<br/>
+/// Meant to represent a capturing of any word.
+/// </summary>
 internal sealed class WildCardNodeCompiler : INodeCompiler
 {
     private static readonly char[][] _startSymbols = ["WildCard:".ToCharArray(), "*".ToCharArray()];

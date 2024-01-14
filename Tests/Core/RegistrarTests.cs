@@ -3,7 +3,6 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Registration;
@@ -112,8 +111,7 @@ public class TestNodeProcessor : INodeProcessor
     public bool IsLeaf => true;
     public uint Weight => 0;
 
-    public NodeProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder,
-                                             Tag[] environmentTags)
+    public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         return new(false, builder, tokens);
     }

@@ -23,7 +23,7 @@ internal sealed class SpeechEngineSelectorWorker : IHostedService,
                                       ILogger<SpeechEngineSelectorWorker> log)
     {
         _localSpeechEngines = localSpeechEngines.Where(x =>
-            x.SupportedOperatingSystems.HasFlag(environmentStateProvider.ActiveOperatingSystem))
+            x.SupportedOss.HasFlag(environmentStateProvider.ActiveOs))
                                                 .ToArray();
         _settings = settings;
         _log = log;

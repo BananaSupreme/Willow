@@ -7,6 +7,17 @@ using Willow.Speech.VoiceCommandParsing.NodeProcessors;
 
 namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
+/// <summary>
+/// Compiles the patterns
+/// <code>
+/// Or[...|...]:indexName
+/// O[...|...]:indexName
+/// ~[...|...]:indexName
+/// </code>
+/// Those patterns are compiled into the <see cref="OrNodeProcessor"/>. where the index of the successful capture
+/// is saved in the name of the index after the colon.<br/>
+/// Meant to represent a group of patterns that only one must be matched.
+/// </summary>
 internal sealed class OrNodeCompiler : INodeCompiler
 {
     private static readonly char[][] _startSymbols = ["Or".ToCharArray(), "O".ToCharArray(), "~".ToCharArray()];

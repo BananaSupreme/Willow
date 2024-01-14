@@ -18,6 +18,14 @@ using Willow.WhisperServer.Settings;
 
 namespace Willow.WhisperServer;
 
+/// <summary>
+/// Open-AI whisper engine, under the scenes creates dynamically runs python to call the `faster-whisper` package.
+/// </summary>
+/// <remarks>
+/// This engine manages the python runtime, if another implementor will try to create a package that calls into python
+/// they will run into trouble, for now we do not support multiple languages but this will be in an issue if we do.
+/// </remarks>
+/// <seealso href="https://github.com/SYSTRAN/faster-whisper/tree/master"/>
 internal sealed class WhisperEngine : 
     IDisposable, 
     IAsyncDisposable, 
@@ -35,7 +43,7 @@ internal sealed class WhisperEngine :
     private nint _state;
 
     public string Name => nameof(SelectedSpeechEngine.Whisper);
-    public SupportedOperatingSystems SupportedOperatingSystems => SupportedOperatingSystems.Windows;
+    public SupportedOss SupportedOss => SupportedOss.Windows;
     public bool IsRunning { get; private set; }
     
     public WhisperEngine(ISettings<WhisperModelSettings> modelSettings,

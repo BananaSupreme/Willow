@@ -2,4 +2,4 @@
 
 namespace Willow.Speech.CommandExecution.Models;
 
-public readonly record struct ExecutableCommands(Guid Id, Func<IVoiceCommand> CommandActivator);
+internal readonly record struct ExecutableCommands(Guid Id, Func<IVoiceCommand> CommandActivator);

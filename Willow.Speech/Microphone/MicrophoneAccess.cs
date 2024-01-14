@@ -32,7 +32,7 @@ internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable, IEventH
     public void Dispose()
     {
         StopRecording();
-        _recorder?.Dispose();
+        _lock.Dispose();
     }
 
     public IEnumerable<AudioData> StartRecording()
@@ -96,6 +96,7 @@ internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable, IEventH
     public void StopRecording()
     {
         _recorder?.Stop();
+        _recorder?.Dispose();
         _log.RecordingStopped();
     }
 
@@ -103,7 +104,6 @@ internal sealed class MicrophoneAccess : IMicrophoneAccess, IDisposable, IEventH
     {
         using var _ = await _lock.LockAsync();
         StopRecording();
-        _recorder?.Dispose();
         SetupMicrophone();
     }
 }
