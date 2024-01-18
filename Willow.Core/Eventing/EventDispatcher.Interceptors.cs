@@ -6,20 +6,13 @@ namespace Willow.Core.Eventing;
 
 internal sealed partial class EventDispatcher
 {
-    private const string _genericInterceptorName = "Base";
+    private const string GenericInterceptorName = "Base";
     private readonly Dictionary<string, List<Type>> _interceptorsStorage = [];
 
     public void RegisterInterceptor<TEvent, TInterceptor>()
-        where TInterceptor : IEventInterceptor<TEvent>
-        where TEvent : notnull
+        where TInterceptor : IEventInterceptor<TEvent> where TEvent : notnull
     {
         RegisterInterceptor(typeof(TEvent), typeof(TInterceptor));
-    }
-
-    public void RegisterInterceptor(Type eventType, Type interceptor)
-    {
-        var eventName = TypeExtensions.GetFullName(eventType);
-        RegisterInterceptor(eventName, interceptor);
     }
 
     public void RegisterGenericInterceptor<TGenericEventInterceptor>()
@@ -28,9 +21,15 @@ internal sealed partial class EventDispatcher
         RegisterGenericInterceptor(typeof(TGenericEventInterceptor));
     }
 
+    public void RegisterInterceptor(Type eventType, Type interceptor)
+    {
+        var eventName = TypeExtensions.GetFullName(eventType);
+        RegisterInterceptor(eventName, interceptor);
+    }
+
     public void RegisterGenericInterceptor(Type interceptor)
     {
-        RegisterInterceptor(_genericInterceptorName, interceptor);
+        RegisterInterceptor(GenericInterceptorName, interceptor);
     }
 
     private void RegisterInterceptor(string eventName, Type interceptorType)
@@ -47,19 +46,18 @@ internal sealed partial class EventDispatcher
 
     private Func<TEvent, Task> GetNextInterceptor<TEvent>(List<InterceptorFunction<TEvent>> interceptors,
                                                           List<IEventHandler<TEvent>> handlers,
-                                                          int currentIndex)
-        where TEvent : notnull
+                                                          int currentIndex) where TEvent : notnull
     {
         if (currentIndex < interceptors.Count - 1)
         {
             var nextInterceptor = interceptors[currentIndex];
-            return @event => RunInterceptorLogged(nextInterceptor, @event,
-                GetNextInterceptor(interceptors, handlers, currentIndex + 1));
+            return @event => RunInterceptorLogged(nextInterceptor,
+                                                  @event,
+                                                  GetNextInterceptor(interceptors, handlers, currentIndex + 1));
         }
 
         var lastInterceptor = interceptors[^1];
-        return @event =>
-            RunInterceptorLogged(lastInterceptor, @event, newEvent => RunEvents(handlers, newEvent));
+        return @event => RunInterceptorLogged(lastInterceptor, @event, newEvent => RunEvents(handlers, newEvent));
     }
 
     private async Task RunInterceptorLogged<TEvent>(InterceptorFunction<TEvent> interceptor,
@@ -81,7 +79,7 @@ internal sealed partial class EventDispatcher
     private List<InterceptorFunction<TEvent>> GetInterceptors<TEvent>()
     {
         List<InterceptorFunction<TEvent>> result = [];
-        if (_interceptorsStorage.TryGetValue(_genericInterceptorName, out var genericInterceptors))
+        if (_interceptorsStorage.TryGetValue(GenericInterceptorName, out var genericInterceptors))
         {
             AddGenericInterceptors(genericInterceptors, result);
         }
@@ -97,19 +95,18 @@ internal sealed partial class EventDispatcher
     private void AddConcreteInterceptors<TEvent>(List<Type> interceptors, List<InterceptorFunction<TEvent>> result)
     {
         var actualized = interceptors.Select(Actualize<IEventInterceptor<TEvent>>).ToList();
-        var toFunction =
-            actualized.Select<IEventInterceptor<TEvent>, InterceptorFunction<TEvent>>(x =>
-                async (@event, next) => await x.InterceptAsync(@event, next));
+        var toFunction
+            = actualized.Select<IEventInterceptor<TEvent>, InterceptorFunction<TEvent>>(
+                static x => async (@event, next) => await x.InterceptAsync(@event, next));
         result.AddRange(toFunction);
     }
 
-    private void AddGenericInterceptors<TEvent>(List<Type> genericInterceptors,
-                                                List<InterceptorFunction<TEvent>> result)
+    private void AddGenericInterceptors<TEvent>(List<Type> genericInterceptors, List<InterceptorFunction<TEvent>> result)
     {
         var actualized = genericInterceptors.Select(Actualize<IGenericEventInterceptor>).ToList();
-        var toFunction =
-            actualized.Select<IGenericEventInterceptor, InterceptorFunction<TEvent>>(x =>
-                async (@event, next) => await x.InterceptAsync(@event, next));
+        var toFunction
+            = actualized.Select<IGenericEventInterceptor, InterceptorFunction<TEvent>>(
+                static x => async (@event, next) => await x.InterceptAsync(@event, next));
         result.AddRange(toFunction);
     }
 

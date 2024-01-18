@@ -4,6 +4,5 @@ public readonly record struct ScrollSettings(int Speed)
 {
     public ScrollSettings() : this(100)
     {
-        
     }
 }

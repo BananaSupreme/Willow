@@ -1,4 +1,6 @@
-﻿namespace Willow.Core.Environment.Models;
+﻿// ReSharper disable NotAccessedPositionalProperty.Global -- that's the point.
+namespace Willow.Core.Environment.Models;
+
 /// <summary>
 /// A tag in the system
 /// </summary>

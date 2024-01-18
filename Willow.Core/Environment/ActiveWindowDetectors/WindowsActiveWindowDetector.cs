@@ -6,20 +6,21 @@ using Willow.Core.Environment.Models;
 
 namespace Willow.Core.Environment.ActiveWindowDetectors;
 
-internal sealed class WindowsActiveWindowDetector : IActiveWindowDetector
+internal sealed partial class WindowsActiveWindowDetector : IActiveWindowDetector
 {
     public ActiveWindowInfo GetActiveWindow()
     {
         var windowHandler = GetForegroundWindow();
-        GetWindowThreadProcessId(windowHandler, out var pid);
+        _ = GetWindowThreadProcessId(windowHandler, out var pid);
         var process = Process.GetProcessById((int)pid);
 
-        return new(process.ProcessName);
+        return new ActiveWindowInfo(process.ProcessName);
     }
-    
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetForegroundWindow();
 
-    [DllImport("user32.dll")]
-    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+    [LibraryImport("user32.dll")]
+    private static partial nint GetForegroundWindow();
+
+    [LibraryImport("user32.dll")]
+    // ReSharper disable once IdentifierTypo
+    private static partial uint GetWindowThreadProcessId(nint hWnd, out uint lpdwProcessId);
 }

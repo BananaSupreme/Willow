@@ -7,7 +7,7 @@ namespace Willow.Speech.Tokenization.Abstractions;
 /// </summary>
 internal interface ITokenizer
 {
-    /// <inheritdoc cref="ITokenizer"/>
+    /// <inheritdoc cref="ITokenizer" />
     /// <param name="input">The input string to tokenize.</param>
     /// <returns>A collection of tokens representing the input string.</returns>
     Token[] Tokenize(string input);

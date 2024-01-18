@@ -14,7 +14,7 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// **variableName
 /// **variableName{number}
 /// </code>
-/// Those patterns are compiled into the <see cref="RepeatingWildCardNodeProcessor"/> where the value is captured as
+/// Those patterns are compiled into the <see cref="RepeatingWildCardNodeProcessor" /> where the value is captured as
 /// a single token into the variable name after the colon.<br/>
 /// Optionally accepts a single integer, -1 (capture all) or larger than 0 representing the maximum amount of words to
 /// be captured.<br/>
@@ -26,8 +26,7 @@ internal sealed class RepeatingWildCardNodeCompiler : INodeCompiler
 
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
-                                                                      INodeCompiler[]
-                                                                          compilers)
+                                                                      INodeCompiler[] compilers)
     {
         var startSymbol = commandWord.FirstToStartWithOrNull(_startSymbols);
         if (startSymbol is null)
@@ -40,8 +39,7 @@ internal sealed class RepeatingWildCardNodeCompiler : INodeCompiler
         if (!variables.IsEmpty)
         {
             commandWord = commandWord.RemoveVariables(variables.Length);
-            if (!int.TryParse(variables.ToString(), out count)
-                || count < -1 || count == 0)
+            if (!int.TryParse(variables.ToString(), out count) || count < -1 || count == 0)
             {
                 throw new CommandCompilationException(
                     "The only valid variable in a repeating wildcard is an int larger than 0 or -1 representing how many max words should be captured");

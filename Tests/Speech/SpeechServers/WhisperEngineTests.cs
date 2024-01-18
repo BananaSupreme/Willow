@@ -1,29 +1,40 @@
 using Tests.Helpers;
 
 using Willow.Core.Eventing.Registration;
-using Willow.Core.Settings.Abstractions;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
 using Willow.WhisperServer;
 
 namespace Tests.Speech.SpeechServers;
 
-public class WhisperEngineTests : IAsyncLifetime
+public sealed class WhisperEngineTests : IAsyncLifetime
 {
-    private const string _expected = "I think I will cry.";
-    private AudioData _audioData;
+    private const string Expected = "I think I will cry.";
     private readonly ServiceProvider _serviceProvider;
+    private AudioData _audioData;
 
     public WhisperEngineTests()
     {
         var services = new ServiceCollection();
         EventingRegistrar.RegisterServices(services);
-        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
+        services.AddSettings();
         WillowWhisperServerRegistrar.RegisterServices(services);
         services.AddLogging();
         _serviceProvider = services.BuildServiceProvider();
     }
-    
+
+    public async Task InitializeAsync()
+    {
+        var filePath = Path.Combine(Environment.CurrentDirectory, "Speech/SpeechServers/test.wav");
+        var audioData = await File.ReadAllBytesAsync(filePath);
+        _audioData = GetFromWavFile(audioData);
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _serviceProvider.DisposeAsync();
+    }
+
     [Fact]
     public async Task When_ServerStartedAndStopped_StartsAgainOK()
     {
@@ -36,9 +47,9 @@ public class WhisperEngineTests : IAsyncLifetime
     {
         await whisperEngine.StartAsync(CancellationToken.None);
         var transcriptionResult = await whisperEngine.TranscribeAudioAsync(_audioData);
-        transcriptionResult.Should().Be(_expected);
+        transcriptionResult.Should().Be(Expected);
         await whisperEngine.StopAsync(CancellationToken.None);
-        transcriptionResult.Should().Be(_expected);
+        transcriptionResult.Should().Be(Expected);
     }
 
     private static AudioData GetFromWavFile(byte[] wav)
@@ -52,19 +63,7 @@ public class WhisperEngineTests : IAsyncLifetime
             data[i] = BitConverter.ToInt16(wav, i * 2);
         }
 
-        return new(data, samplingRate, channelCount, bitDepth);
-    }
-
-    public async Task InitializeAsync()
-    {
-        var filePath = Path.Combine(Environment.CurrentDirectory, "Speech/SpeechServers/test.wav");
-        var audioData = await File.ReadAllBytesAsync(filePath);
-        _audioData = GetFromWavFile(audioData);
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _serviceProvider.DisposeAsync();
+        return new AudioData(data, samplingRate, channelCount, bitDepth);
     }
 }
 /*

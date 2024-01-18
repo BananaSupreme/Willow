@@ -54,8 +54,6 @@ public sealed partial class SettingsManagementTests
     {
         public TestSettingsRecordStruct() : this(Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"))
         {
-            
         }
     }
-
 }

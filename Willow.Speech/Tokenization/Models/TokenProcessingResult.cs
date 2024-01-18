@@ -1,4 +1,5 @@
-﻿using Willow.Speech.Tokenization.Tokens.Abstractions;
+﻿using Willow.Speech.Tokenization.Tokens;
+using Willow.Speech.Tokenization.Tokens.Abstractions;
 
 namespace Willow.Speech.Tokenization.Models;
 
@@ -11,4 +12,12 @@ namespace Willow.Speech.Tokenization.Models;
 /// The amount of characters processed by the processor, this is what will be removed after each processing run from,
 /// the input string if the processing succeeds.
 /// </param>
-public readonly record struct TokenProcessingResult(bool IsSuccessful, Token Token, int CharsProcessed);
+public readonly record struct TokenProcessingResult(bool IsSuccessful,
+                                                    Token Token,
+                                                    int CharsProcessed)
+{
+    /// <summary>
+    /// Helper that returns a singleton representing a failed result.
+    /// </summary>
+    public static TokenProcessingResult Failure { get; } = new(false, new EmptyToken(), 0);
+}

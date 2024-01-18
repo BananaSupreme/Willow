@@ -46,19 +46,27 @@
   like the prompt and prefix get simply combined each allowing 244 tokens, so really we can use them all for a 488 token
   window.
 
-I asked GPT for some datasets that might fit, might be worth looking into - 
-ATIS (Air Travel Information System) Dataset: While primarily used for intent classification and slot filling tasks in the domain of airline travel, it includes spoken queries that are often short phrases or sentences.
+I asked GPT for some datasets that might fit, might be worth looking into -
+ATIS (Air Travel Information System) Dataset: While primarily used for intent classification and slot filling tasks in
+the domain of airline travel, it includes spoken queries that are often short phrases or sentences.
 
-Snips Voice Platform: This dataset was created by the Snips AI voice platform (now part of Sonos) and contains natural language utterances for various commands, like setting reminders or playing music.
+Snips Voice Platform: This dataset was created by the Snips AI voice platform (now part of Sonos) and contains natural
+language utterances for various commands, like setting reminders or playing music.
 
-Google’s Multilingual Spoken Words Corpus: An extension of the Speech Commands dataset, this includes short phrases in multiple languages, useful for command recognition.
+Google’s Multilingual Spoken Words Corpus: An extension of the Speech Commands dataset, this includes short phrases in
+multiple languages, useful for command recognition.
 
-Fluent Speech Commands (FSC): This is a dataset specifically for spoken language understanding, with audio recordings of commands for a virtual assistant. It's relatively small but highly focused on command-like utterances.
+Fluent Speech Commands (FSC): This is a dataset specifically for spoken language understanding, with audio recordings of
+commands for a virtual assistant. It's relatively small but highly focused on command-like utterances.
 
-LibriSpeech: Although primarily a large-scale dataset of English read speech, derived from audiobooks, it can be a resource for extracting or studying short utterances in various contexts.
+LibriSpeech: Although primarily a large-scale dataset of English read speech, derived from audiobooks, it can be a
+resource for extracting or studying short utterances in various contexts.
 
-Mozilla Common Voice: An open-source dataset that's continually growing, containing voice recordings in multiple languages. It can be filtered or processed to extract shorter command-like utterances.
+Mozilla Common Voice: An open-source dataset that's continually growing, containing voice recordings in multiple
+languages. It can be filtered or processed to extract shorter command-like utterances.
 
-Custom Datasets: For very specific command structures like "move to place X," sometimes researchers create their own datasets by recording commands in controlled environments. This allows for tailoring the dataset to the exact requirements of the project.
+Custom Datasets: For very specific command structures like "move to place X," sometimes researchers create their own
+datasets by recording commands in controlled environments. This allows for tailoring the dataset to the exact
+requirements of the project.
 
 These datasets can be used not on

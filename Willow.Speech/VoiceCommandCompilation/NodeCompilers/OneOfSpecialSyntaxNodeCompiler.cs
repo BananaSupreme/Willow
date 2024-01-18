@@ -14,17 +14,16 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// [capturedVariableName]:variableName
 /// [..|..]:variableName
 /// </code>
-/// Same as <see cref="OneOfNodeCompiler"/> but the capturing comes at the square brackets in the beginning instead.
+/// Same as <see cref="OneOfNodeCompiler" /> but the capturing comes at the square brackets in the beginning instead.
 /// </summary>
-/// <seealso cref="OneOfNodeCompiler"/>
+/// <seealso cref="OneOfNodeCompiler" />
 internal sealed class OneOfSpecialSyntaxNodeCompiler : INodeCompiler
 {
     private static readonly char[] _startSymbols = "[".ToCharArray();
 
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
-                                                                      INodeCompiler[]
-                                                                          compilers)
+                                                                      INodeCompiler[] compilers)
     {
         if (!commandWord.StartsWith(_startSymbols))
         {
@@ -49,11 +48,8 @@ internal sealed class OneOfSpecialSyntaxNodeCompiler : INodeCompiler
                 "OneOf must have a variable, either a reference to a captured list or a list syntax");
         }
 
-        if (variables[0] == Chars.Underscore)
-        {
-            return variables.GetTokensFromCaptured(capturedValues);
-        }
-
-        return variables.ExtractFromInLineList();
+        return variables[0] == Chars.Underscore
+                   ? variables.GetTokensFromCaptured(capturedValues)
+                   : variables.ExtractFromInLineList();
     }
 }

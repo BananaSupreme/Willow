@@ -16,14 +16,12 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
 {
     public const string AutoScrollingTagString = "<command>_auto_scroll";
     private static readonly Tag _autoScrollingTag = new(AutoScrollingTagString);
-    private readonly IInputSimulator _inputSimulator;
-    private readonly IEnvironmentStateProvider _environmentStateProvider;
-    private readonly ISettings<ScrollSettings> _settings;
     private static CancellationTokenSource? _cts;
     private static readonly DisposableLock _lock = new();
-
-
-    public AutoScrollVoiceCommand(IInputSimulator inputSimulator, 
+    private readonly IEnvironmentStateProvider _environmentStateProvider;
+    private readonly IInputSimulator _inputSimulator;
+    private readonly ISettings<ScrollSettings> _settings;
+    public AutoScrollVoiceCommand(IInputSimulator inputSimulator,
                                   IEnvironmentStateProvider environmentStateProvider,
                                   ISettings<ScrollSettings> settings)
     {
@@ -32,7 +30,7 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
         _settings = settings;
     }
 
-    public string InvocationPhrase => $"scroll auto ?[[start|stop]:action]:__ ?[[up|down]:direction]:_";
+    public string InvocationPhrase => "scroll auto ?[[start|stop]:action]:__ ?[[up|down]:direction]:_";
 
     public async Task ExecuteAsync(VoiceCommandContext context)
     {
@@ -56,15 +54,14 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
                                     IEnvironmentStateProvider environmentStateProvider,
                                     ISettings<ScrollSettings> settings)
     {
-        if (_cts is not null
-            || !_lock.CanEnter)
+        if (_cts is not null || !_lock.CanEnter)
         {
             return;
         }
-        
+
         using var unlocker = await _lock.LockAsync();
 
-        _cts = new();
+        _cts = new CancellationTokenSource();
 
         try
         {
@@ -95,8 +92,8 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
     {
         return direction switch
         {
-            "up" => new(0, -1),
-            "down" => new(0, 1),
+            "up" => new Vector2(0, -1),
+            "down" => new Vector2(0, 1),
             _ => throw new UnreachableException()
         };
     }

@@ -3,9 +3,6 @@
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 public sealed class ActivateTagsAttribute : Attribute
 {
-    public string ProcessName { get; }
-    public string[] Tags { get; }
-
     /// <summary>
     /// This is scanned when the an assembly is loaded and is the way to add tags that should be associated to a process.
     /// </summary>
@@ -29,4 +26,7 @@ public sealed class ActivateTagsAttribute : Attribute
         ProcessName = processName;
         Tags = tags;
     }
+
+    public string ProcessName { get; }
+    public string[] Tags { get; }
 }

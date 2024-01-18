@@ -4,11 +4,11 @@ namespace Tests.Core.Eventing;
 
 public partial class EventDispatcherTests
 {
-    public record StateWithTwoParameters(int State1, int State2);
+    public sealed record StateWithTwoParameters(int State1, int State2);
 
-    public record StateWithStringParameters(string State);
+    public sealed record StateWithStringParameters(string State);
 
-    internal class TestGenericInterceptor : IGenericEventInterceptor
+    internal sealed class TestGenericInterceptor : IGenericEventInterceptor
     {
         public bool Called { get; set; }
 
@@ -19,23 +19,7 @@ public partial class EventDispatcherTests
         }
     }
 
-    internal class TestInterceptor<T> : IEventInterceptor<T>
-    {
-        public Func<T, T>? PerformAction { get; set; }
-        public bool Called { get; private set; }
-
-        public async Task InterceptAsync(T @event, Func<T, Task> next)
-        {
-            if (PerformAction != null)
-            {
-                @event = PerformAction.Invoke(@event);
-            }
-            Called = true;
-            await next(@event);
-        }
-    }
-
-    internal class TestInterceptor2<T> : IEventInterceptor<T>
+    internal sealed class TestInterceptor<T> : IEventInterceptor<T>
     {
         public Func<T, T>? PerformAction { get; set; }
         public bool Called { get; private set; }
@@ -52,7 +36,24 @@ public partial class EventDispatcherTests
         }
     }
 
-    internal class BlockingInterceptor<T> : IEventInterceptor<T>
+    internal sealed class TestInterceptor2<T> : IEventInterceptor<T>
+    {
+        public Func<T, T>? PerformAction { get; set; }
+        public bool Called { get; private set; }
+
+        public async Task InterceptAsync(T @event, Func<T, Task> next)
+        {
+            if (PerformAction != null)
+            {
+                @event = PerformAction.Invoke(@event);
+            }
+
+            Called = true;
+            await next(@event);
+        }
+    }
+
+    internal sealed class BlockingInterceptor<T> : IEventInterceptor<T>
     {
         public bool Called { get; private set; }
 
@@ -63,7 +64,7 @@ public partial class EventDispatcherTests
         }
     }
 
-    internal class ExceptionCatchingInterceptor<T> : IEventInterceptor<T>
+    internal sealed class ExceptionCatchingInterceptor<T> : IEventInterceptor<T>
     {
         public bool Called { get; private set; }
 
@@ -80,7 +81,7 @@ public partial class EventDispatcherTests
         }
     }
 
-    internal class TestEventHandler<T> : IEventHandler<T>
+    internal sealed class TestEventHandler<T> : IEventHandler<T>
     {
         public Func<T, T>? PerformAction { get; set; }
         public bool Called { get; private set; }
@@ -95,7 +96,7 @@ public partial class EventDispatcherTests
         }
     }
 
-    internal class TestEventHandler2<T> : IEventHandler<T>
+    internal sealed class TestEventHandler2<T> : IEventHandler<T>
     {
         public bool Called { get; private set; }
 

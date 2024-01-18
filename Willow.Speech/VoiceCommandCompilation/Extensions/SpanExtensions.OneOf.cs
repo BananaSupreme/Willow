@@ -41,13 +41,13 @@ internal static partial class SpanExtensions
     }
 
     /// <summary>
-    /// Grabs the tokens that should be present in <paramref name="capturedValues"/> by their name.
+    /// Grabs the tokens that should be present in <paramref name="capturedValues" /> by their name.
     /// </summary>
-    /// <param name="variables">The name of the variable to look inside <paramref name="capturedValues"/>.</param>
-    /// <param name="capturedValues">The values captured from <see cref="IVoiceCommand"/> file.</param>
+    /// <param name="variables">The name of the variable to look inside <paramref name="capturedValues" />.</param>
+    /// <param name="capturedValues">The values captured from <see cref="IVoiceCommand" /> file.</param>
     /// <returns>Tokens stored in the dictionary.</returns>
     /// <exception cref="CommandCompilationException">
-    /// The variable did not exist inside <paramref name="capturedValues"/> or input was not a valid variable name.
+    /// The variable did not exist inside <paramref name="capturedValues" /> or input was not a valid variable name.
     /// </exception>
     public static Token[] GetTokensFromCaptured(this ReadOnlySpan<char> variables,
                                                 IDictionary<string, object> capturedValues)
@@ -58,17 +58,12 @@ internal static partial class SpanExtensions
             throw new CommandCompilationException($"Unable to find captured list {variables}");
         }
 
-        if (value is IEnumerable<Token> tokens)
+        return value switch
         {
-            return tokens.ToArray();
-        }
-
-        if (value is IEnumerable<string> strings)
-        {
-            return strings.Select(x => new WordToken(x)).Cast<Token>().ToArray();
-        }
-
-        throw new CommandCompilationException(
-            $"expected the captured value ({variables}) to be an enumerable of types Token or string");
+            IEnumerable<Token> tokens => tokens.ToArray(),
+            IEnumerable<string> strings => strings.Select(static x => new WordToken(x)).Cast<Token>().ToArray(),
+            _ => throw new CommandCompilationException(
+                     $"expected the captured value ({variables}) to be an enumerable of types Token or string")
+        };
     }
 }

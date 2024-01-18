@@ -5,7 +5,7 @@ using Willow.Speech.VoiceCommandParsing.Models;
 namespace Willow.Speech.VoiceCommandParsing.Abstractions;
 
 /// <summary>
-/// The structure that holds the available commands in the system and traverses using the input tokens. 
+/// The structure that holds the available commands in the system and traverses using the input tokens.
 /// </summary>
 internal interface ITrie
 {

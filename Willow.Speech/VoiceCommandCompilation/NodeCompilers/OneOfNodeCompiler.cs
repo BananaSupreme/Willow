@@ -15,9 +15,9 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// OneOf:variableName{capturedVariableName}
 /// OneOf:variableName{[..|..]}
 /// </code>
-/// Those patterns are compiled into the <see cref="OneOfNodeProcessor"/> with the variable in the captured values
+/// Those patterns are compiled into the <see cref="OneOfNodeProcessor" /> with the variable in the captured values
 /// being the name after the colon. and the values captured being either a field or property named in the curly braces
-/// from the <see cref="IVoiceCommand"/> file or a list of words seperated by the | character.<br/>
+/// from the <see cref="IVoiceCommand" /> file or a list of words seperated by the | character.<br/>
 /// Meant to represent a group of words that are all valid in this command.
 /// </summary>
 internal sealed class OneOfNodeCompiler : INodeCompiler

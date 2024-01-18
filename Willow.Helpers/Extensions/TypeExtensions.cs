@@ -5,7 +5,7 @@ namespace Willow.Helpers.Extensions;
 public static class TypeExtensions
 {
     /// <summary>
-    /// Returns the fullname or name if full name does not exist of <typeparamref name="T"/>
+    /// Returns the fullname or name if full name does not exist of <typeparamref name="T" />
     /// </summary>
     /// <remarks>
     /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
@@ -19,7 +19,7 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    /// Returns the fullname or name if full name does not exist of <paramref name="t"/>
+    /// Returns the fullname or name if full name does not exist of <paramref name="t" />
     /// </summary>
     /// <remarks>
     /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
@@ -33,7 +33,7 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    /// Finds all concrete types deriving <paramref name="type"/> in the assembly requested.
+    /// Finds all concrete types deriving <paramref name="type" /> in the assembly requested.
     /// </summary>
     /// <remarks>
     /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
@@ -41,13 +41,10 @@ public static class TypeExtensions
     /// </remarks>
     /// <param name="type">The type to look for concrete derivations of.</param>
     /// <param name="assembly">The assembly to search the types in.</param>
-    /// <returns>Concrete types assignable to <paramref name="type"/>.</returns>
+    /// <returns>Concrete types assignable to <paramref name="type" />.</returns>
     public static Type[] GetAllDerivingInAssembly(this Type type, Assembly assembly)
     {
-        return assembly.GetTypes()
-                       .Where(t => t.IsConcrete())
-                       .Where(t => t.IsAssignableTo(type))
-                       .ToArray();
+        return assembly.GetTypes().Where(static t => t.IsConcrete()).Where(t => t.IsAssignableTo(type)).ToArray();
     }
 
     /// <summary>
@@ -72,13 +69,13 @@ public static class TypeExtensions
         }
 
         return type.GetInterfaces()
-                   .Where(inter => inter.IsGenericType)
-                   .Select(inter => inter.GetGenericTypeDefinition())
+                   .Where(static inter => inter.IsGenericType)
+                   .Select(static inter => inter.GetGenericTypeDefinition())
                    .Any(inter => inter == openGeneric);
     }
-    
+
     /// <summary>
-    /// True if the 
+    /// True if the
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>

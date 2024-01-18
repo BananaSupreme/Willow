@@ -3,7 +3,7 @@
 namespace Willow.Core.Registration.Abstractions;
 
 /// <summary>
-/// the assembly registration entry point, from here all <see cref="IAssemblyRegistrar"/> in the DI will be called.
+/// the assembly registration entry point, from here all <see cref="IAssemblyRegistrar" /> in the DI will be called.
 /// </summary>
 public interface IAssemblyRegistrationEntry
 {

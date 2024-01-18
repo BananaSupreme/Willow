@@ -8,39 +8,40 @@ namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 /// <summary>
 /// A processor that succeeds whenever any of the inner processors succeeds.
 /// </summary>
-/// <param name="SuccessIndexName">The variable name in the command parameters to store the index of the successful
-/// item.</param>
+/// <param name="SuccessIndexName">
+/// The variable name in the command parameters to store the index of the successful
+/// item.
+/// </param>
 /// <param name="InnerNodes">The nodes to test against.</param>
 internal sealed record OrNodeProcessor(string SuccessIndexName, INodeProcessor[] InnerNodes) : INodeProcessor
 {
+    public bool Equals(OrNodeProcessor? other)
+    {
+        return other is not null
+               && SuccessIndexName.Equals(other.SuccessIndexName)
+               && InnerNodes.SequenceEqual(other.InnerNodes);
+    }
+
     public bool IsLeaf => false;
-    public uint Weight => InnerNodes.Min(x => x.Weight);
+    public uint Weight => InnerNodes.Min(static x => x.Weight);
 
     public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         var i = 0;
         foreach (var innerNode in InnerNodes)
         {
-            var (isSuccessful, innerBuilder, remainingTokens) =
-                innerNode.ProcessToken(tokens, builder);
-            
+            var (isSuccessful, innerBuilder, remainingTokens) = innerNode.ProcessToken(tokens, builder);
+
             if (isSuccessful)
             {
                 innerBuilder.AddParameter(SuccessIndexName, new NumberToken(i));
-                return new(true, innerBuilder, remainingTokens);
+                return new TokenProcessingResult(true, innerBuilder, remainingTokens);
             }
 
             i++;
         }
 
-        return new(false, builder, tokens);
-    }
-    
-    public bool Equals(OrNodeProcessor? other)
-    {
-        return other is not null
-               && SuccessIndexName.Equals(other.SuccessIndexName)
-               && InnerNodes.SequenceEqual(other.InnerNodes);
+        return new TokenProcessingResult(false, builder, tokens);
     }
 
     public override int GetHashCode()

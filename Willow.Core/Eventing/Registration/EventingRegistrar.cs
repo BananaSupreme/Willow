@@ -11,6 +11,8 @@ public sealed class EventingRegistrar : IServiceRegistrar
     {
         services.AddSingleton<IEventRegistrar, EventRegistrar>();
         services.AddSingleton<IEventDispatcher, EventDispatcher>();
-        services.AddSingleton<IUnsafeEventRegistrar>(provider => (IUnsafeEventRegistrar)provider.GetRequiredService<IEventDispatcher>());
+        services.AddSingleton<IUnsafeEventRegistrar>(static provider =>
+                                                         (IUnsafeEventRegistrar)provider
+                                                             .GetRequiredService<IEventDispatcher>());
     }
 }

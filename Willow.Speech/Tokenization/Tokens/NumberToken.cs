@@ -3,7 +3,7 @@
 namespace Willow.Speech.Tokenization.Tokens;
 
 /// <summary>
-/// A token representing a value. 
+/// A token representing a value.
 /// </summary>
 public sealed record NumberToken(int Value) : Token
 {

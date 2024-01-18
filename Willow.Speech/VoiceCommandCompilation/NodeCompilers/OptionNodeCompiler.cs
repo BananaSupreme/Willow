@@ -14,7 +14,7 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// Opt[variableName]:flagName
 /// ?[variableName]:flagName
 /// </code>
-/// Those patterns are compiled into <see cref="OptionalNodeProcessor"/>. <br/>
+/// Those patterns are compiled into <see cref="OptionalNodeProcessor" />. <br/>
 /// Meant to represent a wrapper for a node that is valid whether it was actually successful or not, when the value is
 /// successfully captured it adds a flag named after the colon symbol.
 /// </summary>

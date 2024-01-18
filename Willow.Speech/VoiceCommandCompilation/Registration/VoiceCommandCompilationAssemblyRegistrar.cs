@@ -6,7 +6,7 @@ using Willow.Speech.VoiceCommandCompilation.Abstractions;
 namespace Willow.Speech.VoiceCommandCompilation.Registration;
 
 /// <summary>
-/// Registers all the <see cref="INodeCompiler"/> in the assemblies.
+/// Registers all the <see cref="INodeCompiler" /> in the assemblies.
 /// </summary>
 internal sealed class VoiceCommandCompilationAssemblyRegistrar : IAssemblyRegistrar
 {

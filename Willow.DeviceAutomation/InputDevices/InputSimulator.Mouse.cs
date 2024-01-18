@@ -6,7 +6,7 @@ using Willow.DeviceAutomation.InputDevices.Extensions;
 
 namespace Willow.DeviceAutomation.InputDevices;
 
-internal partial class InputSimulator
+internal sealed partial class InputSimulator
 {
     public Vector2 CursorPosition => _robot.GetMousePosition().FromPoint();
 

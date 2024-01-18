@@ -9,11 +9,13 @@
 /// transcription process.
 /// <list type="bullet">
 /// <item>
-/// <b>Higher precision types (e.g., Float32)</b>: Provide more accurate transcription results but may require more
+/// <b>Higher precision types (e.g., Float32)</b>: Provide more accurate transcription results but may require
+/// more
 /// computational resources and time.
 /// </item>
 /// <item>
-/// <b>Lower precision types (e.g., Int16)</b>: Can speed up the transcription process and reduce resource usage but
+/// <b>Lower precision types (e.g., Int16)</b>: Can speed up the transcription process and reduce resource
+/// usage but
 /// might lead to slightly less accurate results.
 /// </item>
 /// </list>

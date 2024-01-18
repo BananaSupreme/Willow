@@ -10,15 +10,15 @@
 /// using the DI container.
 /// </item>
 /// <item>
-/// Events are distributed <i><b>asynchronously</b></i> without any locking mechanism,
-/// handlers should ensure they are <i><b>thread-safe</b></i>.
+/// Events are distributed <i><b>asynchronously</b></i> without any locking mechanism, handlers should ensure
+/// they are <i><b>thread-safe</b></i>.
 /// </item>
 /// <item>
 /// Events are registered as <i><b>singletons</b></i> within the system, so state cleanup is up to handler.
 /// </item>
 /// <item>
-/// There is no way to <i><b>remove</b></i> an event at this moment,
-/// so event should control whether they should run or not.
+/// There is no way to <i><b>remove</b></i> an event at this moment, so event should control whether they
+/// should run or not.
 /// </item>
 /// </list>
 /// </remarks>

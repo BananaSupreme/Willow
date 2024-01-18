@@ -4,7 +4,7 @@ namespace Willow.Speech.ScriptingInterface.Attributes;
 
 /// <summary>
 /// Defines a group of tags that must all be active for the command to activate. That is that all the tags defined in
-/// one attribute will be grouped into a singular <see cref="TagRequirement"/>.<br/>
+/// one attribute will be grouped into a singular <see cref="TagRequirement" />.<br/>
 /// When multiple groups of tags are relevant, add multiple versions of this attribute.
 /// </summary>
 /// <remarks>
@@ -14,11 +14,6 @@ namespace Willow.Speech.ScriptingInterface.Attributes;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class TagAttribute : Attribute
 {
-    /// <summary>
-    /// The group of tags.
-    /// </summary>
-    public Tag[] Tags { get; }
-
     public TagAttribute()
     {
         Tags = [];
@@ -26,11 +21,16 @@ public sealed class TagAttribute : Attribute
 
     public TagAttribute(string tag)
     {
-        Tags = [new(tag)];
+        Tags = [new Tag(tag)];
     }
 
     public TagAttribute(params string[] tags)
     {
         Tags = tags.Select(x => new Tag(x)).ToArray();
     }
+
+    /// <summary>
+    /// The group of tags.
+    /// </summary>
+    public Tag[] Tags { get; }
 }

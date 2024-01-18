@@ -12,7 +12,7 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// N:variableName
 /// #variableName
 /// </code>
-/// Those patterns are compiled into the <see cref="NumberNodeProcessor"/> with the variable in the captured values
+/// Those patterns are compiled into the <see cref="NumberNodeProcessor" /> with the variable in the captured values
 /// being the name after the colon. <br/>
 /// Meant to represent a number token.
 /// </summary>
@@ -22,8 +22,7 @@ internal sealed class NumberNodeCompiler : INodeCompiler
 
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
-                                                                      INodeCompiler[]
-                                                                          compilers)
+                                                                      INodeCompiler[] compilers)
     {
         var startSymbol = commandWord.FirstToStartWithOrNull(_startSymbols);
         if (startSymbol is null)

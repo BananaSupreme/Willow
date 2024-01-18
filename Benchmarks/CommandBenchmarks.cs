@@ -19,7 +19,7 @@ using Willow.StartUp;
 namespace Benchmarks;
 
 [MemoryDiagnoser]
-public class CommandBenchmarks
+public sealed class CommandBenchmarks
 {
     private IEventDispatcher _dispatcher = null!;
 
@@ -28,10 +28,8 @@ public class CommandBenchmarks
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        WillowStartup.Register(
-            [typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly],
-            services);
-        services.AddSingleton(_ => Substitute.For<IInputSimulator>());
+        WillowStartup.Register([typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly], services);
+        services.AddSingleton(static _ => Substitute.For<IInputSimulator>());
         DeviceAutomationRegistrator.RegisterServices(services);
         var provider = services.CreateServiceProvider();
         _dispatcher = provider.GetRequiredService<IEventDispatcher>();

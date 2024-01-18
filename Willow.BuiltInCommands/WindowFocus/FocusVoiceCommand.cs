@@ -6,6 +6,7 @@ using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.WindowFocus;
+
 [SupportedOss(SupportedOss.Windows)]
 internal sealed class FocusVoiceCommand : IVoiceCommand
 {

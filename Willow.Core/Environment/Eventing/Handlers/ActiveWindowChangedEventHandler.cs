@@ -28,23 +28,24 @@ internal sealed class ActiveWindowChangedEventHandler : IEventHandler<ActiveWind
     public Task HandleAsync(ActiveWindowChangedEvent @event)
     {
         var tags = _activeWindowTagStorage.GetByProcessName(@event.NewWindow.ProcessName);
-        
+
         _environmentStateProvider.SetWindowTags(tags);
         _environmentStateProvider.SetActiveWindowInfo(@event.NewWindow);
-        
+
         _log.TagsFoundInStorage(
-            new(@event.NewWindow.ProcessName, _privacySettings.CurrentValue.AllowLoggingActiveWindow),
-            new(tags, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
+            new RedactingLogger<string>(@event.NewWindow.ProcessName,
+                                        _privacySettings.CurrentValue.AllowLoggingActiveWindow),
+            new RedactingLogger<EnumeratorLogger<Tag>>(tags, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
         return Task.CompletedTask;
     }
 }
 
 internal static partial class ActiveWindowChangedEventHandlerLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Information,
-        Message = "Tags found from storage for process ({processName}): {tags}")]
-    public static partial void TagsFoundInStorage(this ILogger logger, RedactingLogger<string> processName,
+    [LoggerMessage(EventId = 1,
+                   Level = LogLevel.Information,
+                   Message = "Tags found from storage for process ({processName}): {tags}")]
+    public static partial void TagsFoundInStorage(this ILogger logger,
+                                                  RedactingLogger<string> processName,
                                                   RedactingLogger<EnumeratorLogger<Tag>> tags);
 }

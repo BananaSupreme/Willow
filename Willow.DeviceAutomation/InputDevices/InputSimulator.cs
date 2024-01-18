@@ -5,10 +5,10 @@ using Willow.Helpers.Locking;
 
 namespace Willow.DeviceAutomation.InputDevices;
 
-internal partial class InputSimulator : IInputSimulator
+internal sealed partial class InputSimulator : IInputSimulator
 {
-    private readonly IRobot _robot;
     private static readonly DisposableLock _lock = new();
+    private readonly IRobot _robot;
 
     public InputSimulator(IRobot robot)
     {

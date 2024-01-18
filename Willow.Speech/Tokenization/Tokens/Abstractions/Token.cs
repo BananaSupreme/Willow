@@ -20,12 +20,12 @@ public abstract record Token
 
     public virtual bool Match(Token other)
     {
-        return this.Equals(other);
+        return Equals(other);
     }
 
     [DoesNotReturn]
     private void ThrowInvalid(Type requested)
     {
-        throw new IncorrectTokenTypeException(this.GetType(), requested);
+        throw new IncorrectTokenTypeException(GetType(), requested);
     }
 }

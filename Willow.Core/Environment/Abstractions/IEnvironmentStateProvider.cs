@@ -47,7 +47,7 @@ public interface IEnvironmentStateProvider
     /// </para>
     /// <para>
     /// Command developers should ensure to deactivate tags when they are no longer needed
-    /// using the <see cref="DeactivateTag"/> function.
+    /// using the <see cref="DeactivateTag" /> function.
     /// </para>
     /// </remarks>
     /// <param name="tag">The tag to activate.</param>

@@ -19,8 +19,8 @@ public interface INodeProcessor
     /// <summary>
     /// The weight of the processor, this allows the system to sort which processors should gain priority. <br/>
     /// A rule of thumb for deciding a weight should how specific is the capturing, for example: <br/>
-    /// <see cref="WordNodeProcessor"/> has a weight of 1, since only one token can ever fit here. <br/>
-    /// On the other hand, <see cref="RepeatingWildCardNodeProcessor"/> has positive infinity, since it will capture
+    /// <see cref="WordNodeProcessor" /> has a weight of 1, since only one token can ever fit here. <br/>
+    /// On the other hand, <see cref="RepeatingWildCardNodeProcessor" /> has positive infinity, since it will capture
     /// everything left.
     /// </summary>
     uint Weight { get; }

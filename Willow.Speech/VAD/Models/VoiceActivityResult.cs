@@ -6,7 +6,9 @@
 /// <param name="IsSpeechDetected">Was any speech detected in the input.</param>
 /// <param name="SpeechStart">Speech start time.</param>
 /// <param name="SpeechEnd">Speech end time.</param>
-public readonly record struct VoiceActivityResult(bool IsSpeechDetected, TimeSpan SpeechStart, TimeSpan SpeechEnd)
+public readonly record struct VoiceActivityResult(bool IsSpeechDetected,
+                                                  TimeSpan SpeechStart,
+                                                  TimeSpan SpeechEnd)
 {
     private static readonly VoiceActivityResult _failed = new(false, TimeSpan.Zero, TimeSpan.Zero);
 
@@ -17,7 +19,7 @@ public readonly record struct VoiceActivityResult(bool IsSpeechDetected, TimeSpa
     /// <param name="end">Time speech ended.</param>
     public static VoiceActivityResult Success(TimeSpan start, TimeSpan end)
     {
-        return new(true, start, end);
+        return new VoiceActivityResult(true, start, end);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
 
-using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+
 using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
 using Willow.Helpers.Extensions;
@@ -26,41 +27,39 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
     {
         var voiceCommandType = voiceCommand.GetType();
         var capturedValues = CaptureValues(voiceCommand);
-        capturedValues.Add("_command",
-            () => (IVoiceCommand)_serviceProvider.GetRequiredService(voiceCommand.GetType()));
+        capturedValues.Add("_command", () => (IVoiceCommand)_serviceProvider.GetRequiredService(voiceCommand.GetType()));
 
-        RawVoiceCommand command = new(
-            Guid.NewGuid(),
-            [voiceCommand.InvocationPhrase, ..GetAliases(voiceCommandType)],
-            GetTags(voiceCommandType),
-            capturedValues,
-            GetSupportedOs(voiceCommandType),
-            GetName(voiceCommandType),
-            GetDescription(voiceCommandType)
-        );
+        RawVoiceCommand command = new(Guid.NewGuid(),
+                                      [voiceCommand.InvocationPhrase, ..GetAliases(voiceCommandType)],
+                                      GetTags(voiceCommandType),
+                                      capturedValues,
+                                      GetSupportedOs(voiceCommandType),
+                                      GetName(voiceCommandType),
+                                      GetDescription(voiceCommandType));
 
-        _log.CommandInterpreted(
-            command,
-            new(command.CapturedValues.Select(x => (x.Key, x.Value))),
-            voiceCommandType.Name);
+        _log.CommandInterpreted(command,
+                                new EnumeratorLogger<(string, object)>(
+                                    command.CapturedValues.Select(static x => (x.Key, x.Value))),
+                                voiceCommandType.Name);
         return command;
     }
 
-    private Dictionary<string, object> CaptureValues(object voiceCommand)
+    private static Dictionary<string, object> CaptureValues(object voiceCommand)
     {
-        var bindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
-                           BindingFlags.NonPublic;
+        const BindingFlags BindingFlags
+            = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
         return voiceCommand.GetType()
-                           .GetFields(bindingFlags)
+                           .GetFields(BindingFlags)
                            .Select(x => new KeyValuePair<string, object>(x.Name, x.GetValue(voiceCommand)!))
                            .Union(voiceCommand.GetType()
-                                              .GetProperties(bindingFlags)
-                                              .Select(x =>
-                                                  new KeyValuePair<string, object>(x.Name, x.GetValue(voiceCommand)!)))
+                                              .GetProperties(BindingFlags)
+                                              .Select(x => new KeyValuePair<string, object>(
+                                                          x.Name,
+                                                          x.GetValue(voiceCommand)!)))
                            .ToDictionary();
     }
 
-    private string GetName(Type type)
+    private static string GetName(Type type)
     {
         var nameAttribute = type.GetCustomAttributes(false).OfType<NameAttribute>().FirstOrDefault();
         return nameAttribute?.Name ?? ProcessNameFromTypeName(type);
@@ -71,71 +70,66 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
         var typeName = GetTypeNameWithoutEndings(type);
         return typeName.GetTitleFromPascal().ToString();
     }
-    
+
     private static ReadOnlySpan<char> GetTypeNameWithoutEndings(Type type)
     {
-        const string command = "Command";
-        const string voiceCommand = "VoiceCommand";
+        const string Command = "Command";
+        const string VoiceCommand = "VoiceCommand";
         var typeName = type.Name.AsSpan();
-        if (typeName.EndsWith(voiceCommand))
+        if (typeName.EndsWith(VoiceCommand))
         {
-            typeName = typeName[..^voiceCommand.Length];
+            typeName = typeName[..^VoiceCommand.Length];
         }
-        else if (typeName.EndsWith(command))
+        else if (typeName.EndsWith(Command))
         {
-            typeName = typeName[..^command.Length];
+            typeName = typeName[..^Command.Length];
         }
 
         return typeName;
     }
 
-    private string GetDescription(Type type)
+    private static string GetDescription(Type type)
     {
         var descriptionAttribute = type.GetCustomAttributes(false).OfType<DescriptionAttribute>().FirstOrDefault();
         return descriptionAttribute?.Description ?? string.Empty;
     }
 
-    private TagRequirement[] GetTags(Type type)
+    private static TagRequirement[] GetTags(Type type)
     {
         Tag activationTag = new(GetActivationMode(type).ToString());
-        var tagAttribute = type.GetCustomAttributes(false)
-                               .OfType<TagAttribute>()
-                               .ToArray();
+        var tagAttribute = type.GetCustomAttributes(false).OfType<TagAttribute>().ToArray();
         return tagAttribute.Any()
                    ? tagAttribute.Select(x => new TagRequirement([activationTag, ..x.Tags])).ToArray()
-                   : [new([activationTag])];
+                   : [new TagRequirement([activationTag])];
     }
 
-    private ActivationMode GetActivationMode(Type type)
+    private static ActivationMode GetActivationMode(Type type)
     {
-        var activationModeAttribute = type.GetCustomAttributes(false)
-                                          .OfType<ActivationModeAttribute>()
-                                          .FirstOrDefault();
+        var activationModeAttribute = type.GetCustomAttributes(false).OfType<ActivationModeAttribute>().FirstOrDefault();
         return activationModeAttribute?.ActivationMode ?? ActivationMode.Command;
     }
 
-    private string[] GetAliases(Type type)
+    private static string[] GetAliases(Type type)
     {
         var aliasAttributes = type.GetCustomAttributes(false).OfType<AliasAttribute>();
-        return aliasAttributes.SelectMany(x => x.Aliases).ToArray();
+        return aliasAttributes.SelectMany(static x => x.Aliases).ToArray();
     }
 
-    private SupportedOss GetSupportedOs(Type type)
+    private static SupportedOss GetSupportedOs(Type type)
     {
-        var supportsOsAttribute = type.GetCustomAttributes(false)
-                                                   .OfType<SupportedOssAttribute>()
-                                                   .FirstOrDefault();
+        var supportsOsAttribute = type.GetCustomAttributes(false).OfType<SupportedOssAttribute>().FirstOrDefault();
         return supportsOsAttribute?.SupportedOss ?? SupportedOss.All;
     }
 }
 
 internal static partial class VoiceCommandInterpreterLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Debug,
-        Message = "Command ({commandTypeName}) Interpreted ({command}).\r\nValues captured: {capturedValues}")]
-    public static partial void CommandInterpreted(this ILogger logger, RawVoiceCommand command,
+    [LoggerMessage(EventId = 1,
+                   Level = LogLevel.Debug,
+                   Message
+                       = "Command ({commandTypeName}) Interpreted ({command}).\r\nValues captured: {capturedValues}")]
+    public static partial void CommandInterpreted(this ILogger logger,
+                                                  RawVoiceCommand command,
                                                   EnumeratorLogger<(string, object)> capturedValues,
                                                   string commandTypeName);
 }

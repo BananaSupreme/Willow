@@ -47,14 +47,14 @@
     - Description: Indicates that the node is optional in a command.
 
 - **And**:
-    - Alias: `And`, `A`, `&` 
+    - Alias: `And`, `A`, `&`
     - Wrapper Node
     - Similiar to the OneOf node the inner nodes are seperated by pipes,
     - Note that nodes are processed from left to right
     - Description: A wrapper that require all nodes going from left to write to be processed succesfully.
 
 - **Or**:
-    - Alias: `Or`, `O`, `~`, 
+    - Alias: `Or`, `O`, `~`,
     - Wrapper Node
     - Similiar to the OneOf node the inner nodes are seperated by pipes,
     - Note that nodes are processed from left to right
@@ -136,7 +136,8 @@
     - Command: `"raise volume ?[&[a|little]]:_flag"`
     - Breakdown:
         - `raise volume` - Plain word(s)
-        - `?[&[a|little]]:_flag` - An optional node processor that wraps inside it an `And` node, this groups together one word
+        - `?[&[a|little]]:_flag` - An optional node processor that wraps inside it an `And` node, this groups together
+          one word
           node `a` and a second `little`, only if both are said the optional succeedes.
         - Like all other nodes aliasing rules applies so this is equivilant to `Optional[And[a|little]]`
 
@@ -144,6 +145,7 @@
     - Command: `"raise volume ?[~[much|little]]:flag"`
     - Breakdown:
         - `raise volume` - Plain word(s)
-        - `?[~[much|little]]:flag` - An optional node processor that wraps inside it an `Or` node, this groups together one word
+        - `?[~[much|little]]:flag` - An optional node processor that wraps inside it an `Or` node, this groups together
+          one word
           node `much` and a second `little`, if the user says either word the operation is considered a success.
         - Like all other nodes aliasing rules applies so this is equivilant to `Optional[Or[much|little]]`

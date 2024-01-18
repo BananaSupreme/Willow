@@ -8,29 +8,29 @@ namespace Willow.Core.Environment;
 
 internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
 {
+    private readonly HashSet<Tag> _customTags = [];
     private readonly ILogger<EnvironmentStateProvider> _log;
     private readonly ISettings<PrivacySettings> _privacySettings;
-    private Tag[]? _cache;
     private ActivationMode _activationMode = ActivationMode.Command;
-    private Tag[] _windowTags = [];
     private ActiveWindowInfo _activeWindow = new(string.Empty);
+    private Tag[]? _cache;
+    private Tag[] _windowTags = [];
 
-    public SupportedOss ActiveOs { get; } = GetSupportedOss();
-
-    public IReadOnlyList<Tag> Tags => _cache ?? RestoreCache();
-
-    public EnvironmentStateProvider(ILogger<EnvironmentStateProvider> log,
-                                    ISettings<PrivacySettings> privacySettings)
+    public EnvironmentStateProvider(ILogger<EnvironmentStateProvider> log, ISettings<PrivacySettings> privacySettings)
     {
         _log = log;
         _privacySettings = privacySettings;
     }
 
-    private readonly HashSet<Tag> _customTags = [];
+    public SupportedOss ActiveOs { get; } = GetSupportedOss();
+
+    public IReadOnlyList<Tag> Tags => _cache ?? RestoreCache();
 
     public void SetActiveWindowInfo(ActiveWindowInfo activeWindow)
     {
-        _log.ActiveWindowChanged(new(activeWindow, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
+        _log.ActiveWindowChanged(new RedactingLogger<ActiveWindowInfo>(activeWindow,
+                                                                       _privacySettings.CurrentValue
+                                                                           .AllowLoggingActiveWindow));
         _activeWindow = activeWindow;
         RestoreCache();
     }
@@ -44,21 +44,23 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
 
     public void SetWindowTags(Tag[] tags)
     {
-        _log.WindowTagsChanged(new(tags, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
+        _log.WindowTagsChanged(new RedactingLogger<EnumeratorLogger<Tag>>(tags,
+                                                                          _privacySettings.CurrentValue
+                                                                              .AllowLoggingActiveWindow));
         _windowTags = tags;
         RestoreCache();
     }
 
     public void ActivateTag(Tag tag)
     {
-        _log.TagActivated(new(tag, _privacySettings.CurrentValue.AllowLoggingCommands));
+        _log.TagActivated(new RedactingLogger<Tag>(tag, _privacySettings.CurrentValue.AllowLoggingCommands));
         _customTags.Add(tag);
         RestoreCache();
     }
 
     public void DeactivateTag(Tag tag)
     {
-        _log.TagDeactivated(new(tag, _privacySettings.CurrentValue.AllowLoggingCommands));
+        _log.TagDeactivated(new RedactingLogger<Tag>(tag, _privacySettings.CurrentValue.AllowLoggingCommands));
         _customTags.Remove(tag);
         RestoreCache();
     }
@@ -67,15 +69,16 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     {
         _cache =
         [
-            new(ActiveOs.ToString()),
-            new(_activationMode.ToString()),
+            new Tag(ActiveOs.ToString()),
+            new Tag(_activationMode.ToString()),
             .. _windowTags,
             .. _customTags,
-            new(_activeWindow.ProcessName)
+            new Tag(_activeWindow.ProcessName)
         ];
-        _log.CacheRestored(new(_cache,
-            _privacySettings.CurrentValue.AllowLoggingCommands
-            && _privacySettings.CurrentValue.AllowLoggingActiveWindow));
+        _log.CacheRestored(new RedactingLogger<EnumeratorLogger<Tag>>(_cache,
+                                                                      _privacySettings.CurrentValue.AllowLoggingCommands
+                                                                      && _privacySettings.CurrentValue
+                                                                          .AllowLoggingActiveWindow));
         return _cache;
     }
 
@@ -92,39 +95,23 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
 
 internal static partial class EnvironmentStateProviderLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Debug,
-        Message = "Active window changed ({activeWindow})")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Active window changed ({activeWindow})")]
     public static partial void ActiveWindowChanged(this ILogger log, RedactingLogger<ActiveWindowInfo> activeWindow);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Information,
-        Message = "Activation mode changed ({activationMode})")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "Activation mode changed ({activationMode})")]
     public static partial void ActivationModeChanged(this ILogger log, ActivationMode activationMode);
 
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Debug,
-        Message = "Environment tags changed: {tags}")]
+    [LoggerMessage(EventId = 3, Level = LogLevel.Debug, Message = "Environment tags changed: {tags}")]
     public static partial void WindowTagsChanged(this ILogger log, RedactingLogger<EnumeratorLogger<Tag>> tags);
 
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Information,
-        Message = "Tag activated ({tag})")]
+    [LoggerMessage(EventId = 4, Level = LogLevel.Information, Message = "Tag activated ({tag})")]
     public static partial void TagActivated(this ILogger log, RedactingLogger<Tag> tag);
 
-    [LoggerMessage(
-        EventId = 5,
-        Level = LogLevel.Information,
-        Message = "Tag deactivated ({tag})")]
+    [LoggerMessage(EventId = 5, Level = LogLevel.Information, Message = "Tag deactivated ({tag})")]
     public static partial void TagDeactivated(this ILogger log, RedactingLogger<Tag> tag);
 
-    [LoggerMessage(
-        EventId = 6,
-        Level = LogLevel.Trace,
-        Message = "Cache restored as a consequence of tags changing: {cache}")]
+    [LoggerMessage(EventId = 6,
+                   Level = LogLevel.Trace,
+                   Message = "Cache restored as a consequence of tags changing: {cache}")]
     public static partial void CacheRestored(this ILogger log, RedactingLogger<EnumeratorLogger<Tag>> cache);
 }

@@ -15,10 +15,8 @@ internal sealed class MoveMouseByOffsetVoiceCommand : IVoiceCommand
     {
         _inputSimulator = inputSimulator;
     }
-    
-    public string InvocationPhrase => $"move mouse [left|right|up|down]:direction ?[#amount]:_";
-    
-    
+
+    public string InvocationPhrase => "move mouse [left|right|up|down]:direction ?[#amount]:_";
     public Task ExecuteAsync(VoiceCommandContext context)
     {
         var direction = context.Parameters.GetValueOrDefault("direction")?.GetString()!;
@@ -30,14 +28,14 @@ internal sealed class MoveMouseByOffsetVoiceCommand : IVoiceCommand
         return Task.CompletedTask;
     }
 
-    private Vector2 GetFromDirection(string direction)
+    private static Vector2 GetFromDirection(string direction)
     {
         return direction switch
         {
-            "right" => new(1, 0),
-            "left" => new(-1, 0),
-            "up" => new(0, -1),
-            "down" => new(0, 1),
+            "right" => new Vector2(1, 0),
+            "left" => new Vector2(-1, 0),
+            "up" => new Vector2(0, -1),
+            "down" => new Vector2(0, 1),
             _ => throw new UnreachableException()
         };
     }

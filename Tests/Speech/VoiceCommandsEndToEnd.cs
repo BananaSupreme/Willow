@@ -5,7 +5,6 @@ using Tests.Helpers;
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Registration.Abstractions;
-using Willow.Core.Settings.Abstractions;
 using Willow.Speech;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Models;
@@ -15,7 +14,7 @@ using Willow.StartUp;
 
 namespace Tests.Speech;
 
-public class VoiceCommandsEndToEnd
+public sealed class VoiceCommandsEndToEnd
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -23,15 +22,14 @@ public class VoiceCommandsEndToEnd
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        WillowStartup.Register(
-            [typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly], services);
-        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
+        WillowStartup.Register([typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly], services);
+        services.AddSettings();
         _serviceProvider = services.CreateServiceProvider();
         var registrar = _serviceProvider.GetRequiredService<IAssemblyRegistrationEntry>();
         registrar.RegisterAssemblies([
                                          typeof(ICoreAssemblyMarker).Assembly,
                                          typeof(ISpeechAssemblyMarker).Assembly,
-                                         this.GetType().Assembly
+                                         GetType().Assembly
                                      ]);
     }
 

@@ -7,22 +7,25 @@
 /// <param name="SamplingRate">The sampling rate the samples are sampled in.</param>
 /// <param name="ChannelCount">The amount of channels the samples are in.</param>
 /// <param name="BitDepth">The bit depth of the samples.</param>
-public record struct AudioData(short[] RawData, int SamplingRate, ushort ChannelCount, ushort BitDepth)
+public record struct AudioData(short[] RawData,
+                               int SamplingRate,
+                               ushort ChannelCount,
+                               ushort BitDepth)
 {
+    private float[]? _cachedNormalizedData;
+
     /// <summary>
     /// Gets the length of time in this audio sample.
     /// </summary>
     public TimeSpan Duration => FromSamplePosition(RawData.Length);
-    
+
     /// <summary>
     /// Returns a normalized float array of data with values between 1.0 and 0.0.
     /// </summary>
-    public float[] NormalizedData =>  _cachedNormalizedData ??= Normalize();
-
-    private float[]? _cachedNormalizedData;
+    public float[] NormalizedData => _cachedNormalizedData ??= Normalize();
 
     /// <summary>
-    /// Returns the duration of audio that at the relevant <paramref name="position"/>.
+    /// Returns the duration of audio that at the relevant <paramref name="position" />.
     /// </summary>
     /// <param name="position">The position to know the timestamp of the audio at.</param>
     /// <returns>The time at the position.</returns>
@@ -32,18 +35,18 @@ public record struct AudioData(short[] RawData, int SamplingRate, ushort Channel
     }
 
     /// <summary>
-    /// Returns the sample position at the incoming <paramref cref="time"/>.
+    /// Returns the sample position at the incoming <paramref cref="time" />.
     /// </summary>
     /// <param name="time">The requested time.</param>
     /// <returns>The position at this time.</returns>
-    public int FromTimeSpan(TimeSpan time)
+    public readonly int FromTimeSpan(TimeSpan time)
     {
         return (int)(SamplingRate * time.TotalSeconds);
     }
 
     private float[] Normalize()
     {
-        return RawData.Select(x => x / (float)32768.0).ToArray();
+        return RawData.Select(static x => x / (float)32768.0).ToArray();
     }
 
     public override string ToString()

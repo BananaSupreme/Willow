@@ -27,6 +27,7 @@ public static class StringExtensions
             {
                 stringBuilder.Append(' ');
             }
+
             stringBuilder.Append(span[i]);
         }
 

@@ -3,7 +3,8 @@
 namespace Willow.Helpers.Logging.Loggers;
 
 /// <summary>
-/// A wrapper around <typeparamref name="T"/> that outputs its <i>JSON</i> representation when <see cref="ToString"/>.
+/// A wrapper around <typeparamref name="T" /> that outputs its <i>JSON</i> representation when <see cref="ToString" />
+/// .
 /// is called
 /// </summary>
 public readonly struct JsonLogger<T>
@@ -22,6 +23,6 @@ public readonly struct JsonLogger<T>
 
     public static implicit operator JsonLogger<T>(T? item)
     {
-        return new(item);
+        return new JsonLogger<T>(item);
     }
 }

@@ -18,8 +18,8 @@ internal sealed class CommandStorage : ICommandStorage
     private readonly ILogger<CommandStorage> _log;
     private readonly ISettings<PrivacySettings> _privacySettings;
 
-    private FrozenDictionary<Guid, Func<IVoiceCommand>> _storage =
-        new Dictionary<Guid, Func<IVoiceCommand>>().ToFrozenDictionary();
+    private FrozenDictionary<Guid, Func<IVoiceCommand>> _storage
+        = new Dictionary<Guid, Func<IVoiceCommand>>().ToFrozenDictionary();
 
     public CommandStorage(ILogger<CommandStorage> log, ISettings<PrivacySettings> privacySettings)
     {
@@ -29,8 +29,8 @@ internal sealed class CommandStorage : ICommandStorage
 
     public void SetAvailableCommands(ExecutableCommands[] commands)
     {
-        _log.CommandsUpdated(new(commands.Select(x => x.Id)));
-        _storage = commands.ToDictionary(x => x.Id, x => x.CommandActivator).ToFrozenDictionary();
+        _log.CommandsUpdated(new EnumeratorLogger<Guid>(commands.Select(static x => x.Id)));
+        _storage = commands.ToDictionary(static x => x.Id, static x => x.CommandActivator).ToFrozenDictionary();
     }
 
     public async Task ExecuteCommandAsync(Guid id, VoiceCommandContext context)
@@ -40,8 +40,12 @@ internal sealed class CommandStorage : ICommandStorage
         if (_storage.TryGetValue(id, out var commandActivator))
         {
             var command = commandActivator();
-            _log.CommandMatched(new(new(command), _privacySettings.CurrentValue.AllowLoggingCommands),
-                new(new(context.Parameters), _privacySettings.CurrentValue.AllowLoggingCommands));
+            _log.CommandMatched(
+                new RedactingLogger<TypeNameLogger<IVoiceCommand>>(new TypeNameLogger<IVoiceCommand>(command),
+                                                                   _privacySettings.CurrentValue.AllowLoggingCommands),
+                new RedactingLogger<EnumeratorLogger<KeyValuePair<string, Token>>>(
+                    new EnumeratorLogger<KeyValuePair<string, Token>>(context.Parameters),
+                    _privacySettings.CurrentValue.AllowLoggingCommands));
             await command.ExecuteAsync(context);
             return;
         }
@@ -53,29 +57,19 @@ internal sealed class CommandStorage : ICommandStorage
 
 internal static partial class CommandStorageLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Debug,
-        Message = "Updated commands in storage: {commands}")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Updated commands in storage: {commands}")]
     public static partial void CommandsUpdated(this ILogger logger, EnumeratorLogger<Guid> commands);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Trace,
-        Message = "Looking for command")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Trace, Message = "Looking for command")]
     public static partial void LookingForCommand(this ILogger logger);
 
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Warning,
-        Message = "Command was not found")]
+    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message = "Command was not found")]
     public static partial void CommandNotFoundInStorage(this ILogger logger);
 
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Information,
-        Message = "Command matched, executing ({commandName}) with parameters: {parameters}")]
-    public static partial void CommandMatched(this ILogger logger, 
+    [LoggerMessage(EventId = 4,
+                   Level = LogLevel.Information,
+                   Message = "Command matched, executing ({commandName}) with parameters: {parameters}")]
+    public static partial void CommandMatched(this ILogger logger,
                                               RedactingLogger<TypeNameLogger<IVoiceCommand>> commandName,
                                               RedactingLogger<EnumeratorLogger<KeyValuePair<string, Token>>> parameters);
 }

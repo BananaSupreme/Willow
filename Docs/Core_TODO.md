@@ -6,15 +6,16 @@
   reciprocal remove function would work, this might be simple for somethings such as registrations but much more
   difficult for things such as commands.
 - safe keeping this one when we will consider how to enable smart moving around the text we are in, for example "
-  change *word *second" to switch the word for another... 
-    Windows
-      Microsoft UI Automation (UIA): This is the most powerful and recommended way to access UI elements and their
-      properties, including text, on Windows. UIA allows you to programmatically explore, monitor, and interact with the
-      user interface of applications running on Windows.
-  
-    Text Services Framework (TSF): TSF is an advanced text input and natural language framework. It can be used for complex
-      text interactions, though it's more geared towards input method editors and advanced text services.
-      
+  change *word *second" to switch the word for another...
+  Windows
+  Microsoft UI Automation (UIA): This is the most powerful and recommended way to access UI elements and their
+  properties, including text, on Windows. UIA allows you to programmatically explore, monitor, and interact with the
+  user interface of applications running on Windows.
+
+  Text Services Framework (TSF): TSF is an advanced text input and natural language framework. It can be used for
+  complex
+  text interactions, though it's more geared towards input method editors and advanced text services.
+
       Graphics Device Interface (GDI) and DirectWrite: For applications that render text using GDI or DirectWrite, it's
       possible to capture the screen and analyze the rendered text. This is more complex and less reliable than using UIA.
       

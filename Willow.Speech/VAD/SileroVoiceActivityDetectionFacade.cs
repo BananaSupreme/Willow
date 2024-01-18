@@ -31,13 +31,13 @@ internal sealed class SileroVoiceActivityDetectionFacade : IVoiceActivityDetecti
         var currentValue = _sileroSettings.CurrentValue;
         _log.VoiceActivityDetectionStarted(currentValue);
         var result = _sileroVad.GetSpeechTimestamps(audioSegment.NormalizedData,
-            currentValue.Threshold,
-            currentValue.MinSpeechDurationMilliseconds,
-            float.PositiveInfinity,
-            1,
-            1024, //One of three constants used by Silero. <512,1024,1536>
-            currentValue.SpeechPadMilliseconds);
-        
+                                                    currentValue.Threshold,
+                                                    currentValue.MinSpeechDurationMilliseconds,
+                                                    float.PositiveInfinity,
+                                                    1,
+                                                    1024, //One of three constants used by Silero. <512,1024,1536>
+                                                    currentValue.SpeechPadMilliseconds);
+
         var vadResult = ProcessVadResult(audioSegment, result);
 
         _log.VoiceActivityDetectionResult(vadResult);
@@ -64,15 +64,11 @@ internal sealed class SileroVoiceActivityDetectionFacade : IVoiceActivityDetecti
 
 internal static partial class SileroVadLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Debug,
-        Message = "Starting voice activity detection using Silero model with settings: {settings}.")]
+    [LoggerMessage(EventId = 1,
+                   Level = LogLevel.Debug,
+                   Message = "Starting voice activity detection using Silero model with settings: {settings}.")]
     public static partial void VoiceActivityDetectionStarted(this ILogger logger, SileroSettings settings);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Debug,
-        Message = "Ended detection with result: {result}.")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Ended detection with result: {result}.")]
     public static partial void VoiceActivityDetectionResult(this ILogger logger, VoiceActivityResult result);
 }

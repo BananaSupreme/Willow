@@ -7,8 +7,7 @@ namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 /// A processor that always succeeds.
 /// </summary>
 /// <param name="CaptureName">The variable name in the command parameters to capture the token.</param>
-internal sealed record WildCardNodeProcessor(string CaptureName)
-    : CapturingNodeProcessor(CaptureName)
+internal sealed record WildCardNodeProcessor(string CaptureName) : CapturingNodeProcessor(CaptureName)
 {
     public override uint Weight => uint.MaxValue - 1;
 

@@ -7,7 +7,7 @@ namespace Willow.Core.Registration.Abstractions;
 /// </summary>
 internal interface IInterfaceRegistrar
 {
-    /// <inheritdoc cref="IInterfaceRegistrar"/>
+    /// <inheritdoc cref="IInterfaceRegistrar" />
     /// <param name="typeToDeriveFrom">
     /// The type to be registered. <br/>
     /// all concrete implementations of the type will be registered.
@@ -16,7 +16,7 @@ internal interface IInterfaceRegistrar
     void RegisterDeriving(Type typeToDeriveFrom, Assembly[] assemblies);
 
     /// <summary>
-    /// <see cref="RegisterDeriving"/> but the type is <typeparamref name="T"/>,
+    /// <see cref="RegisterDeriving" /> but the type is <typeparamref name="T" />,
     /// </summary>
     void RegisterDeriving<T>(Assembly[] assemblies);
 }

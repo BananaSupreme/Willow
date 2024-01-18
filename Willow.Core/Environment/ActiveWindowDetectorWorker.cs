@@ -13,13 +13,13 @@ internal sealed class ActiveWindowDetectorWorker : BackgroundService
 {
     private readonly IActiveWindowDetector _activeWindowDetector;
     private readonly IEventDispatcher _eventDispatcher;
-    private readonly ISettings<PrivacySettings> _privacySettings;
     private readonly ILogger<ActiveWindowDetectorWorker> _log;
+    private readonly ISettings<PrivacySettings> _privacySettings;
     private ActiveWindowInfo _currentWindow;
 
     public ActiveWindowDetectorWorker(IActiveWindowDetector activeWindowDetector,
                                       IEventDispatcher eventDispatcher,
-                                      ISettings<PrivacySettings> privacySettings,  
+                                      ISettings<PrivacySettings> privacySettings,
                                       ILogger<ActiveWindowDetectorWorker> log)
     {
         _activeWindowDetector = activeWindowDetector;
@@ -39,10 +39,15 @@ internal sealed class ActiveWindowDetectorWorker : BackgroundService
         {
             _log.CheckingWindow();
             var window = _activeWindowDetector.GetActiveWindow();
-            _log.WindowFound(new(window, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
+            _log.WindowFound(
+                new RedactingLogger<ActiveWindowInfo>(window, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
             if (window != _currentWindow)
             {
-                _log.WindowChanged(new(_currentWindow, _privacySettings.CurrentValue.AllowLoggingActiveWindow), new(window, _privacySettings.CurrentValue.AllowLoggingActiveWindow));
+                _log.WindowChanged(
+                    new RedactingLogger<ActiveWindowInfo>(_currentWindow,
+                                                          _privacySettings.CurrentValue.AllowLoggingActiveWindow),
+                    new RedactingLogger<ActiveWindowInfo>(window,
+                                                          _privacySettings.CurrentValue.AllowLoggingActiveWindow));
                 _currentWindow = window;
                 _eventDispatcher.Dispatch(new ActiveWindowChangedEvent(window));
             }
@@ -54,21 +59,16 @@ internal sealed class ActiveWindowDetectorWorker : BackgroundService
 
 internal static partial class ActiveWindowDetectorWorkerLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Trace,
-        Message = "Checking the current active window.")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Trace, Message = "Checking the current active window.")]
     public static partial void CheckingWindow(this ILogger logger);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Trace,
-        Message = "Window found ({activeWindowInfo})")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Trace, Message = "Window found ({activeWindowInfo})")]
     public static partial void WindowFound(this ILogger logger, RedactingLogger<ActiveWindowInfo> activeWindowInfo);
 
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Information,
-        Message = "Window ({newWindow}) detected to be different from existing ({oldWindow})")]
-    public static partial void WindowChanged(this ILogger logger, RedactingLogger<ActiveWindowInfo> oldWindow, RedactingLogger<ActiveWindowInfo> newWindow);
+    [LoggerMessage(EventId = 3,
+                   Level = LogLevel.Information,
+                   Message = "Window ({newWindow}) detected to be different from existing ({oldWindow})")]
+    public static partial void WindowChanged(this ILogger logger,
+                                             RedactingLogger<ActiveWindowInfo> oldWindow,
+                                             RedactingLogger<ActiveWindowInfo> newWindow);
 }

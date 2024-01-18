@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using Microsoft.Extensions.Logging;
 
 using Vosk;
 
@@ -23,18 +23,15 @@ namespace Willow.Vosk;
 /// <summary>
 /// This engine manages the downloading of the model and transcription using the VOSK model.
 /// </summary>
-/// <seealso href="https://alphacephei.com/vosk/"/>
-internal sealed class VoskEngine : 
-    ISpeechToTextEngine, 
-    IDisposable, 
-    IAsyncDisposable,
-    IEventHandler<SettingsUpdatedEvent<VoskSettings>>
+/// <seealso href="https://alphacephei.com/vosk/" />
+internal sealed class VoskEngine
+    : ISpeechToTextEngine, IDisposable, IAsyncDisposable, IEventHandler<SettingsUpdatedEvent<VoskSettings>>
 {
-    private readonly IVoskModelInstaller _modelInstaller;
-    private readonly ISettings<VoskSettings> _voskSettings;
-    private readonly ISettings<PrivacySettings> _privacySettings;
-    private readonly ILogger<VoskEngine> _log;
     private readonly DisposableLock _lock = new();
+    private readonly ILogger<VoskEngine> _log;
+    private readonly IVoskModelInstaller _modelInstaller;
+    private readonly ISettings<PrivacySettings> _privacySettings;
+    private readonly ISettings<VoskSettings> _voskSettings;
     private Model _model = null!;
     private VoskRecognizer _recognizer = null!;
 
@@ -47,6 +44,28 @@ internal sealed class VoskEngine :
         _voskSettings = voskSettings;
         _privacySettings = privacySettings;
         _log = log;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopAsync(CancellationToken.None);
+    }
+
+    public void Dispose()
+    {
+        DisposeAsync().AsTask().GetAwaiter().GetResult();
+    }
+
+    public async Task HandleAsync(SettingsUpdatedEvent<VoskSettings> @event)
+    {
+        if (!IsRunning)
+        {
+            return;
+        }
+
+        _log.ModelReinitializing();
+        await StopAsync();
+        await StartAsync();
     }
 
     public string Name => nameof(SelectedSpeechEngine.Vosk);
@@ -62,7 +81,8 @@ internal sealed class VoskEngine :
             _ = _recognizer.AcceptWaveform(audioData.RawData, audioData.RawData.Length);
             var recognizerResult = _recognizer.FinalResult();
             _recognizer.Reset();
-            _log.AudioTranscribed(new(recognizerResult, _privacySettings.CurrentValue.AllowLoggingTranscriptions));
+            _log.AudioTranscribed(
+                new RedactingLogger<string>(recognizerResult, _privacySettings.CurrentValue.AllowLoggingTranscriptions));
             return recognizerResult;
         });
         var result = JsonSerializer.Deserialize<VoskResult>(resultJson);
@@ -76,11 +96,12 @@ internal sealed class VoskEngine :
         IsRunning = true;
         await _modelInstaller.EnsureExistsAsync();
         await Task.Run(() =>
-        {
-            _model = new(_voskSettings.CurrentValue.ModelPath);
-            _recognizer = new(_model, 16000);
-            _log.VoskStarted();
-        }, cancellationToken);
+                       {
+                           _model = new Model(_voskSettings.CurrentValue.ModelPath);
+                           _recognizer = new VoskRecognizer(_model, 16000);
+                           _log.VoskStarted();
+                       },
+                       cancellationToken);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken = default)
@@ -92,72 +113,32 @@ internal sealed class VoskEngine :
         _recognizer.Dispose();
         _log.VoskStopped();
     }
-    
-    public async Task HandleAsync(SettingsUpdatedEvent<VoskSettings> @event)
-    {
-        if (!IsRunning)
-        {
-            return;
-        }
-        _log.ModelReinitializing();
-        await StopAsync();
-        await StartAsync();
-    }
-
-    public void Dispose()
-    {
-        DisposeAsync().GetAwaiter().GetResult();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await StopAsync(CancellationToken.None);
-    }
 
     private record struct VoskResult([property: JsonPropertyName("text")] string Text);
 }
 
 internal static partial class VoskEngineLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Information,
-        Message = "Transcribed Audio: ({transcription})")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Transcribed Audio: ({transcription})")]
     public static partial void AudioTranscribed(this ILogger log, RedactingLogger<string> transcription);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Debug,
-        Message = "Transcription Requested: ({data})")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Transcription Requested: ({data})")]
     public static partial void TranscriptionRequested(this ILogger log, AudioData data);
 
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Debug,
-        Message = "Settings changed, Vosk model re-initialization requested")]
+    [LoggerMessage(EventId = 3,
+                   Level = LogLevel.Debug,
+                   Message = "Settings changed, Vosk model re-initialization requested")]
     public static partial void ModelReinitializing(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Trace,
-        Message = "Vosk server starting")]
+    [LoggerMessage(EventId = 4, Level = LogLevel.Trace, Message = "Vosk server starting")]
     public static partial void StartingVosk(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 5,
-        Level = LogLevel.Trace,
-        Message = "Vosk server started")]
+    [LoggerMessage(EventId = 5, Level = LogLevel.Trace, Message = "Vosk server started")]
     public static partial void VoskStarted(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 6,
-        Level = LogLevel.Trace,
-        Message = "Vosk server stopping")]
+    [LoggerMessage(EventId = 6, Level = LogLevel.Trace, Message = "Vosk server stopping")]
     public static partial void StoppingVosk(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 7,
-        Level = LogLevel.Trace,
-        Message = "Vosk server stopped")]
+    [LoggerMessage(EventId = 7, Level = LogLevel.Trace, Message = "Vosk server stopped")]
     public static partial void VoskStopped(this ILogger log);
 }

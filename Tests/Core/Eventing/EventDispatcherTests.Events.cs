@@ -1,14 +1,13 @@
 ﻿using Willow.Core.Eventing;
 using Willow.Core.Eventing.Abstractions;
-
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace Tests.Core.Eventing;
 
 public sealed partial class EventDispatcherTests : IDisposable
 {
-    private readonly IEventDispatcher _sut;
     private readonly ServiceProvider _provider;
+    private readonly IEventDispatcher _sut;
 
     public EventDispatcherTests()
     {
@@ -27,6 +26,11 @@ public sealed partial class EventDispatcherTests : IDisposable
         _sut = _provider.GetRequiredService<IEventDispatcher>();
     }
 
+    public void Dispose()
+    {
+        _provider.Dispose();
+    }
+
     [Fact]
     public async Task When_EventNotFlushed_StillCompletes()
     {
@@ -38,7 +42,7 @@ public sealed partial class EventDispatcherTests : IDisposable
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
         state.Should().BeEquivalentTo(handler.Event);
     }
-    
+
     [Fact]
     public void When_MultipleEventHandlersRegistered_AllRun()
     {
@@ -63,7 +67,7 @@ public sealed partial class EventDispatcherTests : IDisposable
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
         var handler2 = _provider.GetRequiredService<TestEventHandler2<StateWithTwoParameters>>();
 
-        handler.PerformAction = _ => throw new Exception();
+        handler.PerformAction = static _ => throw new Exception();
 
         _sut.Dispatch(new StateWithTwoParameters(0, 0));
         _sut.Flush();
@@ -80,17 +84,12 @@ public sealed partial class EventDispatcherTests : IDisposable
 
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithStringParameters>>();
         var interceptor = _provider.GetRequiredService<ExceptionCatchingInterceptor<StateWithStringParameters>>();
-        handler.PerformAction = _ => throw new Exception();
+        handler.PerformAction = static _ => throw new Exception();
 
         _sut.Dispatch(new StateWithStringParameters(""));
         _sut.Flush();
 
         handler.Called.Should().BeTrue();
         interceptor.Called.Should().BeTrue();
-    }
-
-    public void Dispose()
-    {
-        _provider.Dispose();
     }
 }

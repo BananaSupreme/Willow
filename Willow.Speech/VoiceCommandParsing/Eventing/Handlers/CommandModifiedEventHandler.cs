@@ -7,7 +7,7 @@ using Willow.Speech.VoiceCommandParsing.Abstractions;
 namespace Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 
 /// <summary>
-/// Triggers a rebuilt of the internal <see cref="ITrie"/> with the new command set.
+/// Triggers a rebuilt of the internal <see cref="ITrie" /> with the new command set.
 /// </summary>
 internal sealed class CommandModifiedEventHandler : IEventHandler<CommandModifiedEvent>
 {
@@ -20,13 +20,13 @@ internal sealed class CommandModifiedEventHandler : IEventHandler<CommandModifie
 
     public Task HandleAsync(CommandModifiedEvent @event)
     {
-        var baseCommands = @event.Commands
-                                 .SelectMany(x =>
+        var baseCommands = @event.Commands.SelectMany(static x =>
                                  {
-                                     return x.InvocationPhrases.Select(phrase =>
-                                         new PreCompiledVoiceCommand(x.Id, phrase, x.TagRequirements,
-                                             x.CapturedValues)
-                                     );
+                                     return x.InvocationPhrases.Select(
+                                         phrase => new PreCompiledVoiceCommand(x.Id,
+                                                                               phrase,
+                                                                               x.TagRequirements,
+                                                                               x.CapturedValues));
                                  })
                                  .ToArray();
         _trieFactory.Set(baseCommands);

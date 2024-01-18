@@ -13,9 +13,9 @@ internal interface IMicrophoneAccess
     /// </summary>
     /// <remarks>
     /// Changes to the microphone settings are handled internally by listening to the event fired when
-    /// <see cref="MicrophoneSettings"/> changes.
+    /// <see cref="MicrophoneSettings" /> changes.
     /// </remarks>
-    /// <returns>An infinite stream of <see cref="AudioData"/>.</returns>
+    /// <returns>An infinite stream of <see cref="AudioData" />.</returns>
     IEnumerable<AudioData> StartRecording();
 
     /// <summary>

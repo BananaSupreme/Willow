@@ -19,7 +19,7 @@ internal sealed class Trie : ITrie
         var (builder, remainingTokens) = _root.ProcessToken(tokens, CommandBuilder.Create(), tags);
         var (isSuccessful, command) = builder.TryBuild();
         return isSuccessful
-                   ? new(isSuccessful, command, remainingTokens)
-                   : new(isSuccessful, default, tokens);
+                   ? new TrieTraversalResult(isSuccessful, command, remainingTokens)
+                   : new TrieTraversalResult(isSuccessful, default, tokens);
     }
 }

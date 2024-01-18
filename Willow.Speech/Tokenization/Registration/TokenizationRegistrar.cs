@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using Willow.Core.Registration.Abstractions;
-using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization.Abstractions;
 
 namespace Willow.Speech.Tokenization.Registration;
@@ -12,6 +11,5 @@ internal sealed class TokenizationRegistrar : IServiceRegistrar
     {
         services.AddSingleton<IAssemblyRegistrar, TokenizationAssemblyRegistrar>();
         services.AddSingleton<ITokenizer, Tokenizer>();
-        services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>(ServiceLifetime.Singleton);
     }
 }

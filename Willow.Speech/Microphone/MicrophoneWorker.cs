@@ -11,8 +11,7 @@ internal sealed class MicrophoneWorker : BackgroundService
     private readonly IEventDispatcher _eventDispatcher;
     private readonly IMicrophoneAccess _microphoneAccess;
 
-    public MicrophoneWorker(IEventDispatcher eventDispatcher,
-                            IMicrophoneAccess microphoneAccess)
+    public MicrophoneWorker(IEventDispatcher eventDispatcher, IMicrophoneAccess microphoneAccess)
     {
         _eventDispatcher = eventDispatcher;
         _microphoneAccess = microphoneAccess;

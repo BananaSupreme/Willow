@@ -12,24 +12,32 @@ namespace Tests.Speech.SpeechServers;
 public sealed class VoskDownloaderTests : IDisposable
 {
     private readonly ServiceProvider _provider;
-    private readonly IVoskModelInstaller _sut;
     private readonly ISettings<VoskSettings> _settings;
+    private readonly IVoskModelInstaller _sut;
 
     public VoskDownloaderTests()
     {
-        var _downloader = Substitute.For<IVoskModelDownloader>();
+        var downloader = Substitute.For<IVoskModelDownloader>();
         var services = new ServiceCollection();
         VoskServerRegistrar.RegisterServices(services);
         services.AddLogging();
-        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
-        services.AddSingleton(_downloader);
+        services.AddSettings();
+        services.AddSingleton(downloader);
         _provider = services.BuildServiceProvider();
         _settings = _provider.GetRequiredService<ISettings<VoskSettings>>();
         _sut = _provider.GetRequiredService<IVoskModelInstaller>();
-        _downloader.GetVoskModelZip(Arg.Any<VoskModel>())
-                   .Returns(_ =>
-                       Task.FromResult((Stream)File.Open("Speech/SpeechServers/vosk-model-small-en-us-0.15.zip", FileMode.Open)));
+        downloader.GetVoskModelZip(Arg.Any<VoskModel>())
+                  .Returns(static _ => Task.FromResult(
+                               (Stream)File.Open("Speech/SpeechServers/vosk-model-small-en-us-0.15.zip",
+                                                 FileMode.Open)));
         EnsureDeletedFolder();
+    }
+
+    public void Dispose()
+    {
+        EnsureDeletedFolder();
+
+        _provider.Dispose();
     }
 
     [Fact]
@@ -59,7 +67,7 @@ public sealed class VoskDownloaderTests : IDisposable
         Directory.Exists(_settings.CurrentValue.ModelPath).Should().BeTrue();
         (await _sut.ValidateModelFilesAsync(_settings.CurrentValue)).Should().BeTrue();
         var files = GetAllFilesRecursively(_settings.CurrentValue.ModelPath);
-        await File.WriteAllTextAsync(files[0],"hello World");
+        await File.WriteAllTextAsync(files[0], "hello World");
 
         (await _sut.ValidateModelFilesAsync(_settings.CurrentValue)).Should().BeFalse();
     }
@@ -77,13 +85,6 @@ public sealed class VoskDownloaderTests : IDisposable
         (await _sut.ValidateModelFilesAsync(_settings.CurrentValue)).Should().BeTrue();
     }
 
-    public void Dispose()
-    {
-        EnsureDeletedFolder();
-
-        _provider.Dispose();
-    }
-
     private void EnsureDeletedFolder()
     {
         if (Directory.Exists(VoskSettings.VoskFolder))
@@ -92,12 +93,15 @@ public sealed class VoskDownloaderTests : IDisposable
         }
     }
 
-    private string[] GetAllFilesRecursively(string path)
+    private static string[] GetAllFilesRecursively(string path)
     {
-        return Directory.GetFiles(path, "*",
-            new EnumerationOptions()
-            {
-                RecurseSubdirectories = true, MaxRecursionDepth = 5, ReturnSpecialDirectories = false,
-            });
+        return Directory.GetFiles(path,
+                                  "*",
+                                  new EnumerationOptions
+                                  {
+                                      RecurseSubdirectories = true,
+                                      MaxRecursionDepth = 5,
+                                      ReturnSpecialDirectories = false
+                                  });
     }
 }

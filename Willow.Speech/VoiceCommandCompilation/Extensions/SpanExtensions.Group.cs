@@ -9,11 +9,11 @@ namespace Willow.Speech.VoiceCommandCompilation.Extensions;
 internal static partial class SpanExtensions
 {
     /// <summary>
-    /// Parses the incoming string for a group of processors seperated by a | mark. 
+    /// Parses the incoming string for a group of processors seperated by a | mark.
     /// </summary>
     /// <param name="processors">The incoming string.</param>
     /// <param name="compilers">All the compilers available in the system.</param>
-    /// <param name="capturedValues">The values captured from the <see cref="IVoiceCommand"/> instance.</param>
+    /// <param name="capturedValues">The values captured from the <see cref="IVoiceCommand" /> instance.</param>
     /// <returns>The processors that build the compilation.</returns>
     public static INodeProcessor[] ExtractNodeProcessors(this ReadOnlySpan<char> processors,
                                                          INodeCompiler[] compilers,
@@ -61,8 +61,7 @@ internal static partial class SpanExtensions
         //If this is true the pipe is potentially coming from inside the capturing group
         //for example "&[[one|of]:capturing|another]" - the next pipe variable will be the pipe inside the OneOf node
         //In this case we want to make sure we close off all the capturing groups before carrying forward.
-        if (nextCapturingGroupOpener > -1
-            && nextPipe > nextCapturingGroupOpener)
+        if (nextCapturingGroupOpener > -1 && nextPipe > nextCapturingGroupOpener)
         {
             processors = ExitInnerCapturingGroups(processors, nextCapturingGroupOpener);
 
@@ -71,9 +70,7 @@ internal static partial class SpanExtensions
             //We should either be at the end, have a separator or we can be looking at a capture name such as ..|~[..]:..
             nextPipe = processors.IndexOf(Chars.Pipe);
             nextCapturingGroupOpener = processors.IndexOf(Chars.LeftSquare);
-            if (processors.Length != 0
-                && nextCapturingGroupOpener > -1
-                && nextPipe > nextCapturingGroupOpener)
+            if (processors.Length != 0 && nextCapturingGroupOpener > -1 && nextPipe > nextCapturingGroupOpener)
             {
                 throw new CommandCompilationException("missing a separator between capturing groups");
             }
@@ -82,9 +79,7 @@ internal static partial class SpanExtensions
         //If we had an inner group we shaved off some characters, so next pipe is not at 0,
         //its at 0 plus how many characters we shaved
         //of course if we are at the end of the line we should be sure to return -1 to signal that there are no more pipes
-        return nextPipe > 0
-                   ? nextPipe + (originalLength - processors.Length)
-                   : -1;
+        return nextPipe > 0 ? nextPipe + (originalLength - processors.Length) : -1;
     }
 
     private static ReadOnlySpan<char> ExitInnerCapturingGroups(this ReadOnlySpan<char> processors,

@@ -2,10 +2,10 @@
 
 namespace Tests.Helpers;
 
-internal class SettingsMock<T> : ISettings<T>
-    where T : new()
+internal sealed class SettingsMock<T> : ISettings<T> where T : new()
 {
     public T CurrentValue => new();
+
     public void Update(T newValue)
     {
         throw new InvalidOperationException();

@@ -10,17 +10,17 @@
 /// <example>
 /// "IAmAVoiceCommand" -> "I Am A". <br/>
 /// "AnotherCommandInTheSystem" -> "Another Command In The System". <br/>
-/// "FinalThatEndsWithCommand" -> "Final That Ends With". 
+/// "FinalThatEndsWithCommand" -> "Final That Ends With".
 /// </example>
 public sealed class NameAttribute : Attribute
 {
-    /// <summary>
-    /// Display name.
-    /// </summary>
-    public string Name { get; }
-
     public NameAttribute(string name)
     {
         Name = name;
     }
+
+    /// <summary>
+    /// Display name.
+    /// </summary>
+    public string Name { get; }
 }

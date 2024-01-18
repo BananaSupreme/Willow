@@ -11,14 +11,13 @@ internal sealed class Resampler : IResampler
         {
             return input;
         }
-        else if (input.SamplingRate < requestedSamplingRate)
+
+        if (input.SamplingRate < requestedSamplingRate)
         {
             return DownSample(input, requestedSamplingRate);
         }
-        else
-        {
-            return UpSample(input, requestedSamplingRate);
-        }
+
+        return UpSample(input, requestedSamplingRate);
     }
 
     private AudioData DownSample(AudioData input, int requestedSamplingRate)
@@ -49,7 +48,7 @@ internal sealed class Resampler : IResampler
         return input with { RawData = resampled, SamplingRate = requestedSamplingRate };
     }
 
-    private float GetFactor(int inputSamplingRate, int requestedSamplingRate)
+    private static float GetFactor(int inputSamplingRate, int requestedSamplingRate)
     {
         return inputSamplingRate / (float)requestedSamplingRate;
     }

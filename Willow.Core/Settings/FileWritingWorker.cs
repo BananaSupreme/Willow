@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
-
-using System.Text;
+﻿using System.Text;
 using System.Threading.Channels;
+
+using Microsoft.Extensions.Hosting;
 
 using Willow.Core.Settings.Models;
 
@@ -9,13 +9,27 @@ namespace Willow.Core.Settings;
 
 internal sealed class FileWritingWorker : BackgroundService, IQueuedFileWriter
 {
-    private readonly ILogger<FileWritingWorker> _log;
-    private readonly Channel<FileUpdateRequest> _channel = Channel.CreateUnbounded<FileUpdateRequest>();
     private readonly byte[] _buffer = new byte[512];
+    private readonly Channel<FileUpdateRequest> _channel = Channel.CreateUnbounded<FileUpdateRequest>();
+    private readonly ILogger<FileWritingWorker> _log;
 
     public FileWritingWorker(ILogger<FileWritingWorker> log)
     {
         _log = log;
+    }
+
+    public void QueueRequest(FileUpdateRequest request)
+    {
+        _log.RequestQueued(request);
+        _channel.Writer.TryWrite(request);
+    }
+
+    public void Flush()
+    {
+        while (_channel.Reader.TryRead(out var request))
+        {
+            ProcessUpdateAsync(request, CancellationToken.None).GetAwaiter().GetResult();
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -65,51 +79,29 @@ internal sealed class FileWritingWorker : BackgroundService, IQueuedFileWriter
         var bytes = Encoding.UTF8.GetBytes(request.Value);
         await request.File.WriteAsync(bytes, cancellationToken);
     }
-
-    public void QueueRequest(FileUpdateRequest request)
-    {
-        _log.RequestQueued(request);
-        _channel.Writer.TryWrite(request);
-    }
-
-    public void Flush()
-    {
-        while (_channel.Reader.TryRead(out var request))
-        {
-            ProcessUpdateAsync(request, CancellationToken.None).GetAwaiter().GetResult();
-        }
-    }
 }
 
 internal static partial class FileWritingWorkerLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Debug,
-        Message = "Requested file write ({request}) processing now")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Requested file write ({request}) processing now")]
     public static partial void ProcessingRequest(this ILogger logger, FileUpdateRequest request);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Error,
-        Message = "File writing failed ({request}), attempt ({attempt})")]
-    public static partial void FileWritingFailed(this ILogger logger, FileUpdateRequest request, int attempt, Exception ex);
+    [LoggerMessage(EventId = 2,
+                   Level = LogLevel.Error,
+                   Message = "File writing failed ({request}), attempt ({attempt})")]
+    public static partial void FileWritingFailed(this ILogger logger,
+                                                 FileUpdateRequest request,
+                                                 int attempt,
+                                                 Exception ex);
 
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Trace,
-        Message = "Request made fits the buffer allocated to it")]
+    [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Request made fits the buffer allocated to it")]
     public static partial void RequestFitsBuffer(this ILogger logger);
 
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Information,
-        Message = "Request made exceeded the default buffer size and allocated a new buffer.")]
+    [LoggerMessage(EventId = 4,
+                   Level = LogLevel.Information,
+                   Message = "Request made exceeded the default buffer size and allocated a new buffer.")]
     public static partial void RequestExceededBuffer(this ILogger logger);
 
-    [LoggerMessage(
-        EventId = 5,
-        Level = LogLevel.Debug,
-        Message = "Requested a write of a new item ({request})")]
+    [LoggerMessage(EventId = 5, Level = LogLevel.Debug, Message = "Requested a write of a new item ({request})")]
     public static partial void RequestQueued(this ILogger logger, FileUpdateRequest request);
 }

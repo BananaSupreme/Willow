@@ -11,6 +11,7 @@ internal sealed class SettingsRegistrar : IServiceRegistrar
     {
         services.AddSingleton(typeof(ISettings<>), typeof(Settings<>));
         services.AddSingleton<IQueuedFileWriter, FileWritingWorker>();
-        services.AddSingleton<IHostedService>(provider => (IHostedService)provider.GetRequiredService<IQueuedFileWriter>());
+        services.AddSingleton<IHostedService>(static provider =>
+                                                  (IHostedService)provider.GetRequiredService<IQueuedFileWriter>());
     }
 }

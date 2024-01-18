@@ -10,7 +10,6 @@ namespace Willow.Speech.VoiceCommandParsing.Models;
 /// <param name="RemainingTokens">
 /// The tokens inputted without the tokens processed, should not change in failure.
 /// </param>
-public readonly record struct TokenProcessingResult(
-    bool IsSuccessful,
-    CommandBuilder Builder,
-    ReadOnlyMemory<Token> RemainingTokens);
+public readonly record struct TokenProcessingResult(bool IsSuccessful,
+                                                    CommandBuilder Builder,
+                                                    ReadOnlyMemory<Token> RemainingTokens);

@@ -10,12 +10,12 @@ internal sealed class MouseDragVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
 
-    public string InvocationPhrase => $"mouse [drag|release]:action";
-
     public MouseDragVoiceCommand(IInputSimulator inputSimulator)
     {
         _inputSimulator = inputSimulator;
     }
+
+    public string InvocationPhrase => "mouse [drag|release]:action";
 
     public Task ExecuteAsync(VoiceCommandContext context)
     {
@@ -25,11 +25,11 @@ internal sealed class MouseDragVoiceCommand : IVoiceCommand
             case "drag":
                 _inputSimulator.MouseButtonDown();
                 break;
-            
+
             case "release":
                 _inputSimulator.MouseButtonUp();
                 break;
-            
+
             default:
                 throw new UnreachableException();
         }

@@ -14,17 +14,13 @@
 /// <param name="SpeechPadMilliseconds">
 /// Final speech chunks are padded by speech_pad_ms each side.
 /// </param>
-/// <seealso href="https://github.com/snakers4/silero-vad"/>
-public readonly record struct SileroSettings(
-    float Threshold,
-    int MinSpeechDurationMilliseconds,
-    int SpeechPadMilliseconds)
+/// <seealso href="https://github.com/snakers4/silero-vad" />
+public readonly record struct SileroSettings(float Threshold,
+                                             int MinSpeechDurationMilliseconds,
+                                             int SpeechPadMilliseconds)
 {
-    /// <inheritdoc cref="SileroSettings"/>
-    public SileroSettings()
-        : this(0.5f,
-            10,
-            100)
+    /// <inheritdoc cref="SileroSettings" />
+    public SileroSettings() : this(0.5f, 10, 100)
     {
     }
 }

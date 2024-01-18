@@ -10,9 +10,9 @@ public static class SafeMultipleFunctionExecutor
     /// <param name="inputs">The input over each a function is run.</param>
     /// <param name="input2">A parameter to pass along with each input.</param>
     /// <param name="func">The function to run over the inputs.</param>
-    /// <param name="beforeProcessingStarted">A function that is ran before <paramref name="func"/> is ran.</param>
+    /// <param name="beforeProcessingStarted">A function that is ran before <paramref name="func" /> is ran.</param>
     /// <param name="onException">A function that runs with every exception.</param>
-    /// <param name="afterProcessing">A function that runs after <paramref name="func"/> is ran.</param>
+    /// <param name="afterProcessing">A function that runs after <paramref name="func" /> is ran.</param>
     /// <typeparam name="T1">The type of input, inputs is bound to.</typeparam>
     /// <typeparam name="T2">The type of the additional parameter.</typeparam>
     /// <remarks>
@@ -47,7 +47,7 @@ public static class SafeMultipleFunctionExecutor
         return exceptions.ToArray();
     }
 
-    /// <inheritdoc cref="Execute{T1,T2}"/>
+    /// <inheritdoc cref="Execute{T1,T2}" />
     /// <remarks>
     /// All of the functions are ran in a parallel manner, and as such considerations should be made to keep them pure.
     /// </remarks>

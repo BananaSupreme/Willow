@@ -6,7 +6,7 @@ using Willow.DeviceAutomation.InputDevices.Extensions;
 
 namespace Willow.DeviceAutomation.InputDevices;
 
-internal partial class InputSimulator
+internal sealed partial class InputSimulator
 {
     public IInputSimulator KeyDown(Key key)
     {
@@ -32,7 +32,7 @@ internal partial class InputSimulator
     public IInputSimulator PressKey(params Key[] keys)
     {
         using var locker = _lock.Lock();
-        _robot.CombineKeys(keys.Select(x => x.ToRobot()).ToArray());
+        _robot.CombineKeys(keys.Select(static x => x.ToRobot()).ToArray());
         return this;
     }
 

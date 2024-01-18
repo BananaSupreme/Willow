@@ -1,4 +1,5 @@
 ﻿namespace Willow.Core.Environment.Models;
+
 /// <summary>
 /// Information about the active window
 /// </summary>

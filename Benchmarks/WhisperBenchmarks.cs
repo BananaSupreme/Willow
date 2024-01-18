@@ -12,7 +12,7 @@ using Willow.WhisperServer;
 namespace Benchmarks;
 
 [MemoryDiagnoser]
-public class WhisperBenchmarks
+public sealed class WhisperBenchmarks
 {
     private AudioData _audioData;
     private WhisperEngine _pythonWhisperEngine = null!;
@@ -30,10 +30,9 @@ public class WhisperBenchmarks
         var filePath = Path.Combine(Environment.CurrentDirectory, "TestData/test.wav");
 
         _audioData = GetFromWavFile(await File.ReadAllBytesAsync(filePath));
-        _pythonWhisperEngine = serviceProvider
-                               .GetRequiredService<IEnumerable<ISpeechToTextEngine>>()
-                               .OfType<WhisperEngine>()
-                               .First();
+        _pythonWhisperEngine = serviceProvider.GetRequiredService<IEnumerable<ISpeechToTextEngine>>()
+                                              .OfType<WhisperEngine>()
+                                              .First();
 
         await _pythonWhisperEngine.StartAsync(CancellationToken.None);
         var transcribe = await _pythonWhisperEngine.TranscribeAudioAsync(_audioData);
@@ -63,6 +62,6 @@ public class WhisperBenchmarks
             data[i] = BitConverter.ToInt16(wav, i * 2 * channelCount);
         }
 
-        return new(data, samplingRate, channelCount, bitDepth);
+        return new AudioData(data, samplingRate, channelCount, bitDepth);
     }
 }

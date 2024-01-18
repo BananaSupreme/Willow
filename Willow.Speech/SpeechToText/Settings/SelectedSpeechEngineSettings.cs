@@ -8,9 +8,8 @@ namespace Willow.Speech.SpeechToText.Settings;
 /// <param name="SelectedSpeechEngine">Currently selected engine, default VOSK.</param>
 internal readonly record struct SelectedSpeechEngineSettings(SelectedSpeechEngine SelectedSpeechEngine)
 {
-    /// <inheritdoc cref="SelectedSpeechEngineSettings"/>
+    /// <inheritdoc cref="SelectedSpeechEngineSettings" />
     public SelectedSpeechEngineSettings() : this(SelectedSpeechEngine.Vosk)
     {
-        
     }
 }

@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
+
+using Microsoft.Extensions.Logging;
 
 using Willow.Core.Settings.Abstractions;
 using Willow.Helpers.Locking;
@@ -16,10 +16,10 @@ namespace Willow.Vosk;
 
 internal sealed class VoskModelInstaller : IVoskModelInstaller
 {
-    private readonly DisposableLock _lock = new();
-    private readonly ISettings<VoskSettings> _voskSettings;
     private readonly IVoskModelDownloader _downloader;
+    private readonly DisposableLock _lock = new();
     private readonly ILogger<VoskModelInstaller> _log;
+    private readonly ISettings<VoskSettings> _voskSettings;
 
     public VoskModelInstaller(ISettings<VoskSettings> voskSettings,
                               IVoskModelDownloader downloader,
@@ -84,7 +84,7 @@ internal sealed class VoskModelInstaller : IVoskModelInstaller
         var files = Directory.GetFiles(modelPath, "*", SearchOption.AllDirectories);
         var checksumTasks = files.Select(async x => await ChecksumFileAsync(x));
         var checksums = await Task.WhenAll(checksumTasks);
-        var combinedChecksum = MD5.HashData(checksums.SelectMany(x => x).ToArray());
+        var combinedChecksum = MD5.HashData(checksums.SelectMany(static x => x).ToArray());
         _log.CombinedChecksum(combinedChecksum);
         return combinedChecksum;
     }
@@ -127,7 +127,7 @@ internal sealed class VoskModelInstaller : IVoskModelInstaller
 
     //The zip file contains a redundant top level folder,
     //so we can just remove it rather than try and manage their naming for it
-    private void RemoveTopLevelFolder(string modelPath)
+    private static void RemoveTopLevelFolder(string modelPath)
     {
         var topLevel = Directory.GetDirectories(modelPath)[0];
         var files = Directory.GetFiles(topLevel, "*", SearchOption.AllDirectories);
@@ -144,7 +144,7 @@ internal sealed class VoskModelInstaller : IVoskModelInstaller
         Directory.Delete(topLevel, true);
     }
 
-    private string GetChecksumFileName(VoskModel voskModel)
+    private static string GetChecksumFileName(VoskModel voskModel)
     {
         return Path.Combine(VoskSettings.VoskFolder, $"checksum_{voskModel}");
     }
@@ -152,111 +152,75 @@ internal sealed class VoskModelInstaller : IVoskModelInstaller
 
 internal static partial class VoskModelDownloaderLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Information,
-        Message = "Checking the state of model files")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Checking the state of model files")]
     public static partial void CheckingModelFilesState(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Information,
-        Message = "The model is already downloaded and file checksum success")]
+    [LoggerMessage(EventId = 2,
+                   Level = LogLevel.Information,
+                   Message = "The model is already downloaded and file checksum success")]
     public static partial void FilesAlreadyOk(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Information,
-        Message = "Checksum failed, initializing model download")]
+    [LoggerMessage(EventId = 3, Level = LogLevel.Information, Message = "Checksum failed, initializing model download")]
     public static partial void DownloadingModel(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Information,
-        Message = "Model downloaded successfully, creating checksum file")]
+    [LoggerMessage(EventId = 4,
+                   Level = LogLevel.Information,
+                   Message = "Model downloaded successfully, creating checksum file")]
     public static partial void CreatingChecksum(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 5,
-        Level = LogLevel.Information,
-        Message = "Initialization of model successful")]
+    [LoggerMessage(EventId = 5, Level = LogLevel.Information, Message = "Initialization of model successful")]
     public static partial void ModelDownloaded(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 6,
-        Level = LogLevel.Debug,
-        Message = "Model folder was not found, model files invalid at the moment")]
+    [LoggerMessage(EventId = 6,
+                   Level = LogLevel.Debug,
+                   Message = "Model folder was not found, model files invalid at the moment")]
     public static partial void ModelFolderNotFound(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 7,
-        Level = LogLevel.Warning,
-        Message = "The model directory exists but the checksum file is missing, model invalid")]
+    [LoggerMessage(EventId = 7,
+                   Level = LogLevel.Warning,
+                   Message = "The model directory exists but the checksum file is missing, model invalid")]
     public static partial void ChecksumFileMissing(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 8,
-        Level = LogLevel.Information,
-        Message = "Folder and checksum file found, checking checksum")]
+    [LoggerMessage(EventId = 8,
+                   Level = LogLevel.Information,
+                   Message = "Folder and checksum file found, checking checksum")]
     public static partial void FilesFound(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 9,
-        Level = LogLevel.Information,
-        Message = "Checksum matched folder contents")]
+    [LoggerMessage(EventId = 9, Level = LogLevel.Information, Message = "Checksum matched folder contents")]
     public static partial void ChecksumSuccess(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 10,
-        Level = LogLevel.Warning,
-        Message = "Checksum failed in the folder, re-downloading.")]
+    [LoggerMessage(EventId = 10, Level = LogLevel.Warning, Message = "Checksum failed in the folder, re-downloading.")]
     public static partial void ChecksumFailed(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 11,
-        Level = LogLevel.Trace,
-        Message = "Getting combined checksum of all files")]
+    [LoggerMessage(EventId = 11, Level = LogLevel.Trace, Message = "Getting combined checksum of all files")]
     public static partial void GettingCombinedChecksum(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 12,
-        Level = LogLevel.Debug,
-        Message = "Created the combined checksum of all files ({combinedChecksum})")]
+    [LoggerMessage(EventId = 12,
+                   Level = LogLevel.Debug,
+                   Message = "Created the combined checksum of all files ({combinedChecksum})")]
     public static partial void CombinedChecksum(this ILogger log, Base64Logger combinedChecksum);
 
-    [LoggerMessage(
-        EventId = 13,
-        Level = LogLevel.Trace,
-        Message = "Working on checksum of file ({filePath})")]
+    [LoggerMessage(EventId = 13, Level = LogLevel.Trace, Message = "Working on checksum of file ({filePath})")]
     public static partial void CreatingFileChecksum(this ILogger log, string filepath);
 
-    [LoggerMessage(
-        EventId = 14,
-        Level = LogLevel.Trace,
-        Message = "Checksum of file ({filePath}) resolved as ({checksum})")]
+    [LoggerMessage(EventId = 14,
+                   Level = LogLevel.Trace,
+                   Message = "Checksum of file ({filePath}) resolved as ({checksum})")]
     public static partial void CheckSumCreated(this ILogger log, string filepath, Base64Logger checksum);
 
-    [LoggerMessage(
-        EventId = 15,
-        Level = LogLevel.Information,
-        Message = "Old directory found for download, clearing old directory in preparation of download")]
+    [LoggerMessage(EventId = 15,
+                   Level = LogLevel.Information,
+                   Message = "Old directory found for download, clearing old directory in preparation of download")]
     public static partial void ClearingOldDirectory(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 16,
-        Level = LogLevel.Information,
-        Message = "file download started and zip is extracted")]
+    [LoggerMessage(EventId = 16, Level = LogLevel.Information, Message = "file download started and zip is extracted")]
     public static partial void ExtractingZip(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 17,
-        Level = LogLevel.Information,
-        Message = "file downloaded successfully and zip fully extracted.")]
+    [LoggerMessage(EventId = 17,
+                   Level = LogLevel.Information,
+                   Message = "file downloaded successfully and zip fully extracted.")]
     public static partial void ZipExtracted(this ILogger log);
 
-    [LoggerMessage(
-        EventId = 18,
-        Level = LogLevel.Information,
-        Message = "Removed top level folder of the zip file")]
+    [LoggerMessage(EventId = 18, Level = LogLevel.Information, Message = "Removed top level folder of the zip file")]
     public static partial void RemovedTopLevelFolder(this ILogger log);
 }

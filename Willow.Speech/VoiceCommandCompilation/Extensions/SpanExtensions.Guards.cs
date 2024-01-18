@@ -14,13 +14,9 @@ internal static partial class SpanExtensions
     /// <exception cref="CommandCompilationException">Throws if it does not fit the template.</exception>
     public static ReadOnlySpan<char> GuardWrappedInSquares(this ReadOnlySpan<char> word)
     {
-        var isValidStructure = word.Length > 2
-                               && word[^1] == Chars.RightSquare
-                               && word[0] == Chars.LeftSquare;
+        var isValidStructure = word.Length > 2 && word[^1] == Chars.RightSquare && word[0] == Chars.LeftSquare;
 
-        return isValidStructure
-                   ? word[1..^1]
-                   : throw new CommandCompilationException("Node contained illeagel values");
+        return isValidStructure ? word[1..^1] : throw new CommandCompilationException("Node contained illegal values");
     }
 
     /// <summary>
@@ -31,12 +27,9 @@ internal static partial class SpanExtensions
     /// <exception cref="CommandCompilationException">Throws if it does not fit the template.</exception>
     public static ReadOnlySpan<char> GuardAlphabet(this ReadOnlySpan<char> word)
     {
-        var isValidStructure = !word.IsEmpty
-                               && !word.ContainsAnyExcept(CachedSearchValues.Alphabet);
+        var isValidStructure = !word.IsEmpty && !word.ContainsAnyExcept(CachedSearchValues.Alphabet);
 
-        return isValidStructure
-                   ? word
-                   : throw new CommandCompilationException("Node contained illeagel values");
+        return isValidStructure ? word : throw new CommandCompilationException("Node contained illegal values");
     }
 
     /// <summary>
@@ -52,8 +45,6 @@ internal static partial class SpanExtensions
                                && CachedSearchValues.ValidVariableStarters.Contains(word[0])
                                && !word.ContainsAnyExcept(CachedSearchValues.ValidVariableCharacters);
 
-        return isValidStructure
-                   ? word
-                   : throw new CommandCompilationException("Node contained illegal values");
+        return isValidStructure ? word : throw new CommandCompilationException("Node contained illegal values");
     }
 }

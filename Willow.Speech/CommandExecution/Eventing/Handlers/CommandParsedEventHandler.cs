@@ -1,5 +1,6 @@
 ﻿using Willow.Core.Eventing.Abstractions;
 using Willow.Speech.CommandExecution.Abstraction;
+using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.VoiceCommandParsing.Eventing.Events;
 
 namespace Willow.Speech.CommandExecution.Eventing.Handlers;
@@ -18,6 +19,6 @@ internal sealed class CommandParsedEventHandler : IEventHandler<CommandParsedEve
 
     public async Task HandleAsync(CommandParsedEvent @event)
     {
-        await _commandStorage.ExecuteCommandAsync(@event.Id, new(@event.Parameters));
+        await _commandStorage.ExecuteCommandAsync(@event.Id, new VoiceCommandContext(@event.Parameters));
     }
 }

@@ -11,12 +11,13 @@ internal sealed class VoskModelDownloader : IVoskModelDownloader
     {
         _client = client;
     }
+
     public async Task<Stream> GetVoskModelZip(VoskModel voskModel)
     {
         return await _client.GetStreamAsync(GetDownloadPath(voskModel));
     }
 
-    private string GetDownloadPath(VoskModel voskModel)
+    private static string GetDownloadPath(VoskModel voskModel)
     {
         var fileName = voskModel switch
         {

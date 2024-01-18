@@ -3,8 +3,8 @@
 namespace Willow.Helpers.Logging.Loggers;
 
 /// <summary>
-/// Wrapper around <typeparamref name="T"/> that returns <see cref="TypeExtensions.GetFullName{T}"/> when
-/// <see cref="ToString"/> is called.
+/// Wrapper around <typeparamref name="T" /> that returns <see cref="TypeExtensions.GetFullName{T}" /> when
+/// <see cref="ToString" /> is called.
 /// </summary>
 public readonly struct TypeNameLogger<T>
 {
@@ -21,6 +21,7 @@ public readonly struct TypeNameLogger<T>
         {
             return $"_item of type ({TypeExtensions.GetFullName<T>()} was resolved as null here)";
         }
+
         return TypeExtensions.GetFullName(_item.GetType());
     }
 }

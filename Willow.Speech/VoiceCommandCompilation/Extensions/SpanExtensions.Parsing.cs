@@ -12,7 +12,7 @@ internal static partial class SpanExtensions
     /// </summary>
     /// <param name="word">The input to test.</param>
     /// <param name="compilers">The compilers to test against.</param>
-    /// <param name="capturedValues">The values captured from <see cref="IVoiceCommand"/> file.</param>
+    /// <param name="capturedValues">The values captured from <see cref="IVoiceCommand" /> file.</param>
     /// <returns>The processor that matches the syntax.</returns>
     /// <exception cref="CommandCompilationException">
     /// Thrown if no compiler available matches the input word.
@@ -35,7 +35,7 @@ internal static partial class SpanExtensions
 
     /// <summary>
     /// Get the variables associated with the node, they would be found at the end of the declaration inside curly
-    /// braces.  
+    /// braces.
     /// </summary>
     /// <param name="word">The input to look for the variables in.</param>
     /// <returns>The variables associated with the command word.</returns>
@@ -70,12 +70,17 @@ internal static partial class SpanExtensions
     }
 
     /// <summary>
-    /// Searches for the first set of characters from the provided array of character arrays that the given word starts with.
+    /// Searches for the first set of characters from the provided array of character arrays that the given word starts
+    /// with.
     /// </summary>
     /// <param name="word">The word to be checked against the array of possible starting character sets.</param>
-    /// <param name="possibleStartSymbols">An array of character arrays, each representing a possible set of starting characters to be matched against the word.</param>
+    /// <param name="possibleStartSymbols">
+    /// An array of character arrays, each representing a possible set of starting
+    /// characters to be matched against the word.
+    /// </param>
     /// <returns>
-    /// Returns the first set of characters from <paramref name="possibleStartSymbols"/> that the word starts with. If none of the character sets match the beginning of the word, returns null.
+    /// Returns the first set of characters from <paramref name="possibleStartSymbols" /> that the word starts with. If
+    /// none of the character sets match the beginning of the word, returns null.
     /// </returns>
     public static char[]? FirstToStartWithOrNull(this ReadOnlySpan<char> word, char[][] possibleStartSymbols)
     {

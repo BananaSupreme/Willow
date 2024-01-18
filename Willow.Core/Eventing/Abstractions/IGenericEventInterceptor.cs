@@ -5,7 +5,8 @@
 /// </summary>
 /// <remarks>
 /// There are a few issues with interceptor, only now applicable to every event and every handler.<br/>
-/// For a more detailed description of concerns raised with interceptors consider <see cref="IEventInterceptor{TEvent}"/>.
+/// For a more detailed description of concerns raised with interceptors consider
+/// <see cref="IEventInterceptor{TEvent}" />.
 /// </remarks>
 internal interface IGenericEventInterceptor
 {

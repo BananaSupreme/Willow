@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
 
-using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Registration.Abstractions;
@@ -14,10 +14,10 @@ namespace Willow.Speech.ScriptingInterface.Registration;
 /// </summary>
 internal sealed class ScriptingInterfaceAssemblyRegistrar : IAssemblyRegistrar
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly IVoiceCommandInterpreter _voiceCommandInterpreter;
     private readonly IEventDispatcher _eventDispatcher;
     private readonly IInterfaceRegistrar _interfaceRegistrar;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IVoiceCommandInterpreter _voiceCommandInterpreter;
 
     public ScriptingInterfaceAssemblyRegistrar(IServiceProvider serviceProvider,
                                                IVoiceCommandInterpreter voiceCommandInterpreter,

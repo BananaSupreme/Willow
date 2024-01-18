@@ -9,8 +9,7 @@ public sealed partial class EventDispatcherTests
         _sut.Dispatch(new StateWithTwoParameters(1, 0));
         _sut.Flush();
 
-        _provider.GetRequiredService<TestInterceptor<StateWithTwoParameters>>()
-                 .Called.Should().BeFalse();
+        _provider.GetRequiredService<TestInterceptor<StateWithTwoParameters>>().Called.Should().BeFalse();
     }
 
     [Fact]
@@ -33,11 +32,11 @@ public sealed partial class EventDispatcherTests
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
 
         var interceptor = _provider.GetRequiredService<TestInterceptor<StateWithTwoParameters>>();
-        interceptor.PerformAction = x => x with { State2 = 10 };
+        interceptor.PerformAction = static x => x with { State2 = 10 };
 
         _sut.Dispatch(state);
         _sut.Flush();
-        
+
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
         handler.Event.State1.Should().Be(state.State1);
         handler.Event.State2.Should().Be(10);
@@ -52,10 +51,10 @@ public sealed partial class EventDispatcherTests
         _sut.RegisterHandler<StateWithStringParameters, TestEventHandler<StateWithStringParameters>>();
 
         var interceptor = _provider.GetRequiredService<TestInterceptor<StateWithStringParameters>>();
-        interceptor.PerformAction = x => new(x.State + "1");
+        interceptor.PerformAction = static x => new StateWithStringParameters(x.State + "1");
 
         var interceptor2 = _provider.GetRequiredService<TestInterceptor2<StateWithStringParameters>>();
-        interceptor2.PerformAction = x => new(x.State + "2");
+        interceptor2.PerformAction = static x => new StateWithStringParameters(x.State + "2");
 
         _sut.Dispatch(state);
         _sut.Flush();
@@ -77,10 +76,10 @@ public sealed partial class EventDispatcherTests
         _sut.RegisterHandler<StateWithStringParameters, TestEventHandler<StateWithStringParameters>>();
 
         var interceptor = _provider.GetRequiredService<TestInterceptor<StateWithStringParameters>>();
-        interceptor.PerformAction = x => new(x.State + "1");
+        interceptor.PerformAction = static x => new StateWithStringParameters(x.State + "1");
 
         var interceptor2 = _provider.GetRequiredService<TestInterceptor2<StateWithStringParameters>>();
-        interceptor2.PerformAction = x => new(x.State + "2");
+        interceptor2.PerformAction = static x => new StateWithStringParameters(x.State + "2");
 
         _sut.Dispatch(state);
         _sut.Flush();
@@ -98,7 +97,7 @@ public sealed partial class EventDispatcherTests
         _sut.RegisterHandler<StateWithStringParameters, TestEventHandler<StateWithStringParameters>>();
 
         var interceptor = _provider.GetRequiredService<TestInterceptor<StateWithStringParameters>>();
-        interceptor.PerformAction = x => new(x.State + "1");
+        interceptor.PerformAction = static x => new StateWithStringParameters(x.State + "1");
 
         _sut.Dispatch(state);
         _sut.Flush();

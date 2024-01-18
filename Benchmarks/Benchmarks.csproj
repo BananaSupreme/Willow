@@ -9,23 +9,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BenchmarkDotNet" Version="0.13.11" />
-      <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
-      <PackageReference Include="NSubstitute" Version="5.1.0" />
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.11"/>
+        <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="NSubstitute" Version="5.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj" />
-      <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj" />
-      <ProjectReference Include="..\Willow.StartUp\Willow.StartUp.csproj" />
-      <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj" />
+        <ProjectReference Include="..\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj"/>
+        <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj"/>
+        <ProjectReference Include="..\Willow.StartUp\Willow.StartUp.csproj"/>
+        <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="TestData\test.wav">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Update="TestData\test.wav">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

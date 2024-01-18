@@ -14,7 +14,7 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// O[...|...]:indexName
 /// ~[...|...]:indexName
 /// </code>
-/// Those patterns are compiled into the <see cref="OrNodeProcessor"/>. where the index of the successful capture
+/// Those patterns are compiled into the <see cref="OrNodeProcessor" />. where the index of the successful capture
 /// is saved in the name of the index after the colon.<br/>
 /// Meant to represent a group of patterns that only one must be matched.
 /// </summary>
@@ -37,13 +37,13 @@ internal sealed class OrNodeCompiler : INodeCompiler
         {
             throw new CommandCompilationException("Expected an index name, but found none");
         }
-        
+
         var capturedValue = commandWord[startSymbol.Length..separatorIndex].GuardWrappedInSquares();
         var nodeProcessors = capturedValue.ExtractNodeProcessors(compilers, capturedValues);
 
         var successIndexName = commandWord[(separatorIndex + 1)..];
         successIndexName = successIndexName.GuardValidVariableName();
-        
+
         return (true, new OrNodeProcessor(successIndexName.ToString(), nodeProcessors));
     }
 }

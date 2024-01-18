@@ -10,6 +10,8 @@ namespace Tests.Core.Settings;
 
 public sealed partial class SettingsManagementTests : IDisposable
 {
+    private static readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
+
     private readonly Guid _defaultGuid = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
     private readonly Guid _newGuid = Guid.Parse("D3E4C79A-41D0-45A6-B0E7-AE162F7BFB48");
     private readonly ServiceProvider _provider;
@@ -26,21 +28,26 @@ public sealed partial class SettingsManagementTests : IDisposable
         _provider = services.BuildServiceProvider();
     }
 
-    private void When_RequestingSettingsForTheFirstTime_RegisteredWithDefaultValues<T>()
-        where T : ITestSettings, new()
+    public void Dispose()
+    {
+        _provider.Dispose();
+        File.Delete(ISettings<TestSettings>.SettingsFilePath);
+        File.Delete(ISettings<TestSettingsRecord>.SettingsFilePath);
+        File.Delete(ISettings<TestSettingsRecordStruct>.SettingsFilePath);
+    }
+
+    private void When_RequestingSettingsForTheFirstTime_RegisteredWithDefaultValues<T>() where T : ITestSettings, new()
     {
         var settings = _provider.GetRequiredService<ISettings<T>>();
         settings.CurrentValue.Id.Should().Be(_defaultGuid);
     }
 
-    private async Task When_RequestingSettingsWithExistingFile_UseExistingSettings<T>()
-        where T : ITestSettings, new()
+    private async Task When_RequestingSettingsWithExistingFile_UseExistingSettings<T>() where T : ITestSettings, new()
     {
         Directory.CreateDirectory(ISettings<T>.SettingsFolderPath);
         await using (var file = File.CreateText(ISettings<T>.SettingsFilePath))
         {
-            await file.WriteAsync(JsonSerializer.Serialize(new T { Id = _newGuid },
-                new JsonSerializerOptions() { WriteIndented = true }));
+            await file.WriteAsync(JsonSerializer.Serialize(new T { Id = _newGuid }, _serializerOptions));
             await file.FlushAsync();
         }
 
@@ -49,34 +56,30 @@ public sealed partial class SettingsManagementTests : IDisposable
         settings.CurrentValue.Id.Should().Be(_newGuid);
     }
 
-    private void When_UpdateCalled_ValueShouldBeUpdated<T>()
-        where T : ITestSettings, new()
+    private void When_UpdateCalled_ValueShouldBeUpdated<T>() where T : ITestSettings, new()
     {
         var settings = _provider.GetRequiredService<ISettings<T>>();
-        settings.Update(new() { Id = _newGuid });
+        settings.Update(new T { Id = _newGuid });
         settings.Flush();
         settings.CurrentValue.Id.Should().Be(_newGuid);
     }
 
-    private async Task When_UpdateCalled_FileUpdated<T>()
-        where T : ITestSettings, new()
+    private async Task When_UpdateCalled_FileUpdated<T>() where T : ITestSettings, new()
     {
         var settings = _provider.GetRequiredService<ISettings<T>>();
-        settings.Update(new() { Id = _newGuid });
-        settings.Update(new() { Id = _defaultGuid });
-        settings.Update(new() { Id = _newGuid });
+        settings.Update(new T { Id = _newGuid });
+        settings.Update(new T { Id = _defaultGuid });
+        settings.Update(new T { Id = _newGuid });
         settings.Flush();
 
         ((IDisposable)settings).Dispose();
 
         await using var file = File.OpenRead(GetSettingsFilePath<T>());
-        var settingsFromFile = await JsonSerializer.DeserializeAsync<T>(file,
-                                   new JsonSerializerOptions() { WriteIndented = true });
-        settingsFromFile.Should().BeEquivalentTo(new T() { Id = _newGuid });
+        var settingsFromFile = await JsonSerializer.DeserializeAsync<T>(file, _serializerOptions);
+        settingsFromFile.Should().BeEquivalentTo(new T { Id = _newGuid });
     }
 
-    private void When_UpdateCalled_SettingsChangedEventShouldBeTriggered<T>()
-        where T : ITestSettings, new()
+    private void When_UpdateCalled_SettingsChangedEventShouldBeTriggered<T>() where T : ITestSettings, new()
     {
         var dispatcher = _provider.GetRequiredService<IEventDispatcher>();
         dispatcher.RegisterHandler<SettingsUpdatedEvent<T>, TestHandler<T>>();
@@ -100,7 +103,7 @@ public sealed partial class SettingsManagementTests : IDisposable
         dispatcher.RegisterHandler<SettingsUpdatedEvent<T>, TestHandler<T>>();
         var settings = _provider.GetRequiredService<ISettings<T>>();
 
-        settings.Update(new() { Id = _defaultGuid });
+        settings.Update(new T { Id = _defaultGuid });
         settings.Flush();
         dispatcher.Flush();
 
@@ -108,16 +111,16 @@ public sealed partial class SettingsManagementTests : IDisposable
         handler.Event.HasValue.Should().BeFalse();
     }
 
-    private void When_FileUpdateAttempt_IOException<T>()
-        where T : ITestSettings, new()
+    private void When_FileUpdateAttempt_IOException<T>() where T : ITestSettings, new()
     {
         var settings = _provider.GetRequiredService<ISettings<T>>();
         settings.Flush();
-        this.Invoking(_ =>
+        this.Invoking(static _ =>
             {
                 using var __ = File.OpenWrite(ISettings<T>.SettingsFilePath);
             })
-            .Should().Throw<IOException>();
+            .Should()
+            .Throw<IOException>();
     }
 
     private async Task When_CorruptedFileInRegistration_DefaultValuesShouldBeUsedAndFileCorrected<T>()
@@ -136,35 +139,23 @@ public sealed partial class SettingsManagementTests : IDisposable
         ((IDisposable)originalSettings).Dispose();
         await using (var file = File.OpenRead(GetSettingsFilePath<T>()))
         {
-            var settingsFromFile = await JsonSerializer.DeserializeAsync<T>(file,
-                                       new JsonSerializerOptions() { WriteIndented = true });
-            settingsFromFile.Should().BeEquivalentTo(new T() { Id = _defaultGuid });
+            var settingsFromFile = await JsonSerializer.DeserializeAsync<T>(file, _serializerOptions);
+            settingsFromFile.Should().BeEquivalentTo(new T { Id = _defaultGuid });
         }
     }
 
-    private static string GetSettingsFilePath<T>()
-        where T : new()
+    private static string GetSettingsFilePath<T>() where T : new()
     {
         Directory.CreateDirectory(ISettings<T>.SettingsFolderPath);
 
         return ISettings<T>.SettingsFilePath;
     }
-
-    public void Dispose()
-    {
-        _provider.Dispose();
-        File.Delete(ISettings<TestSettings>.SettingsFilePath);
-        File.Delete(ISettings<TestSettingsRecord>.SettingsFilePath);
-        File.Delete(ISettings<TestSettingsRecordStruct>.SettingsFilePath);
-    }
-
-
     public interface ITestSettings
     {
         Guid Id { get; init; }
     }
 
-    private class TestHandler<T> : IEventHandler<SettingsUpdatedEvent<T>>
+    private sealed class TestHandler<T> : IEventHandler<SettingsUpdatedEvent<T>>
     {
         public SettingsUpdatedEvent<T>? Event { get; private set; }
 

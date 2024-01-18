@@ -1,7 +1,6 @@
 using Tests.Helpers;
 
 using Willow.Core.Eventing.Registration;
-using Willow.Core.Settings.Abstractions;
 using Willow.Speech.Microphone.Models;
 using Willow.Vosk;
 using Willow.Vosk.Abstractions;
@@ -12,56 +11,26 @@ using Willow.Vosk.Settings;
 namespace Tests.Speech.SpeechServers;
 
 [Collection("vosk")]
-public class VoskEngineTests : IAsyncLifetime
+public sealed class VoskEngineTests : IAsyncLifetime
 {
-    private const string _expected = "i think i will cry";
-    private AudioData _audioData;
+    private const string Expected = "i think i will cry";
     private readonly ServiceProvider _serviceProvider;
+    private AudioData _audioData;
 
     public VoskEngineTests()
     {
-        var _downloader = Substitute.For<IVoskModelDownloader>();
+        var downloader = Substitute.For<IVoskModelDownloader>();
         var services = new ServiceCollection();
         EventingRegistrar.RegisterServices(services);
-        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
+        services.AddSettings();
         services.AddLogging();
         VoskServerRegistrar.RegisterServices(services);
-        services.AddSingleton(_downloader);
+        services.AddSingleton(downloader);
         _serviceProvider = services.BuildServiceProvider();
-        _downloader.GetVoskModelZip(Arg.Any<VoskModel>())
-                   .Returns(_ =>
-                       Task.FromResult((Stream)File.Open("Speech/SpeechServers/vosk-model-small-en-us-0.15.zip", FileMode.Open)));
-    }
-    
-    [Fact]
-    public async Task When_ServerStartedAndStopped_StartsAgainOK()
-    {
-        var voskEngine = _serviceProvider.GetRequiredService<VoskEngine>();
-        await TestInternal(voskEngine);
-        await TestInternal(voskEngine);
-    }
-
-    private async Task TestInternal(VoskEngine whisperEngine)
-    {
-        await whisperEngine.StartAsync(CancellationToken.None);
-        var transcriptionResult = await whisperEngine.TranscribeAudioAsync(_audioData);
-        transcriptionResult.Should().Be(_expected);
-        await whisperEngine.StopAsync(CancellationToken.None);
-        transcriptionResult.Should().Be(_expected);
-    }
-
-    private static AudioData GetFromWavFile(byte[] wav)
-    {
-        var samplingRate = BitConverter.ToInt32(wav, 24);
-        var bitDepth = BitConverter.ToUInt16(wav, 34);
-        var channelCount = BitConverter.ToUInt16(wav, 22);
-        var data = new short[BitConverter.ToInt32(wav, 40) / 2];
-        for (var i = 0; i < data.Length; i++)
-        {
-            data[i] = BitConverter.ToInt16(wav, i * 2);
-        }
-
-        return new(data, samplingRate, channelCount, bitDepth);
+        downloader.GetVoskModelZip(Arg.Any<VoskModel>())
+                  .Returns(static _ => Task.FromResult(
+                               (Stream)File.Open("Speech/SpeechServers/vosk-model-small-en-us-0.15.zip",
+                                                 FileMode.Open)));
     }
 
     public async Task InitializeAsync()
@@ -76,7 +45,38 @@ public class VoskEngineTests : IAsyncLifetime
         await _serviceProvider.DisposeAsync();
         EnsureDeletedFolder();
     }
-    
+
+    [Fact]
+    public async Task When_ServerStartedAndStopped_StartsAgainOK()
+    {
+        var voskEngine = _serviceProvider.GetRequiredService<VoskEngine>();
+        await TestInternal(voskEngine);
+        await TestInternal(voskEngine);
+    }
+
+    private async Task TestInternal(VoskEngine whisperEngine)
+    {
+        await whisperEngine.StartAsync(CancellationToken.None);
+        var transcriptionResult = await whisperEngine.TranscribeAudioAsync(_audioData);
+        transcriptionResult.Should().Be(Expected);
+        await whisperEngine.StopAsync(CancellationToken.None);
+        transcriptionResult.Should().Be(Expected);
+    }
+
+    private static AudioData GetFromWavFile(byte[] wav)
+    {
+        var samplingRate = BitConverter.ToInt32(wav, 24);
+        var bitDepth = BitConverter.ToUInt16(wav, 34);
+        var channelCount = BitConverter.ToUInt16(wav, 22);
+        var data = new short[BitConverter.ToInt32(wav, 40) / 2];
+        for (var i = 0; i < data.Length; i++)
+        {
+            data[i] = BitConverter.ToInt16(wav, i * 2);
+        }
+
+        return new AudioData(data, samplingRate, channelCount, bitDepth);
+    }
+
     private void EnsureDeletedFolder()
     {
         if (Directory.Exists(VoskSettings.VoskFolder))

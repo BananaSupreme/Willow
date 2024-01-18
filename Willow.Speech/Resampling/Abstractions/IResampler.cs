@@ -1,8 +1,9 @@
 ﻿using Willow.Speech.Microphone.Models;
 
 namespace Willow.Speech.Resampling.Abstractions;
+
 /// <summary>
-/// Resampler to convert the sample of the <see cref="AudioData"/>.
+/// Resampler to convert the sample of the <see cref="AudioData" />.
 /// </summary>
 internal interface IResampler
 {

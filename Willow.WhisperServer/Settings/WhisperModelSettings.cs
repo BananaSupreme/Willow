@@ -18,24 +18,16 @@ namespace Willow.WhisperServer.Settings;
 /// The index of the device to use, if more than one device of the type are available. Defaults to 0.
 /// </param>
 /// <param name="ComputeType">
-///
 /// </param>
 /// <param name="CpuThreads">Number of threads to use when running on the machine, defaults to 4</param>
-public readonly record struct WhisperModelSettings(
-    ModelSize ModelSize,
-    bool EnglishOnly,
-    DeviceType Device,
-    int[] DeviceIndex,
-    ComputeType ComputeType,
-    int CpuThreads)
+public readonly record struct WhisperModelSettings(ModelSize ModelSize,
+                                                   bool EnglishOnly,
+                                                   DeviceType Device,
+                                                   int[] DeviceIndex,
+                                                   ComputeType ComputeType,
+                                                   int CpuThreads)
 {
-    public WhisperModelSettings()
-        : this(ModelSize.Tiny,
-            true,
-            DeviceType.Auto,
-            [],
-            ComputeType.Default,
-            4)
+    public WhisperModelSettings() : this(ModelSize.Tiny, true, DeviceType.Auto, [], ComputeType.Default, 4)
     {
     }
 }

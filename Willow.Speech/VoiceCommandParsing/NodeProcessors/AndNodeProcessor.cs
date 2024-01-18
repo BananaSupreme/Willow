@@ -10,6 +10,11 @@ namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 /// <param name="InnerNodes">All the processors that should succeed.</param>
 internal sealed record AndNodeProcessor(INodeProcessor[] InnerNodes) : INodeProcessor
 {
+    public bool Equals(AndNodeProcessor? other)
+    {
+        return other is not null && InnerNodes.SequenceEqual(other.InnerNodes);
+    }
+
     public bool IsLeaf => false;
     public uint Weight => CalculateWeight();
 
@@ -19,29 +24,22 @@ internal sealed record AndNodeProcessor(INodeProcessor[] InnerNodes) : INodeProc
         var innerBuilder = builder;
         foreach (var innerNode in InnerNodes)
         {
-            (var isSuccessful, innerBuilder, remainingTokens) =
-                innerNode.ProcessToken(remainingTokens, innerBuilder);
+            (var isSuccessful, innerBuilder, remainingTokens) = innerNode.ProcessToken(remainingTokens, innerBuilder);
 
             if (!isSuccessful)
             {
-                return new(false, builder, remainingTokens);
+                return new TokenProcessingResult(false, builder, remainingTokens);
             }
         }
 
-        return new(true, innerBuilder, remainingTokens);
+        return new TokenProcessingResult(true, innerBuilder, remainingTokens);
     }
 
     private uint CalculateWeight()
     {
-        var summedWeight = (uint)InnerNodes.Sum(x => x.Weight);
-        var maxWeight = InnerNodes.Max(x => x.Weight);
+        var summedWeight = (uint)InnerNodes.Sum(static x => x.Weight);
+        var maxWeight = InnerNodes.Max(static x => x.Weight);
         return Math.Max(summedWeight, maxWeight);
-    }
-
-    public bool Equals(AndNodeProcessor? other)
-    {
-        return other is not null
-               && InnerNodes.SequenceEqual(other.InnerNodes);
     }
 
     public override int GetHashCode()

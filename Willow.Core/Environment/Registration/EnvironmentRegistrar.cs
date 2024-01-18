@@ -8,7 +8,6 @@ using Willow.Helpers.OS;
 namespace Willow.Core.Environment.Registration;
 
 /// <summary>
-/// 
 /// </summary>
 internal sealed class EnvironmentRegistrar : IServiceRegistrar
 {

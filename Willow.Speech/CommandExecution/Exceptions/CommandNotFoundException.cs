@@ -2,8 +2,7 @@
 
 public sealed class CommandNotFoundException : InvalidOperationException
 {
-    public CommandNotFoundException(Guid id)
-        : base($"Tried to locate and failed command {id})")
+    public CommandNotFoundException(Guid id) : base($"Tried to locate and failed command {id})")
     {
     }
 

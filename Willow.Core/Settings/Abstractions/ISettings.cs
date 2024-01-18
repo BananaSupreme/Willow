@@ -9,17 +9,20 @@ namespace Willow.Core.Settings.Abstractions;
 /// <remarks>
 /// <list type="bullet">
 /// <item>
-/// When a file does not exist behind the scenes a new file will be created to store the settings, this file will
+/// When a file does not exist behind the scenes a new file will be created to store the settings, this file
+/// will
 /// be based on the default values as defined in the empty constructor.
 /// </item>
 /// <item>
 /// When updates are requested they are queued to be written in the file and expressed immediately in the
-/// <see cref="CurrentValue"/> parameter and as an update with <see cref="SettingsUpdatedEvent{T}"/> event.
+/// <see cref="CurrentValue" /> parameter and as an update with <see cref="SettingsUpdatedEvent{T}" /> event.
 /// </item>
 /// <item>
-/// The settings are stored in the <i>JSON</i> format, that is intended to allow the user to fix an issue that for
+/// The settings are stored in the <i>JSON</i> format, that is intended to allow the user to fix an issue that
+/// for
 /// some reason prevents the user from using the system correctly. <br/>
-/// If for some reason the file is left in an incorrect state, the system removes it and creates a new one based
+/// If for some reason the file is left in an incorrect state, the system removes it and creates a new one
+/// based
 /// on the empty constructor.
 /// </item>
 /// <item>
@@ -29,24 +32,23 @@ namespace Willow.Core.Settings.Abstractions;
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of parameters to be loaded.</typeparam>
-public interface ISettings<T>
-    where T : new()
+public interface ISettings<T> where T : new()
 {
-    internal static string SettingsFolderPath => $"./Settings";
+    internal static string SettingsFolderPath => "./Settings";
 
     internal static string SettingsFilePath =>
         $"{SettingsFolderPath}/{TypeExtensions.GetFullName<T>().Replace('.', '_')}.json";
 
     /// <summary>
-    /// The most recent value of <typeparamref name="T"/> found in the system.
+    /// The most recent value of <typeparamref name="T" /> found in the system.
     /// </summary>
     T CurrentValue { get; }
 
     /// <summary>
-    /// Updates <typeparamref name="T"/> with <see cref="newValue"/>, this update will eventually be synced into the
+    /// Updates <typeparamref name="T" /> with <see cref="newValue" />, this update will eventually be synced into the
     /// underlying file.
     /// </summary>
-    /// <param name="newValue">The new and updated value of <typeparamref name="T"/>.</param>
+    /// <param name="newValue">The new and updated value of <typeparamref name="T" />.</param>
     void Update(T newValue);
 
     /// <summary>

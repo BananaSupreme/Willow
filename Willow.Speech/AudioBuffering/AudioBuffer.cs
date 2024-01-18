@@ -30,8 +30,10 @@ internal sealed class AudioBuffer : IAudioBuffer
     {
         if (!IsEmpty && !IsSameAudioFeatures(audioData))
         {
-            throw new MismatchedFeaturesException(audioData, _samplingRateInBuffer, _channelCountInBuffer,
-                _bitDepthInBuffer);
+            throw new MismatchedFeaturesException(audioData,
+                                                  _samplingRateInBuffer,
+                                                  _channelCountInBuffer,
+                                                  _bitDepthInBuffer);
         }
 
         if (IsEmpty)
@@ -55,8 +57,11 @@ internal sealed class AudioBuffer : IAudioBuffer
         else
         {
             Array.Copy(audioData.RawData, 0, _buffer, _tail, spaceUntiEndOfBuffer);
-            Array.Copy(audioData.RawData, spaceUntiEndOfBuffer, _buffer, 0,
-                audioData.RawData.Length - spaceUntiEndOfBuffer);
+            Array.Copy(audioData.RawData,
+                       spaceUntiEndOfBuffer,
+                       _buffer,
+                       0,
+                       audioData.RawData.Length - spaceUntiEndOfBuffer);
         }
 
         _tail = (_tail + sampleCount) % _buffer.Length;
@@ -120,7 +125,7 @@ internal sealed class AudioBuffer : IAudioBuffer
 
     private AudioData CreateAudioData(short[] rawData)
     {
-        return new(rawData, _samplingRateInBuffer, _channelCountInBuffer, _bitDepthInBuffer);
+        return new AudioData(rawData, _samplingRateInBuffer, _channelCountInBuffer, _bitDepthInBuffer);
     }
 
     private bool IsSameAudioFeatures(AudioData audioData)

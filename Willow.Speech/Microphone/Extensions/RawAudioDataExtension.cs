@@ -4,16 +4,16 @@ namespace Willow.Speech.Microphone.Extensions;
 
 internal static class RawAudioDataExtension
 {
-    private const int _subchunk1Size = 16; //Standard
-    private const ushort _pcmAudioFormat = 1; //Standard
-    private const int _headerSize = 36; //Standard
+    private const int Subchunk1Size = 16; //Standard
+    private const ushort PcmAudioFormat = 1; //Standard
+    private const int HeaderSize = 36; //Standard
     private static readonly byte[] _riffHeader = "RIFF"u8.ToArray();
     private static readonly byte[] _waveHeader = "WAVE"u8.ToArray();
     private static readonly byte[] _fmtHeader = "fmt "u8.ToArray();
     private static readonly byte[] _dataHeader = "data"u8.ToArray();
 
     /// <summary>
-    /// Converts <see cref="AudioData"/> to a proper WAV file.
+    /// Converts <see cref="AudioData" /> to a proper WAV file.
     /// </summary>
     /// <param name="audioData">The input data.</param>
     /// <returns>Array of bytes representing a WAV file.</returns>
@@ -30,13 +30,13 @@ internal static class RawAudioDataExtension
         // RIFF Header
         writer.Seek(0, SeekOrigin.Begin);
         writer.Write(_riffHeader);
-        writer.Write(_headerSize + subchunk2Size);
+        writer.Write(HeaderSize + subchunk2Size);
         writer.Write(_waveHeader);
 
         // fmt Sub-chunk
         writer.Write(_fmtHeader);
-        writer.Write(_subchunk1Size);
-        writer.Write(_pcmAudioFormat);
+        writer.Write(Subchunk1Size);
+        writer.Write(PcmAudioFormat);
         writer.Write(audioData.ChannelCount);
         writer.Write(audioData.SamplingRate);
         writer.Write(byteRate);

@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+﻿using System.Reflection;
 
-using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 using Willow.Core.Environment.Models;
 using Willow.Speech.Tokenization.Tokens;
@@ -16,16 +16,16 @@ namespace Tests.Speech.CommandProcessing;
 public sealed class TrieConstructionTests : IDisposable
 {
     private readonly IVoiceCommandCompiler _compiler;
-    private readonly ITrieFactory _sut;
     private readonly Fixture _fixture;
     private readonly ServiceProvider _provider;
+    private readonly ITrieFactory _sut;
 
     public TrieConstructionTests()
     {
-        _fixture = new();
+        _fixture = new Fixture();
 
-        _fixture.Register(() => new Dictionary<string, object>());
-        _fixture.Register(() => new TagRequirement[] { new([]) });
+        _fixture.Register(static () => new Dictionary<string, object>());
+        _fixture.Register(static () => new TagRequirement[] { new([]) });
 
         _compiler = Substitute.For<IVoiceCommandCompiler>();
         var services = new ServiceCollection();
@@ -34,6 +34,11 @@ public sealed class TrieConstructionTests : IDisposable
         services.AddSingleton<IVoiceCommandCompiler>(implementationFactory: _ => _compiler);
         _provider = services.BuildServiceProvider();
         _sut = _provider.GetRequiredService<ITrieFactory>();
+    }
+
+    public void Dispose()
+    {
+        _provider.Dispose();
     }
 
     [Fact]
@@ -45,54 +50,69 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "increase #amount and" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new NumberNodeProcessor(CaptureName: "amount"),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new NumberNodeProcessor(CaptureName: "amount"),
-                new WordNodeProcessor(Value: new(Value: "and")),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new NumberNodeProcessor(CaptureName: "amount"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new NumberNodeProcessor(CaptureName: "amount"),
+                              new WordNodeProcessor(Value: new WordToken(Value: "and")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "and")),
-                                        children:
-                                        [
-                                            new(tagRequirements: [new(Tags: [])],
-                                                nodeProcessor: new CommandSuccessNodeProcessor(
-                                                    CommandId: commands[1].Id),
-                                                children: [])
-                                        ]
-                                    ),
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                        children: [])
-                                ]
-                            )
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new WordNodeProcessor(
+                                                                    Value: new WordToken(Value: "increase")),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new NumberNodeProcessor(
+                                                                            CaptureName: new string(value: "amount")),
+                                                                        children:
+                                                                        [
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor:
+                                                                                new WordNodeProcessor(
+                                                                                    Value: new WordToken(Value: "and")),
+                                                                                children:
+                                                                                [
+                                                                                    new Node(
+                                                                                        tagRequirements
+                                                                                        : [new TagRequirement(Tags: [])],
+                                                                                        nodeProcessor:
+                                                                                        new CommandSuccessNodeProcessor(
+                                                                                            CommandId: commands[1].Id),
+                                                                                        children: [])
+                                                                                ]),
+                                                                            new Node(
+                                                                                tagRequirements:
+                                                                                [
+                                                                                    new TagRequirement(Tags: [])
+                                                                                ],
+                                                                                nodeProcessor:
+                                                                                new CommandSuccessNodeProcessor(
+                                                                                    CommandId: commands[0].Id),
+                                                                                children: [])
+                                                                        ])
+                                                                ])
+                                                   ]));
 
-        TestInternal(commands: commands, expectedTrie: expectedTrie);
+        TestInternal(commands, expectedTrie);
     }
 
     [Fact]
@@ -104,69 +124,87 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "increase and #amount" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new WordNodeProcessor(Value: new(Value: "and")),
-                new NumberNodeProcessor(CaptureName: "amount"),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new WordNodeProcessor(Value: new(Value: "for")),
-                new NumberNodeProcessor(CaptureName: "amount"),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new WordNodeProcessor(Value: new WordToken(Value: "and")),
+                              new NumberNodeProcessor(CaptureName: "amount"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new WordNodeProcessor(Value: new WordToken(Value: "for")),
+                              new NumberNodeProcessor(CaptureName: "amount"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new WordNodeProcessor(
+                                                                    Value: new WordToken(Value: "increase")),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new WordNodeProcessor(
+                                                                            Value: new WordToken(Value: "and")),
+                                                                        children:
+                                                                        [
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor:
+                                                                                new NumberNodeProcessor(
+                                                                                    CaptureName:
+                                                                                    new string(value: "amount")),
+                                                                                children:
+                                                                                [
+                                                                                    new Node(
+                                                                                        tagRequirements
+                                                                                        : [new TagRequirement(Tags: [])],
+                                                                                        nodeProcessor:
+                                                                                        new CommandSuccessNodeProcessor(
+                                                                                            CommandId: commands[0].Id),
+                                                                                        children: [])
+                                                                                ])
+                                                                        ]),
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new WordNodeProcessor(
+                                                                            Value: new WordToken(Value: "for")),
+                                                                        children:
+                                                                        [
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor: new NumberNodeProcessor(
+                                                                                    CaptureName:
+                                                                                    new string(value: "amount")),
+                                                                                children:
+                                                                                [
+                                                                                    new Node(
+                                                                                        tagRequirements:
+                                                                                        [
+                                                                                            new TagRequirement(Tags: [])
+                                                                                        ],
+                                                                                        nodeProcessor:
+                                                                                        new CommandSuccessNodeProcessor(
+                                                                                            CommandId: commands[1].Id),
+                                                                                        children: [])
+                                                                                ])
+                                                                        ])
+                                                                ])
+                                                   ]));
 
-
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new WordNodeProcessor(Value: new(Value: "and")),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                                        children:
-                                        [
-                                            new(tagRequirements: [new(Tags: [])],
-                                                nodeProcessor: new CommandSuccessNodeProcessor(
-                                                    CommandId: commands[0].Id),
-                                                children: [])
-                                        ]
-                                    )
-                                ]
-                            ),
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new WordNodeProcessor(Value: new(Value: "for")),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                                        children:
-                                        [
-                                            new(tagRequirements: [new(Tags: [])],
-                                                nodeProcessor: new CommandSuccessNodeProcessor(
-                                                    CommandId: commands[1].Id),
-                                                children: [])
-                                        ]
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                ]
-            )
-        );
-
-        TestInternal(commands: commands, expectedTrie: expectedTrie);
+        TestInternal(commands, expectedTrie);
     }
 
     [Fact]
@@ -184,98 +222,124 @@ public sealed class TrieConstructionTests : IDisposable
             }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(CaptureName: "enter",
-                    ValidWords:
-                    [
-                        new WordToken(Value: "five"), new WordToken(Value: "six"),
-                        new WordToken(Value: "seven")
-                    ]),
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(FlagName: "match",
-                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(CaptureName: "enter",
-                    ValidWords:
-                    [
-                        new WordToken(Value: "one"), new WordToken(Value: "two"),
-                        new WordToken(Value: "three")
-                    ]),
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(FlagName: "match",
-                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter",
+                                                     [
+                                                         new WordToken(Value: "five"),
+                                                         new WordToken(Value: "six"),
+                                                         new WordToken(Value: "seven")
+                                                     ]),
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new OptionalNodeProcessor("match",
+                                                        new NumberNodeProcessor(
+                                                            CaptureName: new string(value: "amount"))),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter",
+                                                     [
+                                                         new WordToken(Value: "one"),
+                                                         new WordToken(Value: "two"),
+                                                         new WordToken(Value: "three")
+                                                     ]),
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new OptionalNodeProcessor("match",
+                                                        new NumberNodeProcessor(
+                                                            CaptureName: new string(value: "amount"))),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(CaptureName: "enter",
-                            ValidWords:
-                            [
-                                new WordToken(Value: "five"), new WordToken(Value: "six"),
-                                new WordToken(Value: "seven")
-                            ]), children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor:
-                                        new OptionalNodeProcessor(FlagName: "match",
-                                            InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                                        children:
-                                        [
-                                            new(tagRequirements: [new(Tags: [])],
-                                                nodeProcessor: new CommandSuccessNodeProcessor(
-                                                    CommandId: commands[0].Id),
-                                                children: []
-                                            )
-                                        ]
-                                    )
-                                ]
-                            )
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(CaptureName: "enter",
-                            ValidWords:
-                            [
-                                new WordToken(Value: "one"), new WordToken(Value: "two"),
-                                new WordToken(Value: "three")
-                            ]), children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new OptionalNodeProcessor(FlagName: "match",
-                                            InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                                        children:
-                                        [
-                                            new(tagRequirements: [new(Tags: [])],
-                                                nodeProcessor: new CommandSuccessNodeProcessor(
-                                                    CommandId: commands[1].Id),
-                                                children: [])
-                                        ]
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OneOfNodeProcessor(
+                                                                    "enter",
+                                                                    [
+                                                                        new WordToken(Value: "five"),
+                                                                        new WordToken(Value: "six"),
+                                                                        new WordToken(Value: "seven")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new WordNodeProcessor(
+                                                                            Value: new WordToken(Value: "increase")),
+                                                                        children:
+                                                                        [
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor:
+                                                                                new OptionalNodeProcessor("match",
+                                                                                    new NumberNodeProcessor(
+                                                                                        CaptureName:
+                                                                                        new string(value: "amount"))),
+                                                                                children
+                                                                                :
+                                                                                [
+                                                                                    new Node(
+                                                                                        tagRequirements
+                                                                                        : [new TagRequirement(Tags: [])],
+                                                                                        nodeProcessor:
+                                                                                        new CommandSuccessNodeProcessor(
+                                                                                            CommandId: commands[0].Id),
+                                                                                        children: [])
+                                                                                ])
+                                                                        ])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OneOfNodeProcessor(
+                                                                    "enter",
+                                                                    [
+                                                                        new WordToken(Value: "one"),
+                                                                        new WordToken(Value: "two"),
+                                                                        new WordToken(Value: "three")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new WordNodeProcessor(
+                                                                            Value: new WordToken(Value: "increase")),
+                                                                        children:
+                                                                        [
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor:
+                                                                                new OptionalNodeProcessor(
+                                                                                    "match",
+                                                                                    new NumberNodeProcessor(
+                                                                                        CaptureName:
+                                                                                        new string(value: "amount"))),
+                                                                                children:
+                                                                                [
+                                                                                    new Node(
+                                                                                        tagRequirements:
+                                                                                        [
+                                                                                            new TagRequirement(Tags: [])
+                                                                                        ],
+                                                                                        nodeProcessor:
+                                                                                        new CommandSuccessNodeProcessor(
+                                                                                            CommandId: commands[1].Id),
+                                                                                        children: [])
+                                                                                ])
+                                                                        ])
+                                                                ])
+                                                   ]));
 
-        TestInternal(commands: commands, expectedTrie: expectedTrie);
+        TestInternal(commands, expectedTrie);
     }
 
     [Fact]
@@ -285,63 +349,90 @@ public sealed class TrieConstructionTests : IDisposable
         [
             _fixture.Create<PreCompiledVoiceCommand>() with
             {
-                InvocationPhrase = "increase ?[#amount]:hit", TagRequirements = [new(Tags: [new(Name: "hello")])]
+                InvocationPhrase = "increase ?[#amount]:hit",
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "hello")])]
             },
             _fixture.Create<PreCompiledVoiceCommand>() with
             {
-                InvocationPhrase = "increase ?[#amount]:hit", TagRequirements = [new(Tags: [new(Name: "world")])]
+                InvocationPhrase = "increase ?[#amount]:hit",
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "world")])]
             }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(FlagName: "hit",
-                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(FlagName: "hit",
-                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new OptionalNodeProcessor("hit",
+                                                        new NumberNodeProcessor(
+                                                            CaptureName: new string(value: "amount"))),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new OptionalNodeProcessor("hit",
+                                                        new NumberNodeProcessor(
+                                                            CaptureName: new string(value: "amount"))),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [new(Name: "hello")]), new(Tags: [new(Name: "world")])],
-                nodeProcessor: new EmptyNodeProcessor(),
-                children:
-                [
-                    new(
-                        tagRequirements:
-                        [new(Tags: [new(Name: "hello")]), new(Tags: [new(Name: "world")])],
-                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [new(Name: "hello")]), new(Tags: [new(Name: "world")])],
-                                nodeProcessor: new OptionalNodeProcessor(FlagName: "hit",
-                                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [new(Name: "hello")])],
-                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                        children: []
-                                    ),
-                                    new(tagRequirements: [new(Tags: [new(Name: "world")])],
-                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                        children: []
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(
+                                        tagRequirements
+                                        :
+                                        [
+                                            new TagRequirement(Tags: [new Tag(Name: "hello")]),
+                                            new TagRequirement(Tags: [new Tag(Name: "world")])
+                                        ],
+                                        nodeProcessor: new EmptyNodeProcessor(),
+                                        children:
+                                        [
+                                            new Node(
+                                                tagRequirements
+                                                :
+                                                [
+                                                    new TagRequirement(Tags: [new Tag(Name: "hello")]),
+                                                    new TagRequirement(Tags: [new Tag(Name: "world")])
+                                                ],
+                                                nodeProcessor:
+                                                new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                                                children:
+                                                [
+                                                    new Node(
+                                                        tagRequirements
+                                                        :
+                                                        [
+                                                            new TagRequirement(Tags: [new Tag(Name: "hello")]),
+                                                            new TagRequirement(Tags: [new Tag(Name: "world")])
+                                                        ],
+                                                        nodeProcessor:
+                                                        new OptionalNodeProcessor(
+                                                            "hit",
+                                                            new NumberNodeProcessor(
+                                                                CaptureName: new string(value: "amount"))),
+                                                        children:
+                                                        [
+                                                            new Node(
+                                                                tagRequirements
+                                                                : [new TagRequirement(Tags: [new Tag(Name: "hello")])],
+                                                                nodeProcessor:
+                                                                new CommandSuccessNodeProcessor(
+                                                                    CommandId: commands[0].Id),
+                                                                children: []),
+                                                            new Node(
+                                                                tagRequirements:
+                                                                [
+                                                                    new TagRequirement(Tags: [new Tag(Name: "world")])
+                                                                ],
+                                                                nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                    CommandId: commands[1].Id),
+                                                                children: [])
+                                                        ])
+                                                ])
+                                        ]));
 
-        TestInternal(commands: commands, expectedTrie: expectedTrie);
+        TestInternal(commands, expectedTrie);
     }
 
     [Fact]
@@ -351,62 +442,83 @@ public sealed class TrieConstructionTests : IDisposable
         [
             _fixture.Create<PreCompiledVoiceCommand>() with
             {
-                InvocationPhrase = "increase ?[#amount]:catch", TagRequirements = [new(Tags: [new(Name: "hello")])]
+                InvocationPhrase = "increase ?[#amount]:catch",
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "hello")])]
             },
             _fixture.Create<PreCompiledVoiceCommand>() with
             {
-                InvocationPhrase = "increase ?[#amount]:catch", TagRequirements = [new(Tags: [new(Name: "hello")])]
+                InvocationPhrase = "increase ?[#amount]:catch",
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "hello")])]
             }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(FlagName: "catch",
-                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new OptionalNodeProcessor(FlagName: "catch",
-                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new OptionalNodeProcessor("catch",
+                                                        new NumberNodeProcessor(
+                                                            CaptureName: new string(value: "amount"))),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new OptionalNodeProcessor("catch",
+                                                        new NumberNodeProcessor(
+                                                            CaptureName: new string(value: "amount"))),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [new(Name: "hello")])], nodeProcessor: new EmptyNodeProcessor(),
-                children:
-                [
-                    new(
-                        tagRequirements:
-                        [new(Tags: [new(Name: "hello")])],
-                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [new(Name: "hello")])],
-                                nodeProcessor: new OptionalNodeProcessor(FlagName: "catch",
-                                    InnerNode: new NumberNodeProcessor(CaptureName: new(value: "amount"))),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [new(Name: "hello")])],
-                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                        children: []
-                                    ),
-                                    new(tagRequirements: [new(Tags: [new(Name: "hello")])],
-                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                        children: []
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [new Tag(Name: "hello")])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(
+                                                           tagRequirements
+                                                           : [new TagRequirement(Tags: [new Tag(Name: "hello")])],
+                                                           nodeProcessor:
+                                                           new WordNodeProcessor(
+                                                               Value: new WordToken(Value: "increase")),
+                                                           children:
+                                                           [
+                                                               new Node(
+                                                                   tagRequirements
+                                                                   :
+                                                                   [
+                                                                       new TagRequirement(Tags: [new Tag(Name: "hello")])
+                                                                   ],
+                                                                   nodeProcessor:
+                                                                   new OptionalNodeProcessor(
+                                                                       "catch",
+                                                                       new NumberNodeProcessor(
+                                                                           CaptureName: new string(value: "amount"))),
+                                                                   children:
+                                                                   [
+                                                                       new Node(tagRequirements:
+                                                                           [
+                                                                               new TagRequirement(
+                                                                                   Tags: [new Tag(Name: "hello")])
+                                                                           ],
+                                                                           nodeProcessor:
+                                                                           new CommandSuccessNodeProcessor(
+                                                                               CommandId: commands[0].Id),
+                                                                           children: []),
+                                                                       new Node(tagRequirements:
+                                                                           [
+                                                                               new TagRequirement(
+                                                                                   Tags: [new Tag(Name: "hello")])
+                                                                           ],
+                                                                           nodeProcessor:
+                                                                           new CommandSuccessNodeProcessor(
+                                                                               CommandId: commands[1].Id),
+                                                                           children: [])
+                                                                   ])
+                                                           ])
+                                                   ]));
 
-        TestInternal(commands: commands, expectedTrie: expectedTrie);
+        TestInternal(commands, expectedTrie);
     }
 
     [Fact]
@@ -419,98 +531,166 @@ public sealed class TrieConstructionTests : IDisposable
             {
                 InvocationPhrase = "[one:two]:enter one one for #amount"
             },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one:two]:enter one and one #amount" }
+            _fixture.Create<PreCompiledVoiceCommand>() with
+            {
+                InvocationPhrase = "[one:two]:enter one and one #amount"
+            }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(CaptureName: "enter",
-                    ValidWords: [new WordToken(Value: "one"), new WordToken(Value: "two")]),
-                new WordNodeProcessor(Value: new(Value: "one")),
-                new WordNodeProcessor(Value: new(Value: "one")),
-                new WordNodeProcessor(Value: new(Value: "for")),
-                new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(CaptureName: "enter",
-                    ValidWords: [new WordToken(Value: "one"), new WordToken(Value: "two")]),
-                new WordNodeProcessor(Value: new(Value: "one")),
-                new WordNodeProcessor(Value: new(Value: "and")),
-                new WordNodeProcessor(Value: new(Value: "one")),
-                new NumberNodeProcessor(CaptureName: new(value: "amount")),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter",
+                                                     [new WordToken(Value: "one"), new WordToken(Value: "two")]),
+                              new WordNodeProcessor(Value: new WordToken(Value: "one")),
+                              new WordNodeProcessor(Value: new WordToken(Value: "one")),
+                              new WordNodeProcessor(Value: new WordToken(Value: "for")),
+                              new NumberNodeProcessor(CaptureName: new string(value: "amount")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter",
+                                                     [new WordToken(Value: "one"), new WordToken(Value: "two")]),
+                              new WordNodeProcessor(Value: new WordToken(Value: "one")),
+                              new WordNodeProcessor(Value: new WordToken(Value: "and")),
+                              new WordNodeProcessor(Value: new WordToken(Value: "one")),
+                              new NumberNodeProcessor(CaptureName: new string(value: "amount")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(CaptureName: "enter",
-                            ValidWords: [new WordToken(Value: "one"), new WordToken(Value: "two")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new WordNodeProcessor(Value: new(Value: "one")),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "one")),
-                                        children:
-                                        [
-                                            new(tagRequirements: [new(Tags: [])],
-                                                nodeProcessor: new WordNodeProcessor(Value: new(Value: "for")),
-                                                children:
-                                                [
-                                                    new(tagRequirements: [new(Tags: [])],
-                                                        nodeProcessor: new NumberNodeProcessor(
-                                                            CaptureName: new(value: "amount")),
-                                                        children:
-                                                        [
-                                                            new(tagRequirements: [new(Tags: [])],
-                                                                nodeProcessor: new CommandSuccessNodeProcessor(
-                                                                    CommandId: commands[0].Id),
-                                                                children: [])
-                                                        ]
-                                                    )
-                                                ]
-                                            )
-                                        ]
-                                    ),
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "and")),
-                                        children:
-                                        [
-                                            new(tagRequirements: [new(Tags: [])],
-                                                nodeProcessor: new WordNodeProcessor(Value: new(Value: "one")),
-                                                children:
-                                                [
-                                                    new(tagRequirements: [new(Tags: [])],
-                                                        nodeProcessor: new NumberNodeProcessor(
-                                                            CaptureName: new(value: "amount")),
-                                                        children:
-                                                        [
-                                                            new(tagRequirements: [new(Tags: [])],
-                                                                nodeProcessor: new CommandSuccessNodeProcessor(
-                                                                    CommandId: commands[1].Id),
-                                                                children: [])
-                                                        ]
-                                                    )
-                                                ]
-                                            )
-                                        ]
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OneOfNodeProcessor(
+                                                                    "enter",
+                                                                    [
+                                                                        new WordToken(Value: "one"),
+                                                                        new WordToken(Value: "two")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new WordNodeProcessor(
+                                                                            Value: new WordToken(Value: "one")),
+                                                                        children:
+                                                                        [
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor:
+                                                                                new WordNodeProcessor(
+                                                                                    Value: new WordToken(Value: "one")),
+                                                                                children:
+                                                                                [
+                                                                                    new Node(
+                                                                                        tagRequirements
+                                                                                        : [new TagRequirement(Tags: [])],
+                                                                                        nodeProcessor:
+                                                                                        new WordNodeProcessor(
+                                                                                            Value:
+                                                                                            new WordToken(Value: "for")),
+                                                                                        children:
+                                                                                        [
+                                                                                            new Node(
+                                                                                                tagRequirements
+                                                                                                :
+                                                                                                [
+                                                                                                    new TagRequirement(
+                                                                                                        Tags: [])
+                                                                                                ],
+                                                                                                nodeProcessor:
+                                                                                                new NumberNodeProcessor(
+                                                                                                    CaptureName:
+                                                                                                    new string(
+                                                                                                        value:
+                                                                                                        "amount")),
+                                                                                                children:
+                                                                                                [
+                                                                                                    new Node(
+                                                                                                        tagRequirements
+                                                                                                        :
+                                                                                                        [
+                                                                                                            new
+                                                                                                                TagRequirement(
+                                                                                                                    Tags
+                                                                                                                    : [])
+                                                                                                        ],
+                                                                                                        nodeProcessor:
+                                                                                                        new
+                                                                                                            CommandSuccessNodeProcessor(
+                                                                                                                CommandId
+                                                                                                                :
+                                                                                                                commands[
+                                                                                                                        0]
+                                                                                                                    .Id),
+                                                                                                        children: [])
+                                                                                                ])
+                                                                                        ])
+                                                                                ]),
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor:
+                                                                                new WordNodeProcessor(
+                                                                                    Value: new WordToken(Value: "and")),
+                                                                                children:
+                                                                                [
+                                                                                    new Node(
+                                                                                        tagRequirements
+                                                                                        : [new TagRequirement(Tags: [])],
+                                                                                        nodeProcessor:
+                                                                                        new WordNodeProcessor(
+                                                                                            Value:
+                                                                                            new WordToken(Value: "one")),
+                                                                                        children:
+                                                                                        [
+                                                                                            new Node(
+                                                                                                tagRequirements
+                                                                                                :
+                                                                                                [
+                                                                                                    new TagRequirement(
+                                                                                                        Tags: [])
+                                                                                                ],
+                                                                                                nodeProcessor:
+                                                                                                new NumberNodeProcessor(
+                                                                                                    CaptureName:
+                                                                                                    new string(
+                                                                                                        value:
+                                                                                                        "amount")),
+                                                                                                children:
+                                                                                                [
+                                                                                                    new Node(
+                                                                                                        tagRequirements:
+                                                                                                        [
+                                                                                                            new
+                                                                                                                TagRequirement(
+                                                                                                                    Tags:
+                                                                                                                    [
+                                                                                                                    ])
+                                                                                                        ],
+                                                                                                        nodeProcessor:
+                                                                                                        new
+                                                                                                            CommandSuccessNodeProcessor(
+                                                                                                                CommandId
+                                                                                                                : commands
+                                                                                                                        [1]
+                                                                                                                    .Id),
+                                                                                                        children: [])
+                                                                                                ])
+                                                                                        ])
+                                                                                ])
+                                                                        ])
+                                                                ])
+                                                   ]));
 
-        TestInternal(commands: commands, expectedTrie: expectedTrie);
+        TestInternal(commands, expectedTrie);
     }
 
     [Fact]
@@ -522,44 +702,48 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new WordNodeProcessor(Value: new(Value: "increase")),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(Value: new WordToken(Value: "increase")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WordNodeProcessor(Value: new(Value: "increase")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(
-                            "enter",
-                            [new WordToken("one"), new WordToken("two")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new WordNodeProcessor(
+                                                                    Value: new WordToken(Value: "increase")),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new OneOfNodeProcessor("enter",
+                                                                    [new WordToken("one"), new WordToken("two")]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -573,44 +757,46 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "#number" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new NumberNodeProcessor("number"),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new NumberNodeProcessor("number"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new NumberNodeProcessor("number"),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(
-                            "enter",
-                            [new WordToken("one"), new WordToken("two")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new NumberNodeProcessor("number"),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new OneOfNodeProcessor("enter",
+                                                                    [new WordToken("one"), new WordToken("two")]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -624,42 +810,46 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "#number" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new WordNodeProcessor(new("word")),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new NumberNodeProcessor("number"),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(new WordToken("word")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new NumberNodeProcessor("number"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WordNodeProcessor(new("word")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new NumberNodeProcessor("number"),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new WordNodeProcessor(new WordToken("word")),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new NumberNodeProcessor("number"),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -673,43 +863,50 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "word" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new WordNodeProcessor(new("word")),
-                new RepeatingWildCardNodeProcessor("phrase"),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new WordNodeProcessor(new("word")),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(new WordToken("word")),
+                              new RepeatingWildCardNodeProcessor("phrase"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new WordNodeProcessor(new WordToken("word")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WordNodeProcessor(new("word")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new RepeatingWildCardNodeProcessor("phrase"),
-                                children:
-                                [
-                                    new(tagRequirements: [new(Tags: [])],
-                                        nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                        children: [])
-                                ]
-                            ),
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    ),
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new WordNodeProcessor(new WordToken("word")),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new RepeatingWildCardNodeProcessor("phrase"),
+                                                                        children:
+                                                                        [
+                                                                            new Node(
+                                                                                tagRequirements
+                                                                                : [new TagRequirement(Tags: [])],
+                                                                                nodeProcessor:
+                                                                                new CommandSuccessNodeProcessor(
+                                                                                    CommandId: commands[0].Id),
+                                                                                children: [])
+                                                                        ]),
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -721,77 +918,93 @@ public sealed class TrieConstructionTests : IDisposable
         [
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two|three]:enter" },
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two]:enter" },
-            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two|three|four]:enter" },
+            _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "[one|two|three|four]:enter" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(
-                    "enter",
-                    [new WordToken("one"), new WordToken("two"), new WordToken("three")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(
-                    "enter",
-                    [new WordToken("one"), new WordToken("two")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
-        _compiler.Compile(command: commands[2]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor(
-                    "enter",
-                    [
-                        new WordToken("one"), new WordToken("two"),
-                        new WordToken("three"), new WordToken("four")
-                    ]),
-                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter",
+                                                     [
+                                                         new WordToken("one"),
+                                                         new WordToken("two"),
+                                                         new WordToken("three")
+                                                     ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
+        _compiler.Compile(command: commands[2])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter",
+                                                     [
+                                                         new WordToken("one"),
+                                                         new WordToken("two"),
+                                                         new WordToken("three"),
+                                                         new WordToken("four")
+                                                     ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(
-                            "enter",
-                            [new WordToken("one"), new WordToken("two")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(
-                            "enter",
-                            [new WordToken("one"), new WordToken("two"), new WordToken("three")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(
-                            "enter",
-                            [
-                                new WordToken("one"), new WordToken("two"),
-                                new WordToken("three"), new WordToken("four")
-                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[2].Id),
-                                children: [])
-                        ]
-                    ),
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OneOfNodeProcessor(
+                                                                    "enter",
+                                                                    [new WordToken("one"), new WordToken("two")]),
+                                                                children
+                                                                :
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OneOfNodeProcessor(
+                                                                    "enter",
+                                                                    [
+                                                                        new WordToken("one"),
+                                                                        new WordToken("two"),
+                                                                        new WordToken("three")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new OneOfNodeProcessor("enter",
+                                                                    [
+                                                                        new WordToken("one"),
+                                                                        new WordToken("two"),
+                                                                        new WordToken("three"),
+                                                                        new WordToken("four")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[2].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -805,42 +1018,46 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "*wildcard" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new RepeatingWildCardNodeProcessor("phrase"),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new WildCardNodeProcessor("wildcard"),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new RepeatingWildCardNodeProcessor("phrase"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new WildCardNodeProcessor("wildcard"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WildCardNodeProcessor("wildcard"),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new RepeatingWildCardNodeProcessor("phrase"),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new WildCardNodeProcessor("wildcard"),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new RepeatingWildCardNodeProcessor("phrase"),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -854,44 +1071,48 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "*wildcard" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new WildCardNodeProcessor("wildcard"),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new WildCardNodeProcessor("wildcard"),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OneOfNodeProcessor(
-                            "enter",
-                            [new WordToken("one"), new WordToken("two")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new WildCardNodeProcessor("wildcard"),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OneOfNodeProcessor(
+                                                                    "enter",
+                                                                    [new WordToken("one"), new WordToken("two")]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new WildCardNodeProcessor("wildcard"),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -905,42 +1126,51 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "?[#n]:_" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new OptionalNodeProcessor("_", new WildCardNodeProcessor("wildcard")),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new OptionalNodeProcessor("_", new NumberNodeProcessor("n")),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new OptionalNodeProcessor("_", new WildCardNodeProcessor("wildcard")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new OptionalNodeProcessor("_", new NumberNodeProcessor("n")),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OptionalNodeProcessor("_", new NumberNodeProcessor("n")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OptionalNodeProcessor("_", new WildCardNodeProcessor("wildcard")),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OptionalNodeProcessor(
+                                                                    "_",
+                                                                    new NumberNodeProcessor("n")),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OptionalNodeProcessor(
+                                                                    "_",
+                                                                    new WildCardNodeProcessor("wildcard")),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -955,67 +1185,79 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "&[#n|[one|two]:enter]" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new AndNodeProcessor([new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new NumberNodeProcessor("n"),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
-        _compiler.Compile(command: commands[2]).Returns(returnThis:
-            [
-                new AndNodeProcessor([
-                                         new NumberNodeProcessor("n"),
-                                         new OneOfNodeProcessor("enter", [new WordToken("one"), new WordToken("two")])
-                                     ]),
-                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new AndNodeProcessor([new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new NumberNodeProcessor("n"), new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
+        _compiler.Compile(command: commands[2])
+                 .Returns(returnThis:
+                          [
+                              new AndNodeProcessor([
+                                                       new NumberNodeProcessor("n"),
+                                                       new OneOfNodeProcessor(
+                                                           "enter",
+                                                           [new WordToken("one"), new WordToken("two")])
+                                                   ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new NumberNodeProcessor("n"),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new AndNodeProcessor(
-                            [new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new AndNodeProcessor([
-                                                                new NumberNodeProcessor("n"),
-                                                                new OneOfNodeProcessor("enter",
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new NumberNodeProcessor("n"),
+                                                                children
+                                                                :
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new AndNodeProcessor(
                                                                     [
-                                                                        new WordToken("one"),
-                                                                        new WordToken("two")
-                                                                    ])
-                                                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[2].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+                                                                        new NumberNodeProcessor("n"),
+                                                                        new NumberNodeProcessor("nn")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new AndNodeProcessor([
+                                                                    new NumberNodeProcessor("n"),
+                                                                    new OneOfNodeProcessor("enter",
+                                                                        [
+                                                                            new WordToken("one"),
+                                                                            new WordToken("two")
+                                                                        ])
+                                                                ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[2].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -1030,70 +1272,84 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "&[#n|#nn|*w]" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new AndNodeProcessor([new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new AndNodeProcessor([new NumberNodeProcessor("n"), new RepeatingWildCardNodeProcessor("p")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
-        _compiler.Compile(command: commands[2]).Returns(returnThis:
-            [
-                new AndNodeProcessor([
-                                         new NumberNodeProcessor("n"),
-                                         new NumberNodeProcessor("nn"),
-                                         new WildCardNodeProcessor("w")
-                                     ]),
-                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new AndNodeProcessor([new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new AndNodeProcessor([
+                                                       new NumberNodeProcessor("n"),
+                                                       new RepeatingWildCardNodeProcessor("p")
+                                                   ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
+        _compiler.Compile(command: commands[2])
+                 .Returns(returnThis:
+                          [
+                              new AndNodeProcessor([
+                                                       new NumberNodeProcessor("n"),
+                                                       new NumberNodeProcessor("nn"),
+                                                       new WildCardNodeProcessor("w")
+                                                   ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new AndNodeProcessor([
-                                                                new NumberNodeProcessor("n"),
-                                                                new NumberNodeProcessor("nn")
-                                                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new AndNodeProcessor([
-                                                                new NumberNodeProcessor("n"),
-                                                                new NumberNodeProcessor("nn"),
-                                                                new WildCardNodeProcessor("w")
-                                                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[2].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new AndNodeProcessor([
-                                                                new NumberNodeProcessor("n"),
-                                                                new RepeatingWildCardNodeProcessor("p")
-                                                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    )
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new AndNodeProcessor(
+                                                                    [
+                                                                        new NumberNodeProcessor("n"),
+                                                                        new NumberNodeProcessor("nn")
+                                                                    ]),
+                                                                children
+                                                                :
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new AndNodeProcessor(
+                                                                    [
+                                                                        new NumberNodeProcessor("n"),
+                                                                        new NumberNodeProcessor("nn"),
+                                                                        new WildCardNodeProcessor("w")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[2].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new AndNodeProcessor([
+                                                                    new NumberNodeProcessor("n"),
+                                                                    new RepeatingWildCardNodeProcessor("p")
+                                                                ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -1110,106 +1366,122 @@ public sealed class TrieConstructionTests : IDisposable
             _fixture.Create<PreCompiledVoiceCommand>() with { InvocationPhrase = "~[#n|#nn|*w]:i" }
         ];
 
-        _compiler.Compile(command: commands[0]).Returns(returnThis:
-            [
-                new OrNodeProcessor("i", [new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
-                new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
-            ]);
-        _compiler.Compile(command: commands[1]).Returns(returnThis:
-            [
-                new OrNodeProcessor("i",
-                    [
-                        new NumberNodeProcessor("n"),
-                        new RepeatingWildCardNodeProcessor("p")
-                    ]),
-                new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
-            ]);
-        _compiler.Compile(command: commands[2]).Returns(returnThis:
-            [
-                new OrNodeProcessor("i",
-                    [
-                        new WildCardNodeProcessor("w"),
-                        new OneOfNodeProcessor("enter",
-                            [
-                                new WordToken("one"),
-                                new WordToken("two")
-                            ])
-                    ]),
-                new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
-            ]);
-        _compiler.Compile(command: commands[3]).Returns(returnThis:
-            [
-                new OrNodeProcessor("i",
-                    [
-                        new NumberNodeProcessor("n"),
-                        new NumberNodeProcessor("nn"),
-                        new WildCardNodeProcessor("w")
-                    ]),
-                new CommandSuccessNodeProcessor(CommandId: commands[3].Id)
-            ]);
+        _compiler.Compile(command: commands[0])
+                 .Returns(returnThis:
+                          [
+                              new OrNodeProcessor("i", [new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[0].Id)
+                          ]);
+        _compiler.Compile(command: commands[1])
+                 .Returns(returnThis:
+                          [
+                              new OrNodeProcessor("i",
+                                                  [
+                                                      new NumberNodeProcessor("n"),
+                                                      new RepeatingWildCardNodeProcessor("p")
+                                                  ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[1].Id)
+                          ]);
+        _compiler.Compile(command: commands[2])
+                 .Returns(returnThis:
+                          [
+                              new OrNodeProcessor("i",
+                                                  [
+                                                      new WildCardNodeProcessor("w"),
+                                                      new OneOfNodeProcessor("enter",
+                                                                             [
+                                                                                 new WordToken("one"),
+                                                                                 new WordToken("two")
+                                                                             ])
+                                                  ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[2].Id)
+                          ]);
+        _compiler.Compile(command: commands[3])
+                 .Returns(returnThis:
+                          [
+                              new OrNodeProcessor("i",
+                                                  [
+                                                      new NumberNodeProcessor("n"),
+                                                      new NumberNodeProcessor("nn"),
+                                                      new WildCardNodeProcessor("w")
+                                                  ]),
+                              new CommandSuccessNodeProcessor(CommandId: commands[3].Id)
+                          ]);
 
-        var expectedTrie = new Trie
-        (
-            root: new(tagRequirements: [new(Tags: [])], nodeProcessor: new EmptyNodeProcessor(), children:
-                [
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OrNodeProcessor("i",
-                            [new NumberNodeProcessor("n"), new NumberNodeProcessor("nn")]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[0].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OrNodeProcessor("i",
-                            [
-                                new NumberNodeProcessor("n"),
-                                new RepeatingWildCardNodeProcessor("p")
-                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[1].Id),
-                                children: [])
-                        ]
-                    ),
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OrNodeProcessor("i",
-                            [
-                                new NumberNodeProcessor("n"),
-                                new NumberNodeProcessor("nn"),
-                                new WildCardNodeProcessor("w")
-                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[3].Id),
-                                children: [])
-                        ]
-                    ),
-                    
-                    new(tagRequirements: [new(Tags: [])],
-                        nodeProcessor: new OrNodeProcessor("i",
-                            [
-                                new WildCardNodeProcessor("w"),
-                                new OneOfNodeProcessor("enter",
-                                    [
-                                        new WordToken("one"),
-                                        new WordToken("two")
-                                    ])
-                            ]),
-                        children:
-                        [
-                            new(tagRequirements: [new(Tags: [])],
-                                nodeProcessor: new CommandSuccessNodeProcessor(CommandId: commands[2].Id),
-                                children: [])
-                        ]
-                    ),
-                ]
-            )
-        );
+        var expectedTrie = new Trie(root: new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                   nodeProcessor: new EmptyNodeProcessor(),
+                                                   children:
+                                                   [
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OrNodeProcessor(
+                                                                    "i",
+                                                                    [
+                                                                        new NumberNodeProcessor("n"),
+                                                                        new NumberNodeProcessor("nn")
+                                                                    ]),
+                                                                children
+                                                                :
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[0].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OrNodeProcessor(
+                                                                    "i",
+                                                                    [
+                                                                        new NumberNodeProcessor("n"),
+                                                                        new RepeatingWildCardNodeProcessor("p")
+                                                                    ]),
+                                                                children
+                                                                :
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[1].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor:
+                                                                new OrNodeProcessor(
+                                                                    "i",
+                                                                    [
+                                                                        new NumberNodeProcessor("n"),
+                                                                        new NumberNodeProcessor("nn"),
+                                                                        new WildCardNodeProcessor("w")
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor:
+                                                                        new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[3].Id),
+                                                                        children: [])
+                                                                ]),
+                                                       new Node(tagRequirements: [new TagRequirement(Tags: [])],
+                                                                nodeProcessor: new OrNodeProcessor("i",
+                                                                    [
+                                                                        new WildCardNodeProcessor("w"),
+                                                                        new OneOfNodeProcessor("enter",
+                                                                            [new WordToken("one"), new WordToken("two")])
+                                                                    ]),
+                                                                children:
+                                                                [
+                                                                    new Node(
+                                                                        tagRequirements: [new TagRequirement(Tags: [])],
+                                                                        nodeProcessor: new CommandSuccessNodeProcessor(
+                                                                            CommandId: commands[2].Id),
+                                                                        children: [])
+                                                                ])
+                                                   ]));
 
         TestInternal(commands, expectedTrie);
     }
@@ -1223,36 +1495,30 @@ public sealed class TrieConstructionTests : IDisposable
 
         _sut.Set(commands: commands);
         var result = _sut.Get();
-        var resultString = JsonConvert.SerializeObject(value: result, settings: settings);
-        var expectedTrieString = JsonConvert.SerializeObject(value: expectedTrie, settings: settings);
+        var resultString = JsonConvert.SerializeObject(result, settings);
+        var expectedTrieString = JsonConvert.SerializeObject(expectedTrie, settings);
         resultString.Should().BeEquivalentTo(expected: expectedTrieString);
     }
 
-    private class MyContractResolver : DefaultContractResolver
+    private sealed class MyContractResolver : DefaultContractResolver
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
             var props = type
-                        .GetProperties(
-                            bindingAttr: BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                        .Select(selector: p => base.CreateProperty(member: p, memberSerialization: memberSerialization))
+                        .GetProperties(bindingAttr: BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                        .Select(selector: p => CreateProperty(p, memberSerialization))
                         .Union(second: type
-                                       .GetFields(bindingAttr: BindingFlags.Public | BindingFlags.NonPublic |
-                                                               BindingFlags.Instance)
-                                       .Select(selector: f =>
-                                           base.CreateProperty(member: f, memberSerialization: memberSerialization)))
+                                       .GetFields(bindingAttr: BindingFlags.Public
+                                                               | BindingFlags.NonPublic
+                                                               | BindingFlags.Instance)
+                                       .Select(selector: f => CreateProperty(f, memberSerialization)))
                         .ToList();
-            props.ForEach(action: p =>
+            props.ForEach(action: static p =>
             {
                 p.Writable = true;
                 p.Readable = true;
             });
             return props;
         }
-    }
-
-    public void Dispose()
-    {
-        _provider.Dispose();
     }
 }

@@ -3,6 +3,8 @@
   it will not find a homophone but it will find a variation of the word (not sure how its called) that is correct in the
   grammar for example `take` get transformed into `taking` this can also be added with the homophones.
 - Give the user the ability to add other words that are difficult to parse for them, a custom homophone library
+- For now we are using a homophone and near homophone library based on Levenshtein distance, we could also in the future
+  allow for matching based on `Soundex` and `Metaphone`.
 - Theres probably a lot of performance tuning that can be done here
 
 ---
@@ -20,10 +22,11 @@ invoked, it will be caught if the string is equal to any of the words represnete
 A new `ISpecializedNodeProcessor` will be created that knows to create this token using a dictionary of equivilants
 recovered from DI.
 
-`CapturingNodeProcessor` would add a new abstract method `GetTokenToCapture` that will return the correct token expected,
+`CapturingNodeProcessor` would add a new abstract method `GetTokenToCapture` that will return the correct token
+expected,
 for example `OneOf` returns the token asked in the match, we might want to think how to avoid double checking this for
 if the collection in `OneOf` is large it can be difficult. `WildCard` Can return the `WordToken` representation of the
-new token.
+new token. -- ok, fine OneOf will no longer inherit CapturingNodeProcessor.
 
 
 ---
@@ -35,3 +38,5 @@ new token.
   floated
 - We should certainly look into caching repeated commands, no point in processing a sentatnce twice if the user said the
   same thing.
+- A warning for the user that commands have become equivilant could be nice, but we can also apply a general warning
+  when the user 

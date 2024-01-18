@@ -4,12 +4,12 @@ using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
-using Willow.Core.Settings.Abstractions;
 using Willow.Helpers.Extensions;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
 using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.SpeechToText.Registration;
+using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Eventing.Interceptors;
 using Willow.Speech.Tokenization.Registration;
 using Willow.Speech.Tokenization.Tokens;
@@ -23,18 +23,18 @@ namespace Tests.Speech.CommandProcessing;
 
 public sealed class CommandProcessingEndToEndTests : IDisposable
 {
-    private readonly Fixture _fixture;
-    private readonly IEventDispatcher _eventDispatcher;
     private readonly IEnvironmentStateProvider _environmentStateProvider;
+    private readonly IEventDispatcher _eventDispatcher;
+    private readonly Fixture _fixture;
     private readonly ITestHandler _handler;
     private readonly ServiceProvider _provider;
 
     public CommandProcessingEndToEndTests()
     {
-        _fixture = new();
+        _fixture = new Fixture();
 
-        _fixture.Register(creator: () => new Dictionary<string, object>());
-        _fixture.Register(creator: () => new TagRequirement[] { new(Tags: []) });
+        _fixture.Register(creator: static () => new Dictionary<string, object>());
+        _fixture.Register(creator: static () => new TagRequirement[] { new(Tags: []) });
 
         _handler = Substitute.For<ITestHandler>();
         _environmentStateProvider = Substitute.For<IEnvironmentStateProvider>();
@@ -44,6 +44,11 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         _provider = services.BuildServiceProvider();
         _eventDispatcher = _provider.GetRequiredService<IEventDispatcher>();
         RegisterEvents();
+    }
+
+    public void Dispose()
+    {
+        _provider.Dispose();
     }
 
     private void RegisterEvents()
@@ -62,7 +67,8 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         services.AddSingleton<AudioTranscribedEventHandler>();
         services.AddSingleton<CommandModifiedEventHandler>();
         services.AddSingleton<PunctuationRemoverInterceptor>();
-        services.AddSingleton(typeof(ISettings<>), typeof(SettingsMock<>));
+        services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>(ServiceLifetime.Singleton);
+        services.AddSettings();
         VoiceCommandCompilationRegistrar.RegisterServices(services: services);
         TokenizationRegistrar.RegisterServices(services: services);
         EventingRegistrar.RegisterServices(services: services);
@@ -75,21 +81,17 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         [
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases = ["go"], TagRequirements = [new(Tags: [new(Name: "Requirement")])]
+                InvocationPhrases = ["go"],
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "Requirement")])]
             },
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases = ["go"], TagRequirements = [new(Tags: [new(Name: "Other")])]
+                InvocationPhrases = ["go"],
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "Other")])]
             }
         ];
 
-        TestInternal(
-            input: "go",
-            currentEnvironment: [new(Name: "Requirement")],
-            expectedCommand: [commands[0].Id],
-            expectedCaptures: [[]],
-            commands: commands
-        );
+        TestInternal("go", [new Tag(Name: "Requirement")], [commands[0].Id], [[]], commands);
     }
 
     [Fact]
@@ -99,32 +101,32 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         [
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases =
-                ["[one|two|go]:enter away *now"],
-                TagRequirements = [new(Tags: [new(Name: "Requirement")])]
+                InvocationPhrases = ["[one|two|go]:enter away *now"],
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "Requirement")])]
             },
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases =
-                ["[one|two|go]:enter away *now"],
-                TagRequirements = [new(Tags: [new(Name: "Requirement"), new(Name: "Other")])]
+                InvocationPhrases = ["[one|two|go]:enter away *now"],
+                TagRequirements
+                = [new TagRequirement(Tags: [new Tag(Name: "Requirement"), new Tag(Name: "Other")])]
             },
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases =
-                ["[one|two|go]:enter away *now"],
-                TagRequirements = [new(Tags: [new(Name: "Other")])]
+                InvocationPhrases = ["[one|two|go]:enter away *now"],
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "Other")])]
             }
         ];
 
-        TestInternal(
-            input: "go away now",
-            currentEnvironment: [new(Name: "Requirement"), new(Name: "Other")],
-            expectedCommand: [commands[1].Id],
-            expectedCaptures:
-            [new() { { "enter", new WordToken(Value: "go") }, { "now", new WordToken(Value: "now") } }],
-            commands: commands
-        );
+        TestInternal("go away now",
+                     [new Tag(Name: "Requirement"), new Tag(Name: "Other")],
+                     [commands[1].Id],
+                     [
+                         new Dictionary<string, Token>
+                         {
+                             { "enter", new WordToken(Value: "go") }, { "now", new WordToken(Value: "now") }
+                         }
+                     ],
+                     commands);
     }
 
     [Fact]
@@ -136,13 +138,7 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["[one|two|go]:enter *phrase"] }
         ];
 
-        TestInternal(
-            input: "go",
-            currentEnvironment: [],
-            expectedCommand: [],
-            expectedCaptures: [],
-            commands: commands
-        );
+        TestInternal("go", [], [], [], commands);
     }
 
     [Fact]
@@ -150,16 +146,14 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
     {
         RawVoiceCommand[] commands =
         [
-            _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go ?[phrase]:found"] },
+            _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go ?[phrase]:found"] }
         ];
 
-        TestInternal(
-            input: "go phrase",
-            currentEnvironment: [],
-            expectedCommand: [commands[0].Id],
-            expectedCaptures: [new() { { "found", new EmptyToken() } }],
-            commands: commands
-        );
+        TestInternal("go phrase",
+                     [],
+                     [commands[0].Id],
+                     [new Dictionary<string, Token> { { "found", new EmptyToken() } }],
+                     commands);
     }
 
     [Fact]
@@ -169,18 +163,17 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         [
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases = ["go ?[#away]:hit **now"], TagRequirements = [new(Tags: [new(Name: "Three")])]
+                InvocationPhrases = ["go ?[#away]:hit **now"],
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "Three")])]
             },
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go ?[#away]:hit **now"] }
         ];
 
-        TestInternal(
-            input: "go now",
-            currentEnvironment: [new(Name: "One"), new(Name: "Two")],
-            expectedCommand: [commands[1].Id],
-            expectedCaptures: [new() { { "now", new WordToken(Value: "now") } }],
-            commands: commands
-        );
+        TestInternal("go now",
+                     [new Tag(Name: "One"), new Tag(Name: "Two")],
+                     [commands[1].Id],
+                     [new Dictionary<string, Token> { { "now", new WordToken(Value: "now") } }],
+                     commands);
     }
 
     [Fact]
@@ -191,13 +184,11 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away #input"] }
         ];
 
-        TestInternal(
-            input: "go away 42 now",
-            currentEnvironment: [],
-            expectedCommand: [commands[0].Id],
-            expectedCaptures: [new() { { "input", new NumberToken(Value: 42) } }],
-            commands: commands
-        );
+        TestInternal("go away 42 now",
+                     [],
+                     [commands[0].Id],
+                     [new Dictionary<string, Token> { { "input", new NumberToken(Value: 42) } }],
+                     commands);
     }
 
     [Fact]
@@ -208,13 +199,7 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away ?[*word]:hit"] }
         ];
 
-        TestInternal(
-            input: "go",
-            currentEnvironment: [],
-            expectedCommand: [],
-            expectedCaptures: [],
-            commands: commands
-        );
+        TestInternal("go", [], [], [], commands);
     }
 
     [Fact]
@@ -226,13 +211,16 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go ?[*away]:captured"] }
         ];
 
-        TestInternal(
-            input: "go away elsewhere",
-            currentEnvironment: [],
-            expectedCommand: [commands[1].Id],
-            expectedCaptures: [new() { { "away", new WordToken(Value: "away") }, { "captured", new EmptyToken() } }],
-            commands: commands
-        );
+        TestInternal("go away elsewhere",
+                     [],
+                     [commands[1].Id],
+                     [
+                         new Dictionary<string, Token>
+                         {
+                             { "away", new WordToken(Value: "away") }, { "captured", new EmptyToken() }
+                         }
+                     ],
+                     commands);
     }
 
     [Fact]
@@ -242,29 +230,23 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         [
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases = ["go away ?[now]:_"], TagRequirements = [new(Tags: [new(Name: "First")])]
+                InvocationPhrases = ["go away ?[now]:_"],
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "First")])]
             },
             _fixture.Create<RawVoiceCommand>() with
             {
-                InvocationPhrases = ["go away"], TagRequirements = [new(Tags: [new(Name: "Second")])]
+                InvocationPhrases = ["go away"],
+                TagRequirements = [new TagRequirement(Tags: [new Tag(Name: "Second")])]
             }
         ];
 
-        TestInternal(
-            input: "go away now",
-            currentEnvironment: [new(Name: "Second")],
-            expectedCommand: [commands[1].Id],
-            expectedCaptures: [[]],
-            commands: commands
-        );
+        TestInternal("go away now", [new Tag(Name: "Second")], [commands[1].Id], [[]], commands);
 
-        TestInternal(
-            input: "go away now",
-            currentEnvironment: [new(Name: "First")],
-            expectedCommand: [commands[0].Id],
-            expectedCaptures: [new() { { "_", new EmptyToken() } }],
-            commands: commands
-        );
+        TestInternal("go away now",
+                     [new Tag(Name: "First")],
+                     [commands[0].Id],
+                     [new Dictionary<string, Token> { { "_", new EmptyToken() } }],
+                     commands);
     }
 
     [Fact]
@@ -275,30 +257,19 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away #input"] }
         ];
 
-        TestInternal(
-            input: "go! ~away, 42$",
-            currentEnvironment: [],
-            expectedCommand: [commands[0].Id],
-            expectedCaptures: [new() { { "input", new NumberToken(Value: 42) } }],
-            commands: commands
-        );
+        TestInternal("go! ~away, 42$",
+                     [],
+                     [commands[0].Id],
+                     [new Dictionary<string, Token> { { "input", new NumberToken(Value: 42) } }],
+                     commands);
     }
 
     [Fact]
     public void When_CapitalizationIsMismatched_StillMatches()
     {
-        RawVoiceCommand[] commands =
-        [
-            _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away NOW"] }
-        ];
+        RawVoiceCommand[] commands = [_fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away NOW"] }];
 
-        TestInternal(
-            input: "Go AwAy now",
-            currentEnvironment: [],
-            expectedCommand: [commands[0].Id],
-            expectedCaptures: [[]],
-            commands: commands
-        );
+        TestInternal("Go AwAy now", [], [commands[0].Id], [[]], commands);
     }
 
     [Fact]
@@ -310,23 +281,24 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
             _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["after you"] }
         ];
 
-        TestInternal(
-            input: "go away 42, after you!",
-            currentEnvironment: [],
-            expectedCommand: [commands[0].Id, commands[1].Id],
-            expectedCaptures: [new() { { "input", new NumberToken(Value: 42) } }, []],
-            commands: commands
-        );
+        TestInternal("go away 42, after you!",
+                     [],
+                     [commands[0].Id, commands[1].Id],
+                     [new Dictionary<string, Token> { { "input", new NumberToken(Value: 42) } }, []],
+                     commands);
     }
 
-    private void TestInternal(string input, Tag[] currentEnvironment, Guid[] expectedCommand,
-                              Dictionary<string, Token>[] expectedCaptures, RawVoiceCommand[] commands)
+    private void TestInternal(string input,
+                              Tag[] currentEnvironment,
+                              Guid[] expectedCommand,
+                              Dictionary<string, Token>[] expectedCaptures,
+                              RawVoiceCommand[] commands)
     {
         _environmentStateProvider.Tags.Returns(returnThis: currentEnvironment);
         List<Guid> result = [];
         List<Dictionary<string, Token>> captured = [];
 
-        _handler.WhenForAnyArgs(substituteCall: x => x.HandleAsync(@event: Arg.Any<CommandParsedEvent>()))
+        _handler.WhenForAnyArgs(substituteCall: static x => x.HandleAsync(@event: Arg.Any<CommandParsedEvent>()))
                 .Do(callbackWithArguments: x =>
                 {
                     var @event = (CommandParsedEvent)x[index: 0];
@@ -347,9 +319,4 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
 
     // ReSharper disable once MemberCanBePrivate.Global
     public interface ITestHandler : IEventHandler<CommandParsedEvent>;
-
-    public void Dispose()
-    {
-        _provider.Dispose();
-    }
 }

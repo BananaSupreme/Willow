@@ -9,7 +9,7 @@ using Willow.Helpers.Logging.Loggers;
 namespace Willow.Core.Environment.Registration;
 
 /// <summary>
-/// Registers all the <see cref="ActivateTagsAttribute"/> in the assembly.
+/// Registers all the <see cref="ActivateTagsAttribute" /> in the assembly.
 /// </summary>
 internal sealed class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
 {
@@ -25,15 +25,14 @@ internal sealed class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
 
     public void RegisterFromAssemblies(Assembly[] assemblies)
     {
-        var tags = assemblies.SelectMany(assembly =>
-                                 assembly.GetCustomAttributes(typeof(ActivateTagsAttribute))
-                                         .Cast<ActivateTagsAttribute>())
-                             .GroupBy(tag => tag.ProcessName)
-                             .ToDictionary(
-                                 grouping => grouping.Key,
-                                 grouping => grouping.SelectMany(tags => tags.Tags)
-                                                     .Select(tag => new Tag(tag))
-                                                     .ToArray());
+        var tags = assemblies
+                   .SelectMany(static assembly => assembly.GetCustomAttributes(typeof(ActivateTagsAttribute))
+                                                          .Cast<ActivateTagsAttribute>())
+                   .GroupBy(static tag => tag.ProcessName)
+                   .ToDictionary(static grouping => grouping.Key,
+                                 static grouping => grouping.SelectMany(static tags => tags.Tags)
+                                                            .Select(static tag => new Tag(tag))
+                                                            .ToArray());
 
         _log.FoundTags(tags);
         _activeWindowTagStorage.Set(tags);
@@ -42,9 +41,6 @@ internal sealed class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
 
 internal static partial class ActiveWindowsTagAssemblyRegistrarLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Information,
-        Message = "Found tags:\r\n{tags}")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Found tags:\r\n{tags}")]
     public static partial void FoundTags(this ILogger logger, JsonLogger<Dictionary<string, Tag[]>> tags);
 }

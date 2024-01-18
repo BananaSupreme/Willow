@@ -15,12 +15,12 @@ namespace Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 /// </summary>
 internal sealed class AudioTranscribedEventHandler : IEventHandler<AudioTranscribedEvent>
 {
-    private readonly ITrieFactory _trieFactory;
-    private readonly ITokenizer _tokenizer;
     private readonly IEnvironmentStateProvider _environmentStateProvider;
     private readonly IEventDispatcher _eventDispatcher;
+    private readonly ITokenizer _tokenizer;
+    private readonly ITrieFactory _trieFactory;
 
-    public AudioTranscribedEventHandler(ITrieFactory trieFactory, 
+    public AudioTranscribedEventHandler(ITrieFactory trieFactory,
                                         ITokenizer tokenizer,
                                         IEnvironmentStateProvider environmentStateProvider,
                                         IEventDispatcher eventDispatcher)

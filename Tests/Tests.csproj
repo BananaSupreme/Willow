@@ -11,7 +11,7 @@
 
     <ItemGroup>
         <PackageReference Include="AutoFixture" Version="4.18.1"/>
-        <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
+        <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0"/>
         <PackageReference Include="FluentAssertions" Version="6.12.0"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>
@@ -30,8 +30,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Willow.Core\Willow.Core.csproj"/>
-        <ProjectReference Include="..\Willow.StartUp\Willow.StartUp.csproj" />
-        <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj" />
+        <ProjectReference Include="..\Willow.StartUp\Willow.StartUp.csproj"/>
+        <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj"/>
         <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>
 
@@ -40,16 +40,16 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="VoiceCommands\WhisperServer\test.wav">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Speech\WhisperServer\test.wav">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Speech\SpeechServers\test.wav">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Speech\SpeechServers\vosk-model-small-en-us-0.15.zip">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

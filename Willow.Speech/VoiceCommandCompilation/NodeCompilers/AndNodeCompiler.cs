@@ -12,7 +12,7 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// A[...|...]
 /// &amp;[...|...]
 /// </code>
-/// Those patterns are compiled into the <see cref="AndNodeProcessor"/>. <br/>
+/// Those patterns are compiled into the <see cref="AndNodeProcessor" />. <br/>
 /// Meant to represent a group of patterns that must all be matched.
 /// </summary>
 internal sealed class AndNodeCompiler : INodeCompiler

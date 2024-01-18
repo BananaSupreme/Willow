@@ -7,15 +7,15 @@ using Willow.Speech.Microphone.Extensions;
 namespace Willow.Speech.Microphone.Eventing.Interceptors;
 
 /// <summary>
-/// Intercepts the <see cref="AudioCapturedEvent"/> to create WAV files, only works in debug mode.
+/// Intercepts the <see cref="AudioCapturedEvent" /> to create WAV files, only works in debug mode.
 /// </summary>
 internal sealed class DebuggingVoiceWavOutputInterceptor : IEventInterceptor<AudioCapturedEvent>
 {
-    private const string _folderName = "./wavFiles";
+    private const string FolderName = "./wavFiles";
 
     public DebuggingVoiceWavOutputInterceptor()
     {
-        Directory.CreateDirectory(_folderName);
+        Directory.CreateDirectory(FolderName);
         DeleteOldFiles();
     }
 
@@ -23,7 +23,7 @@ internal sealed class DebuggingVoiceWavOutputInterceptor : IEventInterceptor<Aud
     {
         var timeStamp = TimeSpan.FromTicks(Stopwatch.GetTimestamp());
         var fileName = $"recording - {timeStamp:hh\\.mm\\.fffffff}_{Guid.NewGuid()}.wav";
-        fileName = Path.Combine(_folderName, fileName);
+        fileName = Path.Combine(FolderName, fileName);
         await using (var file = File.Create(fileName))
         {
             await file.WriteAsync(@event.AudioData.ToWavFile());
@@ -35,7 +35,7 @@ internal sealed class DebuggingVoiceWavOutputInterceptor : IEventInterceptor<Aud
 
     private static void DeleteOldFiles()
     {
-        var oldFiles = Directory.GetFiles(_folderName);
+        var oldFiles = Directory.GetFiles(FolderName);
         foreach (var file in oldFiles)
         {
             File.Delete(file);

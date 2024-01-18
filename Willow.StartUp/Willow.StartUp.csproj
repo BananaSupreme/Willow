@@ -4,15 +4,16 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <WarningsAsErrors>nullable</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj" />
-      <ProjectReference Include="..\Willow.Core\Willow.Core.csproj" />
-      <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj" />
-      <ProjectReference Include="..\Willow.Speech\Willow.Speech.csproj" />
-      <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj" />
-      <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj" />
+        <ProjectReference Include="..\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj"/>
+        <ProjectReference Include="..\Willow.Core\Willow.Core.csproj"/>
+        <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj"/>
+        <ProjectReference Include="..\Willow.Speech\Willow.Speech.csproj"/>
+        <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj"/>
+        <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>
 
 </Project>

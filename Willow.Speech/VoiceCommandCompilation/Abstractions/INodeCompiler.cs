@@ -22,7 +22,7 @@ public interface INodeCompiler
     /// <param name="commandWord">
     /// A string representing a slice of the command between white space and the following white space.
     /// </param>
-    /// <param name="capturedValues">Values captured from the <see cref="IVoiceCommand"/> interface.</param>
+    /// <param name="capturedValues">Values captured from the <see cref="IVoiceCommand" /> interface.</param>
     /// <param name="compilers">All the compilers available in the system, for use when a compiler is a wrapper.</param>
     /// <returns>
     /// Whether the compilation was successful and the result of the compilation, when failed the ProcessedNode is

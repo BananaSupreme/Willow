@@ -9,7 +9,9 @@ namespace Willow.Speech.SpeechToText.Abstractions;
 /// </summary>
 /// <remarks>
 /// The system guarantees that only one engine is active at every single time. <br/>
-/// <b><i>Note that only engines defined in <see cref="SelectedSpeechEngine"/> are considered at this moment.</i></b>
+/// <b>
+/// <i>Note that only engines defined in <see cref="SelectedSpeechEngine" /> are considered at this moment.</i>
+/// </b>
 /// </remarks>
 public interface ISpeechToTextEngine
 {
@@ -40,7 +42,8 @@ public interface ISpeechToTextEngine
     /// </summary>
     /// <remarks>
     /// <b><i>The Start and Stop functions should completely clean up and create their own state as we do not want
-    /// left over state when the user has changed the engine.</i></b>
+    /// left over state when the user has changed the engine.
+    /// </i></b>
     /// </remarks>
     Task StartAsync(CancellationToken cancellationToken = default);
 
@@ -49,7 +52,8 @@ public interface ISpeechToTextEngine
     /// </summary>
     /// <remarks>
     /// <b><i>The Start and Stop functions should completely clean up and create their own state as we do not want
-    /// left over state when the user has changed the engine.</i></b>
+    /// left over state when the user has changed the engine.
+    /// </i></b>
     /// </remarks>
     Task StopAsync(CancellationToken cancellationToken = default);
 }

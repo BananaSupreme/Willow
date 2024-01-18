@@ -2,8 +2,8 @@
 
 public sealed class IncorrectTokenTypeException : InvalidOperationException
 {
-    public IncorrectTokenTypeException(Type expected, Type requested)
-        : base($"Incorrect token type. Expected {expected.Name}, requested {requested.Name}")
+    public IncorrectTokenTypeException(Type expected, Type requested) : base(
+        $"Incorrect token type. Expected {expected.Name}, requested {requested.Name}")
     {
     }
 

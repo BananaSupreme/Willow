@@ -18,14 +18,12 @@ internal sealed class Node
         _tagRequirements = tagRequirements;
     }
 
-    public (CommandBuilder Builder, ReadOnlyMemory<Token> RemainingTokens) ProcessToken(
-        ReadOnlyMemory<Token> tokens, CommandBuilder builder, Tag[] environmentTags)
+    public (CommandBuilder Builder, ReadOnlyMemory<Token> RemainingTokens) ProcessToken(ReadOnlyMemory<Token> tokens,
+        CommandBuilder builder,
+        Tag[] environmentTags)
     {
-        var (isSuccessful, builderResult, remainingTokens) =
-            _nodeProcessor.ProcessToken(tokens, builder);
-        return isSuccessful
-                   ? ProcessChildren(remainingTokens, builderResult, environmentTags)
-                   : (builder, tokens);
+        var (isSuccessful, builderResult, remainingTokens) = _nodeProcessor.ProcessToken(tokens, builder);
+        return isSuccessful ? ProcessChildren(remainingTokens, builderResult, environmentTags) : (builder, tokens);
     }
 
     private bool IsSatisfyingTagRequirements(Tag[] tags)
@@ -34,7 +32,9 @@ internal sealed class Node
     }
 
     private (CommandBuilder Builder, ReadOnlyMemory<Token> RemainingTokens) ProcessChildren(
-        ReadOnlyMemory<Token> tokens, CommandBuilder builder, Tag[] environmentTags)
+        ReadOnlyMemory<Token> tokens,
+        CommandBuilder builder,
+        Tag[] environmentTags)
     {
         var children = _children.Where(c => c.IsSatisfyingTagRequirements(environmentTags))
                                 .OrderByDescending(c => c.GetMostSpecificTagsMatchedCount(environmentTags));
@@ -53,6 +53,6 @@ internal sealed class Node
 
     private int GetMostSpecificTagsMatchedCount(Tag[] tags)
     {
-        return _tagRequirements.Where(x => x.IsSatisfied(tags)).Max(x => x.Tags.Length);
+        return _tagRequirements.Where(x => x.IsSatisfied(tags)).Max(static x => x.Tags.Length);
     }
 }

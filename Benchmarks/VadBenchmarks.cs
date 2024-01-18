@@ -16,7 +16,7 @@ using Willow.Speech.VAD.Settings;
 namespace Benchmarks;
 
 [MemoryDiagnoser]
-public class VadBenchmarks
+public sealed class VadBenchmarks
 {
     private AudioCapturedEvent _audioDataEvent;
     private VoiceActivityDetectionInterceptor _interceptor = null!;
@@ -27,14 +27,14 @@ public class VadBenchmarks
         var filePath = Path.Combine(Environment.CurrentDirectory, "TestData/test.wav");
         var audioData = GetFromWavFile(File.ReadAllBytes(filePath));
         audioData = audioData with { RawData = audioData.RawData[..audioData.SamplingRate] };
-        _audioDataEvent = new(audioData);
+        _audioDataEvent = new AudioCapturedEvent(audioData);
         var sileroSettings = Substitute.For<ISettings<SileroSettings>>();
-        sileroSettings.CurrentValue.Returns(_ => new());
+        sileroSettings.CurrentValue.Returns(static _ => new SileroSettings());
         var bufferSettings = Substitute.For<ISettings<AudioBufferSettings>>();
-        bufferSettings.CurrentValue.Returns(_ => new());
-        _interceptor = new(
+        bufferSettings.CurrentValue.Returns(static _ => new AudioBufferSettings());
+        _interceptor = new VoiceActivityDetectionInterceptor(
             new SileroVoiceActivityDetectionFacade(sileroSettings,
-                Substitute.For<ILogger<SileroVoiceActivityDetectionFacade>>()),
+                                                   Substitute.For<ILogger<SileroVoiceActivityDetectionFacade>>()),
             new AudioBuffer(bufferSettings),
             Substitute.For<ILogger<VoiceActivityDetectionInterceptor>>());
     }
@@ -42,7 +42,7 @@ public class VadBenchmarks
     [Benchmark]
     public Task Vad()
     {
-        return _interceptor.InterceptAsync(_audioDataEvent, _ => Task.CompletedTask);
+        return _interceptor.InterceptAsync(_audioDataEvent, static _ => Task.CompletedTask);
     }
 
     private static AudioData GetFromWavFile(byte[] wav)
@@ -56,6 +56,6 @@ public class VadBenchmarks
             data[i] = BitConverter.ToInt16(wav, i * 2 * channelCount);
         }
 
-        return new(data, samplingRate, channelCount, bitDepth);
+        return new AudioData(data, samplingRate, channelCount, bitDepth);
     }
 }

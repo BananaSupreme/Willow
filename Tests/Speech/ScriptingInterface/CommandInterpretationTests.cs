@@ -9,8 +9,17 @@ namespace Tests.Speech.ScriptingInterface;
 
 public sealed class CommandInterpretationTests : IDisposable
 {
-    private readonly IVoiceCommandInterpreter _sut;
+    private const string TestInvocationPhrase = "invocationPhrase";
+    private const string TestTag = "TestTag";
+    private const string TestTag2 = "TestTag2";
+    private const string TestTag3 = "TestTag3";
+    private const string Alias = "Alias";
+    private const string Alias2 = "AliasTwo";
+    private const string Alias3 = "AliasThree";
+    private const string Description = "Description";
+    private const string Name = "name";
     private readonly ServiceProvider _provider;
+    private readonly IVoiceCommandInterpreter _sut;
 
     public CommandInterpretationTests()
     {
@@ -21,7 +30,10 @@ public sealed class CommandInterpretationTests : IDisposable
         _sut = _provider.GetRequiredService<IVoiceCommandInterpreter>();
     }
 
-
+    public void Dispose()
+    {
+        _provider.Dispose();
+    }
     [Fact]
     public void When_ProcessingCommand_StoreCommandsInCapturedValues()
     {
@@ -29,10 +41,8 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.CapturedValues.Should().ContainKey(IVoiceCommand._commandFunctionName);
-        result1.CapturedValues[IVoiceCommand._commandFunctionName]
-               .Should()
-               .BeOfType<Func<IVoiceCommand>>();
+        result1.CapturedValues.Should().ContainKey(IVoiceCommand.CommandFunctionName);
+        result1.CapturedValues[IVoiceCommand.CommandFunctionName].Should().BeOfType<Func<IVoiceCommand>>();
     }
 
     [Fact]
@@ -42,8 +52,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.InvocationPhrases.Should().ContainSingle()
-               .And.Contain(_invocationPhrase);
+        result1.InvocationPhrases.Should().ContainSingle().And.Contain(TestInvocationPhrase);
     }
 
     [Fact]
@@ -53,7 +62,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.InvocationPhrases.Should().BeEquivalentTo(_invocationPhrase, _alias, _alias2, _alias3);
+        result1.InvocationPhrases.Should().BeEquivalentTo(TestInvocationPhrase, Alias, Alias2, Alias3);
     }
 
     [Fact]
@@ -63,9 +72,9 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.TagRequirements.Should().BeEquivalentTo(
-            new TagRequirement[] { new([new(nameof(ActivationMode.Dictation))]) },
-            options => options.ComparingByValue<TagRequirement>());
+        result1.TagRequirements.Should()
+               .BeEquivalentTo(new TagRequirement[] { new([new Tag(nameof(ActivationMode.Dictation))]) },
+                               static options => options.ComparingByValue<TagRequirement>());
     }
 
     [Fact]
@@ -75,9 +84,9 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.TagRequirements.Should().BeEquivalentTo(
-            new TagRequirement[] { new([new(nameof(ActivationMode.Command))]) },
-            options => options.ComparingByValue<TagRequirement>());
+        result1.TagRequirements.Should()
+               .BeEquivalentTo(new TagRequirement[] { new([new Tag(nameof(ActivationMode.Command))]) },
+                               static options => options.ComparingByValue<TagRequirement>());
     }
 
     [Fact]
@@ -87,9 +96,9 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.TagRequirements.Should().BeEquivalentTo(
-            new TagRequirement[] { new([new(nameof(ActivationMode.Command))]) },
-            options => options.ComparingByValue<TagRequirement>());
+        result1.TagRequirements.Should()
+               .BeEquivalentTo(new TagRequirement[] { new([new Tag(nameof(ActivationMode.Command))]) },
+                               static options => options.ComparingByValue<TagRequirement>());
     }
 
     [Fact]
@@ -100,13 +109,16 @@ public sealed class CommandInterpretationTests : IDisposable
         var result1 = _sut.InterpretCommand(voiceCommand);
 
         result1.TagRequirements.Should()
-               .BeEquivalentTo(
-                   new TagRequirement[]
-                   {
-                       new([new(nameof(ActivationMode.Command)), new(_testTag)]),
-                       new([new(nameof(ActivationMode.Command)), new(_testTag2), new(_testTag3)])
-                   },
-                   options => options.ComparingByValue<TagRequirement>());
+               .BeEquivalentTo(new TagRequirement[]
+                               {
+                                   new([new Tag(nameof(ActivationMode.Command)), new Tag(TestTag)]),
+                                   new([
+                                           new Tag(nameof(ActivationMode.Command)),
+                                           new Tag(TestTag2),
+                                           new Tag(TestTag3)
+                                       ])
+                               },
+                               static options => options.ComparingByValue<TagRequirement>());
     }
 
     [Fact]
@@ -116,7 +128,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.Description.Should().Be(_description);
+        result1.Description.Should().Be(Description);
     }
 
     [Fact]
@@ -139,7 +151,7 @@ public sealed class CommandInterpretationTests : IDisposable
         result1.CapturedValues.Should().ContainKey(CapturingVoiceCommand.CapturedName);
         result1.CapturedValues[CapturingVoiceCommand.CapturedName].Should().BeEquivalentTo(new[] { "1", "2" });
     }
-    
+
     [Fact]
     public void When_VoiceCommandDoesntStateSupportedOs_AllIsAssumed()
     {
@@ -149,7 +161,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         result1.SupportedOss.Should().Be(SupportedOss.All);
     }
-    
+
     [Fact]
     public void When_VoiceCommandStatesSupportedOs_UseFromAttribute()
     {
@@ -159,7 +171,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         result1.SupportedOss.Should().Be(SupportedOss.Windows);
     }
-    
+
     [Fact]
     public void When_VoiceCommandHasName_UseFromAttribute()
     {
@@ -167,9 +179,9 @@ public sealed class CommandInterpretationTests : IDisposable
 
         var result1 = _sut.InterpretCommand(voiceCommand);
 
-        result1.Name.Should().Be(_name);
+        result1.Name.Should().Be(Name);
     }
-    
+
     [Fact]
     public void When_VoiceCommandDoesntHaveName_NameAfterCommandWithoutVoiceCommand()
     {
@@ -179,7 +191,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         result1.Name.Should().Be("Dictation Test");
     }
-    
+
     [Fact]
     public void When_VoiceCommandDoesntHaveNameAndDoesntHaveVoiceCommand_NameAfterCommand()
     {
@@ -189,7 +201,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         result1.Name.Should().Be("No Ending");
     }
-    
+
     [Fact]
     public void When_SingleLetterVoiceCommandName_NameDoesntFail()
     {
@@ -199,7 +211,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         result1.Name.Should().Be("A");
     }
-    
+
     [Fact]
     public void When_NoLetterVoiceCommand_NameDoesntFail()
     {
@@ -209,7 +221,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         result1.Name.Should().Be("_");
     }
-    
+
     [Fact]
     public void When_VoiceCommandWithReallyLongName_NameDoesntFail()
     {
@@ -220,9 +232,9 @@ public sealed class CommandInterpretationTests : IDisposable
         result1.Name.Should().Be("This Is A Really Long Name A B C D And Something Something");
     }
 
-    private class EmptyTestVoiceCommand : IVoiceCommand
+    private sealed class EmptyTestVoiceCommand : IVoiceCommand
     {
-        public string InvocationPhrase => _invocationPhrase;
+        public string InvocationPhrase => TestInvocationPhrase;
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
@@ -230,26 +242,16 @@ public sealed class CommandInterpretationTests : IDisposable
         }
     }
 
-    private const string _invocationPhrase = "invocationPhrase";
-    private const string _testTag = "TestTag";
-    private const string _testTag2 = "TestTag2";
-    private const string _testTag3 = "TestTag3";
-    private const string _alias = "Alias";
-    private const string _alias2 = "AliasTwo";
-    private const string _alias3 = "AliasThree";
-    private const string _description = "Description";
-    private const string _name = "name";
-
-    [Tag(_testTag)]
-    [Tag(_testTag2, _testTag3)]
-    [Alias(_alias, _alias2)]
-    [Alias(_alias3)]
-    [Name(_name)]
-    [Description(_description)]
+    [Tag(TestTag)]
+    [Tag(TestTag2, TestTag3)]
+    [Alias(Alias, Alias2)]
+    [Alias(Alias3)]
+    [Name(Name)]
+    [Description(Description)]
     [SupportedOss(SupportedOss.Windows)]
-    private class FullyAnnotatedVoiceCommand : IVoiceCommand
+    private sealed class FullyAnnotatedVoiceCommand : IVoiceCommand
     {
-        public string InvocationPhrase => _invocationPhrase;
+        public string InvocationPhrase => TestInvocationPhrase;
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
@@ -257,7 +259,7 @@ public sealed class CommandInterpretationTests : IDisposable
         }
     }
 
-    private class CapturingVoiceCommand : IVoiceCommand
+    private sealed class CapturingVoiceCommand : IVoiceCommand
     {
         public const string CapturedName = nameof(_captured);
         private static readonly string[] _captured = ["1", "2"];
@@ -270,9 +272,9 @@ public sealed class CommandInterpretationTests : IDisposable
     }
 
     [ActivationMode(ActivationMode.Dictation)]
-    private class DictationTestVoiceCommand : IVoiceCommand
+    private sealed class DictationTestVoiceCommand : IVoiceCommand
     {
-        public string InvocationPhrase => _invocationPhrase;
+        public string InvocationPhrase => TestInvocationPhrase;
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
@@ -281,49 +283,9 @@ public sealed class CommandInterpretationTests : IDisposable
     }
 
     [Tag]
-    private class EmptyTagTestVoiceCommand : IVoiceCommand
+    private sealed class EmptyTagTestVoiceCommand : IVoiceCommand
     {
-        public string InvocationPhrase => _invocationPhrase;
-
-        public Task ExecuteAsync(VoiceCommandContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    
-    private class NoEnding : IVoiceCommand
-    {
-        public string InvocationPhrase => _invocationPhrase;
-
-        public Task ExecuteAsync(VoiceCommandContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    
-    private class A : IVoiceCommand
-    {
-        public string InvocationPhrase => _invocationPhrase;
-
-        public Task ExecuteAsync(VoiceCommandContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    
-    private class _ : IVoiceCommand
-    {
-        public string InvocationPhrase => _invocationPhrase;
-
-        public Task ExecuteAsync(VoiceCommandContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    
-    private class ThisIsAReallyLongNameABCDAndSomethingSomethingVoiceCommand : IVoiceCommand
-    {
-        public string InvocationPhrase => _invocationPhrase;
+        public string InvocationPhrase => TestInvocationPhrase;
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
@@ -331,8 +293,45 @@ public sealed class CommandInterpretationTests : IDisposable
         }
     }
 
-    public void Dispose()
+    private sealed class NoEnding : IVoiceCommand
     {
-        _provider.Dispose();
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    private sealed class A : IVoiceCommand
+    {
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    private sealed class _ : IVoiceCommand
+    {
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    // ReSharper disable once IdentifierTypo
+    // ReSharper disable once InconsistentNaming
+    private sealed class ThisIsAReallyLongNameABCDAndSomethingSomethingVoiceCommand : IVoiceCommand
+    {
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

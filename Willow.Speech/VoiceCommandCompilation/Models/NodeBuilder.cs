@@ -8,14 +8,16 @@ using Willow.Speech.VoiceCommandParsing.Abstractions;
 namespace Willow.Speech.VoiceCommandCompilation.Models;
 
 /// <summary>
-/// A builder for the <see cref="Node"/> type.
+/// A builder for the <see cref="Node" /> type.
 /// </summary>
 internal sealed class NodeBuilder
 {
     private readonly List<NodeBuilder> _children = [];
     private readonly List<TagRequirement> _tagRequirements = [];
 
-    private NodeBuilder() { }
+    private NodeBuilder()
+    {
+    }
 
     /// <summary>
     /// The processor associated with the node.
@@ -33,7 +35,7 @@ internal sealed class NodeBuilder
     /// <returns>A fresh instance of the builder.</returns>
     public static NodeBuilder Create()
     {
-        return new();
+        return new NodeBuilder();
     }
 
     /// <summary>
@@ -61,7 +63,7 @@ internal sealed class NodeBuilder
         return this;
     }
 
-    /// <inheritdoc cref="AddTagRequirements"/>
+    /// <inheritdoc cref="AddTagRequirements" />
     private NodeBuilder AddTagRequirements(TagRequirement tagRequirement)
     {
         if (!_tagRequirements.Contains(tagRequirement))
@@ -87,7 +89,7 @@ internal sealed class NodeBuilder
     /// </summary>
     /// <returns>A fully built node with all its children built as well.</returns>
     /// <exception cref="InvalidOperationException">
-    /// A node building request was made but the processor was never set with <see cref="SetNodeProcessor"/>.
+    /// A node building request was made but the processor was never set with <see cref="SetNodeProcessor" />.
     /// </exception>
     public Node Build()
     {
@@ -96,9 +98,10 @@ internal sealed class NodeBuilder
             throw new NodeMissingNodeProcessorException();
         }
 
-        var children = _children.OrderBy(x => x.NodeProcessor!.IsLeaf)
-                                .ThenBy(x => x.NodeProcessor!.Weight)
-                                .Select(x => x.Build()).ToArray();
-        return new(children, NodeProcessor, _tagRequirements.ToArray());
+        var children = _children.OrderBy(static x => x.NodeProcessor!.IsLeaf)
+                                .ThenBy(static x => x.NodeProcessor!.Weight)
+                                .Select(static x => x.Build())
+                                .ToArray();
+        return new Node(children, NodeProcessor, _tagRequirements.ToArray());
     }
 }

@@ -1,4 +1,5 @@
 ﻿namespace Willow.Core.Eventing.Abstractions;
+
 /// <summary>
 /// Interface to implement interceptors in the system, make sure to read the remarks before resorting to this class.
 /// </summary>
@@ -20,10 +21,11 @@
 /// <b>Eventually the design decision should be reconsidered!</b>
 /// </item>
 /// <item>
-/// Besides all that all the issues raised above, all the considerations relevant for <see cref="IEventHandler{TEvent}"/>
+/// Besides all that all the issues raised above, all the considerations relevant for
+/// <see cref="IEventHandler{TEvent}" />
 /// are also valid here, such as thread-safety, no ability to register and registration as singleton.
 /// </item>
-/// </list> 
+/// </list>
 /// <typeparam name="TEvent">The type of event to intercept.</typeparam>
 internal interface IEventInterceptor<TEvent>
 {

@@ -50,7 +50,7 @@ public sealed partial class SettingsManagementTests
         await When_CorruptedFileInRegistration_DefaultValuesShouldBeUsedAndFileCorrected<TestSettings>();
     }
 
-    private class TestSettings : ITestSettings
+    private sealed class TestSettings : ITestSettings
     {
         public Guid Id { get; init; } = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
     }

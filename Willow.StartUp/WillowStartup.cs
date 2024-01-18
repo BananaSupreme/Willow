@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
 
-using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 using Willow.BuiltInCommands;
 using Willow.Core;
@@ -22,9 +22,9 @@ public static class WillowStartup
         typeof(IVoskAssemblyMarker).Assembly,
         typeof(IWhisperServerAssemblyMarker).Assembly,
         typeof(IDeviceAutomationAssemblyMarker).Assembly,
-        typeof(IBuiltInCommandsAssemblyMarker).Assembly,
+        typeof(IBuiltInCommandsAssemblyMarker).Assembly
     ];
-    
+
     public static void Register(IServiceCollection services)
     {
         Register(_registeredAssemblies, services);
@@ -34,7 +34,7 @@ public static class WillowStartup
     {
         Run(_registeredAssemblies, provider);
     }
-    
+
     internal static void Run(Assembly[] assemblies, IServiceProvider provider)
     {
         var registrar = provider.GetRequiredService<IAssemblyRegistrationEntry>();
@@ -43,8 +43,7 @@ public static class WillowStartup
 
     internal static void Register(Assembly[] assemblies, IServiceCollection services)
     {
-        var registrars =
-            assemblies.SelectMany(assembly => typeof(IServiceRegistrar).GetAllDerivingInAssembly(assembly));
+        var registrars = assemblies.SelectMany(assembly => typeof(IServiceRegistrar).GetAllDerivingInAssembly(assembly));
         foreach (var registrar in registrars)
         {
             var registrationMethod = registrar.GetMethod(nameof(IServiceRegistrar.RegisterServices));

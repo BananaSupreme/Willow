@@ -10,6 +10,6 @@ namespace Willow.Core.Registration.Abstractions;
 /// </remarks>
 public interface IServiceRegistrar
 {
-    /// <inheritdoc cref="IServiceRegistrar"/>
+    /// <inheritdoc cref="IServiceRegistrar" />
     static abstract void RegisterServices(IServiceCollection services);
 }

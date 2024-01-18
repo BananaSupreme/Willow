@@ -1,8 +1,8 @@
 ﻿namespace Willow.Helpers.Locking;
 
 /// <summary>
-/// A wrapper around <see cref="SemaphoreSlim"/> that allows only one item to enter it at a time
-/// using the <see langword="using"/> statement
+/// A wrapper around <see cref="SemaphoreSlim" /> that allows only one item to enter it at a time
+/// using the <see langword="using" /> statement
 /// </summary>
 /// <remarks>
 /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
@@ -17,7 +17,9 @@ public readonly struct DisposableLock : IDisposable
     /// </summary>
     public bool CanEnter => _semaphore.CurrentCount > 0;
 
-    public DisposableLock() { }
+    public DisposableLock()
+    {
+    }
 
     /// <summary>
     /// Acquires a lock.
@@ -26,9 +28,9 @@ public readonly struct DisposableLock : IDisposable
     public SemaphoreReleaser Lock()
     {
         _semaphore.Wait();
-        return new(_semaphore);
+        return new SemaphoreReleaser(_semaphore);
     }
-    
+
     /// <summary>
     /// Acquires a lock asynchronously.
     /// </summary>
@@ -36,9 +38,9 @@ public readonly struct DisposableLock : IDisposable
     public async Task<SemaphoreReleaser> LockAsync()
     {
         await _semaphore.WaitAsync();
-        return new(_semaphore);
+        return new SemaphoreReleaser(_semaphore);
     }
-    
+
     public void Dispose()
     {
         _semaphore.Dispose();

@@ -8,7 +8,7 @@ namespace Willow.Core.Registration.Abstractions;
 /// </summary>
 internal interface IAssemblyRegistrar
 {
-    /// <inheritdoc cref="IAssemblyRegistrar"/>
+    /// <inheritdoc cref="IAssemblyRegistrar" />
     /// <param name="assemblies">All the assemblies in the system.</param>
     void RegisterFromAssemblies(Assembly[] assemblies);
 }

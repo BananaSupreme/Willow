@@ -16,7 +16,7 @@ internal sealed class NumberTranscriptionTokenizer : ITranscriptionTokenizer
     {
         _log = log;
     }
-    
+
     public TokenProcessingResult Process(ReadOnlySpan<char> input)
     {
         var wordEnd = input.IndexOf(Chars.Space);
@@ -25,16 +25,13 @@ internal sealed class NumberTranscriptionTokenizer : ITranscriptionTokenizer
 
         _log.ProcessedWord();
         return int.TryParse(word, out var num)
-                   ? new(true, new NumberToken(num), wordEnd)
-                   : ITranscriptionTokenizer.Fail();
+                   ? new TokenProcessingResult(true, new NumberToken(num), wordEnd)
+                   : TokenProcessingResult.Failure;
     }
 }
 
 internal static partial class NumberTranscriptionTokenizerLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Trace,
-        Message = "Word token processed")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Trace, Message = "Value token processed")]
     public static partial void ProcessedWord(this ILogger logger);
 }

@@ -1,5 +1,4 @@
 ﻿using Willow.Speech.Tokenization.Models;
-using Willow.Speech.Tokenization.Tokens;
 
 namespace Willow.Speech.Tokenization.Abstractions;
 
@@ -22,12 +21,4 @@ public interface ITranscriptionTokenizer
     /// <param name="input">The remaining string to be processed, after all previous processing were applied.</param>
     /// <returns>The result of the processing</returns>
     TokenProcessingResult Process(ReadOnlySpan<char> input);
-
-    /// <summary>
-    /// Helper that returns the object representing a failed result.
-    /// </summary>
-    static TokenProcessingResult Fail()
-    {
-        return new(false, new EmptyToken(), 0);
-    }
 }

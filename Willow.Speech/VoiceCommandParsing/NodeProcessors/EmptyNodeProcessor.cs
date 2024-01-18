@@ -14,6 +14,6 @@ internal sealed record EmptyNodeProcessor : INodeProcessor
 
     public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
-        return new(true, builder, tokens);
+        return new TokenProcessingResult(true, builder, tokens);
     }
 }

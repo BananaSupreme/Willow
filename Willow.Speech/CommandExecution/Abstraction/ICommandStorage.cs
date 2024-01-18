@@ -6,7 +6,8 @@ using Willow.Speech.ScriptingInterface.Models;
 namespace Willow.Speech.CommandExecution.Abstraction;
 
 /// <summary>
-/// Stores the available commands for the system after they were processed in <see cref="CommandModifiedEventHandler"/>.
+/// Stores the available commands for the system after they were processed in
+/// <see cref="CommandModifiedEventHandler" />.
 /// </summary>
 internal interface ICommandStorage
 {

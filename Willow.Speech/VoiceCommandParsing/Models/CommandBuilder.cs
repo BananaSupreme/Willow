@@ -7,6 +7,10 @@ namespace Willow.Speech.VoiceCommandParsing.Models;
 /// </summary>
 public sealed class CommandBuilder
 {
+    private CommandBuilder()
+    {
+    }
+
     /// <summary>
     /// The parameters captured within the command from the transcription.
     /// </summary>
@@ -22,17 +26,15 @@ public sealed class CommandBuilder
     /// </summary>
     public bool IsSuccessful { get; private set; }
 
-    private CommandBuilder() { }
-
     /// <summary>
-    /// Builds a new instance of the <see cref="CommandBuilder"/>.
+    /// Builds a new instance of the <see cref="CommandBuilder" />.
     /// </summary>
-    /// <returns>A fresh <see cref="CommandBuilder"/> instance.</returns>
+    /// <returns>A fresh <see cref="CommandBuilder" /> instance.</returns>
     public static CommandBuilder Create()
     {
-        return new();
+        return new CommandBuilder();
     }
-    
+
     /// <summary>
     /// Adds a new parameter to the captured values in the command.
     /// </summary>
@@ -76,6 +78,6 @@ public sealed class CommandBuilder
             return (false, default);
         }
 
-        return (true, new(CommandId, Parameters));
+        return (true, new ParsedCommand(CommandId, Parameters));
     }
 }

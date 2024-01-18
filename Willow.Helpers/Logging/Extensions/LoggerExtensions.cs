@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Microsoft.Extensions.Logging;
 
 using Serilog.Context;
-
-using System.Diagnostics.CodeAnalysis;
 
 namespace Willow.Helpers.Logging.Extensions;
 
@@ -20,8 +20,9 @@ public static class LoggerExtensions
     /// <param name="name">The name of the property</param>
     /// <param name="property"></param>
     /// <returns></returns>
-    [SuppressMessage("Style", "IDE0060:Remove unused parameter",
-        Justification = "Its here so it can be used as an extension method")]
+    [SuppressMessage("Style",
+                     "IDE0060:Remove unused parameter",
+                     Justification = "Its here so it can be used as an extension method")]
     public static IDisposable AddContext(this ILogger logger, string name, object? property)
     {
         return LogContext.PushProperty(name, property);

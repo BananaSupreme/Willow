@@ -23,7 +23,9 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
     public INodeProcessor[] Compile(PreCompiledVoiceCommand command)
     {
         _log.CompilationStarted(command);
-        _log.CompilersFound(new(_internalParsers.Select(x => new TypeNameLogger<INodeCompiler>(x))));
+        _log.CompilersFound(
+            new EnumeratorLogger<TypeNameLogger<INodeCompiler>>(
+                _internalParsers.Select(static x => new TypeNameLogger<INodeCompiler>(x))));
         if (string.IsNullOrWhiteSpace(command.InvocationPhrase))
         {
             throw new CommandCompilationException("Command string cannot be empty");
@@ -61,28 +63,17 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
 
 internal static partial class VoiceCommandCompilerLoggingExtensions
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Information,
-        Message = "Started compilation on command ({command})")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Started compilation on command ({command})")]
     public static partial void CompilationStarted(this ILogger logger, PreCompiledVoiceCommand command);
 
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Debug,
-        Message = "Compilers found: {nodeCompilers}")]
-    public static partial void CompilersFound(this ILogger logger, EnumeratorLogger<TypeNameLogger<INodeCompiler>> nodeCompilers);
-
-    
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Trace,
-        Message = "Started parsing word with length ({wordLength})")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Compilers found: {nodeCompilers}")]
+    public static partial void CompilersFound(this ILogger logger,
+                                              EnumeratorLogger<TypeNameLogger<INodeCompiler>> nodeCompilers);
+    [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Started parsing word with length ({wordLength})")]
     public static partial void ParsingWord(this ILogger logger, int wordLength);
 
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Debug,
-        Message = "Word of length ({wordLength}) was parsed into node ({nodeProcessor})")]
+    [LoggerMessage(EventId = 4,
+                   Level = LogLevel.Debug,
+                   Message = "Value of length ({wordLength}) was parsed into node ({nodeProcessor})")]
     public static partial void WordParsed(this ILogger logger, INodeProcessor nodeProcessor, int wordLength);
 }

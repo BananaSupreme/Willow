@@ -5,7 +5,7 @@ using Willow.Speech.Microphone.Models;
 
 namespace Tests.Speech.VoiceRecognition;
 
-public class AudioBufferTests
+public sealed class AudioBufferTests
 {
     private readonly AudioData _baseData;
     private readonly AudioBuffer _sut;
@@ -14,8 +14,8 @@ public class AudioBufferTests
     {
         var settings = Substitute.For<ISettings<AudioBufferSettings>>();
         settings.CurrentValue.Returns(new AudioBufferSettings { AcceptedSamplingRate = 10, MaxSeconds = 1 });
-        _baseData = new([], settings.CurrentValue.AcceptedSamplingRate, 1, 16);
-        _sut = new(settings);
+        _baseData = new AudioData([], settings.CurrentValue.AcceptedSamplingRate, 1, 16);
+        _sut = new AudioBuffer(settings);
     }
 
     [Fact]

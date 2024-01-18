@@ -1,7 +1,7 @@
-﻿using DryIoc.Microsoft.DependencyInjection;
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
+
+using DryIoc.Microsoft.DependencyInjection;
 
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
@@ -15,8 +15,8 @@ namespace Tests.Core;
 
 public sealed class RegistrarTests : IDisposable
 {
-    private readonly IInterfaceRegistrar _registrar;
     private readonly IEventRegistrar _eventRegistrar;
+    private readonly IInterfaceRegistrar _registrar;
     private readonly IServiceProvider _serviceProvider;
 
     public RegistrarTests()
@@ -29,6 +29,11 @@ public sealed class RegistrarTests : IDisposable
         _serviceProvider = services.CreateServiceProvider();
         _registrar = _serviceProvider.GetRequiredService<IInterfaceRegistrar>();
         _eventRegistrar = _serviceProvider.GetRequiredService<IEventRegistrar>();
+    }
+
+    public void Dispose()
+    {
+        (_serviceProvider as IDisposable)?.Dispose();
     }
 
     [Fact]
@@ -48,17 +53,14 @@ public sealed class RegistrarTests : IDisposable
     public void When_RegisteringNewEventFromAssembly_ItsInterceptorsAreAlsoLoadedToIoC()
     {
         _eventRegistrar.RegisterFromAssemblies([typeof(TestEventHandler).Assembly]);
-        _serviceProvider.Invoking(x => x.GetRequiredService<TestInterceptor>())
-                        .Should().NotThrow();
+        _serviceProvider.Invoking(static x => x.GetRequiredService<TestInterceptor>()).Should().NotThrow();
     }
-
-
     [Fact]
     public void When_RegisteringNewInterface_ItIsLoadable()
     {
         _registrar.RegisterDeriving<INodeProcessor>([typeof(TestNodeProcessor).Assembly]);
         var processors = _serviceProvider.GetServices<INodeProcessor>();
-        processors.Should().Contain(x => x.GetType() == typeof(TestNodeProcessor));
+        processors.Should().Contain(static x => x is TestNodeProcessor);
     }
 
     [Fact]
@@ -66,31 +68,26 @@ public sealed class RegistrarTests : IDisposable
     {
         var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
         _eventRegistrar.Invoking(x => x.RegisterFromAssemblies([assembly])).Should().NotThrow();
-        _registrar.Invoking(x => x.RegisterDeriving<IInterfaceRegistrar>([])).Should().NotThrow();
+        _registrar.Invoking(static x => x.RegisterDeriving<IInterfaceRegistrar>([])).Should().NotThrow();
     }
 
     [Fact]
     public void When_NoAssembliesToBeRegistered_NoFailures()
     {
-        _eventRegistrar.Invoking(x => x.RegisterFromAssemblies([])).Should().NotThrow();
-        _registrar.Invoking(x => x.RegisterDeriving<IInterfaceRegistrar>([])).Should().NotThrow();
-    }
-
-    public void Dispose()
-    {
-        (_serviceProvider as IDisposable)?.Dispose();
+        _eventRegistrar.Invoking(static x => x.RegisterFromAssemblies([])).Should().NotThrow();
+        _registrar.Invoking(static x => x.RegisterDeriving<IInterfaceRegistrar>([])).Should().NotThrow();
     }
 }
 
 // ReSharper disable once NotAccessedPositionalProperty.Global
-public record Event(Guid Id);
+public sealed record Event(Guid Id);
 
-public class TestHelper
+public sealed class TestHelper
 {
     public bool Ran { get; set; }
 }
 
-public class TestEventHandler : IEventHandler<Event>
+public sealed class TestEventHandler : IEventHandler<Event>
 {
     private readonly TestHelper _helper;
 
@@ -106,14 +103,14 @@ public class TestEventHandler : IEventHandler<Event>
     }
 }
 
-public class TestNodeProcessor : INodeProcessor
+public sealed class TestNodeProcessor : INodeProcessor
 {
     public bool IsLeaf => true;
     public uint Weight => 0;
 
     public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
-        return new(false, builder, tokens);
+        return new TokenProcessingResult(false, builder, tokens);
     }
 }
 

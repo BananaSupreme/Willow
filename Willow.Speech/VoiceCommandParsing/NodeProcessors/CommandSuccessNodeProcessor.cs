@@ -16,6 +16,6 @@ internal sealed record CommandSuccessNodeProcessor(Guid CommandId) : INodeProces
     public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         builder = builder.Success(CommandId);
-        return new(true, builder, tokens);
+        return new TokenProcessingResult(true, builder, tokens);
     }
 }

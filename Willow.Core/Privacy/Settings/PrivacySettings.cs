@@ -11,15 +11,13 @@ namespace Willow.Core.Privacy.Settings;
 /// <param name="AllowLoggingTranscriptions">Whether transcriptions can be logged.</param>
 /// <param name="AllowLoggingCommands">Whether the commands captured by the system can be logged.</param>
 /// <param name="AllowLoggingActiveWindow">Whether the foreground window can be logged.</param>
-/// <seealso cref="RedactingLogger{T}"/>
-public readonly record struct PrivacySettings(
-    bool AllowLoggingTranscriptions,
-    bool AllowLoggingCommands,
-    bool AllowLoggingActiveWindow)
+/// <seealso cref="RedactingLogger{T}" />
+public readonly record struct PrivacySettings(bool AllowLoggingTranscriptions,
+                                              bool AllowLoggingCommands,
+                                              bool AllowLoggingActiveWindow)
 {
-    /// <inheritdoc cref="PrivacySettings"/>
-    public PrivacySettings()
-        : this(true, true, true)
+    /// <inheritdoc cref="PrivacySettings" />
+    public PrivacySettings() : this(true, true, true)
     {
     }
 }

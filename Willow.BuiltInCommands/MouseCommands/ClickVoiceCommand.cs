@@ -16,7 +16,7 @@ internal sealed class ClickVoiceCommand : IVoiceCommand
         _inputSimulator = inputSimulator;
     }
 
-    public string InvocationPhrase => $"click ?[[right|middle|left]:button]:_ ?[double]:doubleClick";
+    public string InvocationPhrase => "click ?[[right|middle|left]:button]:_ ?[double]:doubleClick";
 
     public Task ExecuteAsync(VoiceCommandContext context)
     {
@@ -38,15 +38,15 @@ internal sealed class ClickVoiceCommand : IVoiceCommand
             case "left":
                 _inputSimulator.Click();
                 break;
-            
+
             case "middle":
                 _inputSimulator.Click(MouseButton.Middle);
                 break;
-            
+
             case "right":
                 _inputSimulator.Click(MouseButton.Right);
                 break;
-            
+
             default:
                 throw new UnreachableException();
         }

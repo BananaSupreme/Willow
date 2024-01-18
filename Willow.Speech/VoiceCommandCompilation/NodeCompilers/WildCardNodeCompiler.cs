@@ -11,7 +11,7 @@ namespace Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 /// WildCard:variableName
 /// *variableName
 /// </code>
-/// Those patterns are compiled into the <see cref="WildCardNodeProcessor"/> where the value is captured into the
+/// Those patterns are compiled into the <see cref="WildCardNodeProcessor" /> where the value is captured into the
 /// variable name after the colon.<br/>
 /// Meant to represent a capturing of any word.
 /// </summary>
@@ -22,12 +22,10 @@ internal sealed class WildCardNodeCompiler : INodeCompiler
 
     public (bool IsSuccefful, INodeProcessor ProccessedNode) TryParse(ReadOnlySpan<char> commandWord,
                                                                       IDictionary<string, object> capturedValues,
-                                                                      INodeCompiler[]
-                                                                          compilers)
+                                                                      INodeCompiler[] compilers)
     {
         var startSymbol = commandWord.FirstToStartWithOrNull(_startSymbols);
-        if (startSymbol is null
-            || commandWord.StartsWith(_repeatingWildCardStartSymbols))
+        if (startSymbol is null || commandWord.StartsWith(_repeatingWildCardStartSymbols))
         {
             return INodeCompiler.Fail();
         }

@@ -10,6 +10,11 @@ namespace Willow.DeviceAutomation.InputDevices.Abstractions;
 public interface IInputSimulator
 {
     /// <summary>
+    /// Gets the current cursor position on the screen.
+    /// </summary>
+    Vector2 CursorPosition { get; }
+
+    /// <summary>
     /// Triggers the key to be held down, the key is not released automatically.
     /// </summary>
     /// <param name="key">The key to hold down.</param>
@@ -44,11 +49,6 @@ public interface IInputSimulator
     /// </remarks>
     /// <param name="input">The input string to type.</param>
     IInputSimulator Type(string input);
-
-    /// <summary>
-    /// Gets the current cursor position on the screen.
-    /// </summary>
-    Vector2 CursorPosition { get; }
 
     /// <summary>
     /// Clicks the mouse in its current position.
@@ -89,7 +89,7 @@ public interface IInputSimulator
     IInputSimulator MoveCursorToAbsolute(Vector2 position);
     /*
      * We cannot implement those function since we cannot get the screen size at the moment
-     * Vector2 CurrentMonitorSize { get; }
-     * IInputSimulator MoveCursorToPercentage(Vector2 position);
+     * Vector2 CurrentMonitorSize { get; } - something to avoid solar lint
+     * IInputSimulator MoveCursorToPercentage(Vector2 position); - something to avoid solar lint
      */
 }

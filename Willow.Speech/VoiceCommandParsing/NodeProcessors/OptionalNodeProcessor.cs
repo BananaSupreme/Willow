@@ -21,9 +21,9 @@ internal sealed record OptionalNodeProcessor(string FlagName, INodeProcessor Inn
         if (isSuccessful)
         {
             innerBuilder.AddParameter(FlagName, new EmptyToken());
-            return new(true, innerBuilder, remainingTokens);
+            return new TokenProcessingResult(true, innerBuilder, remainingTokens);
         }
 
-        return new(true, builder, tokens);
+        return new TokenProcessingResult(true, builder, tokens);
     }
 }
