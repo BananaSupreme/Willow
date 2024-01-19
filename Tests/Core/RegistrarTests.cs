@@ -3,6 +3,8 @@ using System.Reflection.Emit;
 
 using DryIoc.Microsoft.DependencyInjection;
 
+using Tests.Helpers;
+
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Registration;
@@ -10,6 +12,8 @@ using Willow.Core.Registration.Abstractions;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Models;
+
+using Xunit.Abstractions;
 
 namespace Tests.Core;
 
@@ -19,10 +23,10 @@ public sealed class RegistrarTests : IDisposable
     private readonly IInterfaceRegistrar _registrar;
     private readonly IServiceProvider _serviceProvider;
 
-    public RegistrarTests()
+    public RegistrarTests(ITestOutputHelper testOutputHelper)
     {
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         services.AddSingleton<IInterfaceRegistrar, InterfaceRegistrar>();
         EventingRegistrar.RegisterServices(services);
         services.AddSingleton<TestHelper>();

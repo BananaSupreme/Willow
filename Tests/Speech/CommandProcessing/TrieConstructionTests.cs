@@ -3,6 +3,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
+using Tests.Helpers;
+
 using Willow.Core.Environment.Models;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.VoiceCommandCompilation;
@@ -10,6 +12,8 @@ using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Models;
 using Willow.Speech.VoiceCommandParsing;
 using Willow.Speech.VoiceCommandParsing.NodeProcessors;
+
+using Xunit.Abstractions;
 
 namespace Tests.Speech.CommandProcessing;
 
@@ -20,7 +24,7 @@ public sealed class TrieConstructionTests : IDisposable
     private readonly ServiceProvider _provider;
     private readonly ITrieFactory _sut;
 
-    public TrieConstructionTests()
+    public TrieConstructionTests(ITestOutputHelper testOutputHelper)
     {
         _fixture = new Fixture();
 
@@ -29,7 +33,7 @@ public sealed class TrieConstructionTests : IDisposable
 
         _compiler = Substitute.For<IVoiceCommandCompiler>();
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         services.AddSingleton<ITrieFactory, TrieFactory>();
         services.AddSingleton<IVoiceCommandCompiler>(implementationFactory: _ => _compiler);
         _provider = services.BuildServiceProvider();

@@ -16,6 +16,8 @@ using Willow.Speech.Tokenization.Tokenizers;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 
+using Xunit.Abstractions;
+
 namespace Tests.Speech.CommandProcessing;
 
 public sealed class TokenizationTests : IDisposable
@@ -24,11 +26,11 @@ public sealed class TokenizationTests : IDisposable
     private readonly ITokenizer _sut;
     private readonly ISettings<HomophoneSettings> _homophoneSettings;
 
-    public TokenizationTests()
+    public TokenizationTests(ITestOutputHelper testOutputHelper)
     {
         _homophoneSettings = Substitute.For<ISettings<HomophoneSettings>>();
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         services.AddSettings();
         services.AddSingleton(_homophoneSettings);
         TokenizationRegistrar.RegisterServices(services);

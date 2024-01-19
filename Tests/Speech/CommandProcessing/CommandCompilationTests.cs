@@ -1,4 +1,6 @@
-﻿using Willow.Helpers.Extensions;
+﻿using Tests.Helpers;
+
+using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandCompilation;
@@ -7,6 +9,8 @@ using Willow.Speech.VoiceCommandCompilation.Exceptions;
 using Willow.Speech.VoiceCommandCompilation.Models;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
 using Willow.Speech.VoiceCommandParsing.NodeProcessors;
+
+using Xunit.Abstractions;
 
 namespace Tests.Speech.CommandProcessing;
 
@@ -26,7 +30,7 @@ public sealed class CommandCompilationTests : IDisposable
 
     private readonly IVoiceCommandCompiler _sut;
 
-    public CommandCompilationTests()
+    public CommandCompilationTests(ITestOutputHelper testOutputHelper)
     {
         _guid = Guid.Parse("58b36a5f-de95-4986-ac06-35bf9a35966e");
         _base = new PreCompiledVoiceCommand(_guid, string.Empty, [], []);
@@ -34,7 +38,7 @@ public sealed class CommandCompilationTests : IDisposable
         _base = _base with { CapturedValues = _capturedValues };
 
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         services.AddSingleton<IVoiceCommandCompiler, VoiceCommandCompiler>();
         services.AddAllTypesFromOwnAssembly<INodeCompiler>(ServiceLifetime.Singleton);
         _provider = services.BuildServiceProvider();

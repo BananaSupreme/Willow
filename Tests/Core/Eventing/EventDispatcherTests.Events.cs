@@ -1,5 +1,10 @@
-﻿using Willow.Core.Eventing;
+﻿using Tests.Helpers;
+
+using Willow.Core.Eventing;
 using Willow.Core.Eventing.Abstractions;
+
+using Xunit.Abstractions;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace Tests.Core.Eventing;
@@ -9,10 +14,10 @@ public sealed partial class EventDispatcherTests : IDisposable
     private readonly ServiceProvider _provider;
     private readonly IEventDispatcher _sut;
 
-    public EventDispatcherTests()
+    public EventDispatcherTests(ITestOutputHelper testOutputHelper)
     {
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         services.AddSingleton<IEventDispatcher, EventDispatcher>();
         services.AddSingleton(typeof(TestInterceptor<>));
         services.AddSingleton(typeof(TestInterceptor2<>));

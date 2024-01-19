@@ -5,6 +5,8 @@ using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
 using Willow.WhisperServer;
 
+using Xunit.Abstractions;
+
 namespace Tests.Speech.SpeechServers;
 
 public sealed class WhisperEngineTests : IAsyncLifetime
@@ -13,13 +15,13 @@ public sealed class WhisperEngineTests : IAsyncLifetime
     private readonly ServiceProvider _serviceProvider;
     private AudioData _audioData;
 
-    public WhisperEngineTests()
+    public WhisperEngineTests(ITestOutputHelper testOutputHelper)
     {
         var services = new ServiceCollection();
         EventingRegistrar.RegisterServices(services);
         services.AddSettings();
         WillowWhisperServerRegistrar.RegisterServices(services);
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         _serviceProvider = services.BuildServiceProvider();
     }
 

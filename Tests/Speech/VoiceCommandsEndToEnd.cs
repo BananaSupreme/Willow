@@ -12,16 +12,18 @@ using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.StartUp;
 
+using Xunit.Abstractions;
+
 namespace Tests.Speech;
 
 public sealed class VoiceCommandsEndToEnd
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public VoiceCommandsEndToEnd()
+    public VoiceCommandsEndToEnd(ITestOutputHelper testOutputHelper)
     {
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         WillowStartup.Register([typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly], services);
         services.AddSettings();
         _serviceProvider = services.CreateServiceProvider();

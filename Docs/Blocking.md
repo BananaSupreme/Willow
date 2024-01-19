@@ -1,12 +1,11 @@
 ﻿Some blocking tasks, they are expanded upon in their respective TODOs, this should be done before we're ready to go
 public with the project
 
-- homophones comparison when proessing commands, and user added dictionary
 - At the moment all assemblies must be loaded at start-up, it makes a command builder in the UI impossible we should
   find a solution on how the different parts of the system need to load and unload what they require at runtime.
 - remove interceptors
 - Plugin store
-- Nugets, and how do we compose the project, and manage dependencies, i feel like this part will cause us a lot of
+- Nugets, and how do we compose the project, and manage dependencies, I feel like this part will cause us a lot of
   headaches
 - Commands source generator
 - commands and tags for common use cases (this can be built upon later, but at least the basics)

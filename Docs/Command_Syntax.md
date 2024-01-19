@@ -15,7 +15,7 @@
     - Syntax: `NodeProcessorType:CapturedVariableName{Var1,Var2,Var3}`
 
 - **Alias Usage in Commands**:
-    - Description: Symbols do not require the `:` seperator.
+    - Description: Symbols do not require the `:` separator.
     - Example: `*wildcard`
 
 ## Known Aliases for Node Processors
@@ -49,14 +49,14 @@
 - **And**:
     - Alias: `And`, `A`, `&`
     - Wrapper Node
-    - Similiar to the OneOf node the inner nodes are seperated by pipes,
+    - Similar to the OneOf node the inner nodes are seperated by pipes,
     - Note that nodes are processed from left to right
-    - Description: A wrapper that require all nodes going from left to write to be processed succesfully.
+    - Description: A wrapper that require all nodes going from left to write to be processed successfully.
 
 - **Or**:
     - Alias: `Or`, `O`, `~`,
     - Wrapper Node
-    - Similiar to the OneOf node the inner nodes are seperated by pipes,
+    - Similar to the OneOf node the inner nodes are seperated by pipes,
     - Note that nodes are processed from left to right
     - Description: A wrapper that requires that any of the node processors produces a match.
 
@@ -138,8 +138,8 @@
         - `raise volume` - Plain word(s)
         - `?[&[a|little]]:_flag` - An optional node processor that wraps inside it an `And` node, this groups together
           one word
-          node `a` and a second `little`, only if both are said the optional succeedes.
-        - Like all other nodes aliasing rules applies so this is equivilant to `Optional[And[a|little]]`
+          node `a` and a second `little`, only if both are said the optional succeeds.
+        - Like all other nodes aliasing rules applies so this is equivalent to `Optional[And[a|little]]`
 
 11. **Optional Command Handles an Inner Or Wrapper**:
     - Command: `"raise volume ?[~[much|little]]:flag"`
@@ -148,4 +148,4 @@
         - `?[~[much|little]]:flag` - An optional node processor that wraps inside it an `Or` node, this groups together
           one word
           node `much` and a second `little`, if the user says either word the operation is considered a success.
-        - Like all other nodes aliasing rules applies so this is equivilant to `Optional[Or[much|little]]`
+        - Like all other nodes aliasing rules applies so this is equivalent to `Optional[Or[much|little]]`

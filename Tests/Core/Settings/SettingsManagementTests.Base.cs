@@ -1,10 +1,14 @@
 ﻿using System.Text.Json;
 
+using Tests.Helpers;
+
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Settings.Abstractions;
 using Willow.Core.Settings.Events;
 using Willow.Core.Settings.Registration;
+
+using Xunit.Abstractions;
 
 namespace Tests.Core.Settings;
 
@@ -16,10 +20,10 @@ public sealed partial class SettingsManagementTests : IDisposable
     private readonly Guid _newGuid = Guid.Parse("D3E4C79A-41D0-45A6-B0E7-AE162F7BFB48");
     private readonly ServiceProvider _provider;
 
-    public SettingsManagementTests()
+    public SettingsManagementTests(ITestOutputHelper testOutputHelper)
     {
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         EventingRegistrar.RegisterServices(services);
         SettingsRegistrar.RegisterServices(services);
         services.AddSingleton<TestHandler<TestSettings>>();

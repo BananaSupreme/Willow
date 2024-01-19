@@ -19,6 +19,8 @@ using Willow.Speech.VoiceCommandCompilation.Registration;
 using Willow.Speech.VoiceCommandParsing.Eventing.Events;
 using Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 
+using Xunit.Abstractions;
+
 namespace Tests.Speech.CommandProcessing;
 
 public sealed class CommandProcessingEndToEndTests : IDisposable
@@ -29,7 +31,7 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
     private readonly ITestHandler _handler;
     private readonly ServiceProvider _provider;
 
-    public CommandProcessingEndToEndTests()
+    public CommandProcessingEndToEndTests(ITestOutputHelper testOutputHelper)
     {
         _fixture = new Fixture();
 
@@ -39,6 +41,7 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         _handler = Substitute.For<ITestHandler>();
         _environmentStateProvider = Substitute.For<IEnvironmentStateProvider>();
         var services = new ServiceCollection();
+        services.AddTestLogger(testOutputHelper);
         RegisterServices(services: services);
         services.AddAllTypesFromOwnAssembly<INodeCompiler>(lifetime: ServiceLifetime.Singleton);
         _provider = services.BuildServiceProvider();
@@ -61,7 +64,6 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
 
     private void RegisterServices(ServiceCollection services)
     {
-        services.AddLogging();
         services.AddSingleton(implementationFactory: _ => _environmentStateProvider);
         services.AddSingleton(implementationFactory: _ => _handler);
         services.AddSingleton<AudioTranscribedEventHandler>();

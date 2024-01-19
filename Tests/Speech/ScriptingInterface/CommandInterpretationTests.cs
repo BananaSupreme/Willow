@@ -1,9 +1,13 @@
-﻿using Willow.Core.Environment.Enums;
+﻿using Tests.Helpers;
+
+using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
 using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
+
+using Xunit.Abstractions;
 
 namespace Tests.Speech.ScriptingInterface;
 
@@ -21,10 +25,10 @@ public sealed class CommandInterpretationTests : IDisposable
     private readonly ServiceProvider _provider;
     private readonly IVoiceCommandInterpreter _sut;
 
-    public CommandInterpretationTests()
+    public CommandInterpretationTests(ITestOutputHelper testOutputHelper)
     {
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         services.AddSingleton<IVoiceCommandInterpreter, VoiceCommandInterpreter>();
         _provider = services.BuildServiceProvider();
         _sut = _provider.GetRequiredService<IVoiceCommandInterpreter>();

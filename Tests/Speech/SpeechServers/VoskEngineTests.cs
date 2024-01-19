@@ -8,6 +8,8 @@ using Willow.Vosk.Enums;
 using Willow.Vosk.Registration;
 using Willow.Vosk.Settings;
 
+using Xunit.Abstractions;
+
 namespace Tests.Speech.SpeechServers;
 
 [Collection("vosk")]
@@ -17,13 +19,13 @@ public sealed class VoskEngineTests : IAsyncLifetime
     private readonly ServiceProvider _serviceProvider;
     private AudioData _audioData;
 
-    public VoskEngineTests()
+    public VoskEngineTests(ITestOutputHelper testOutputHelper)
     {
         var downloader = Substitute.For<IVoskModelDownloader>();
         var services = new ServiceCollection();
         EventingRegistrar.RegisterServices(services);
         services.AddSettings();
-        services.AddLogging();
+        services.AddTestLogger(testOutputHelper);
         VoskServerRegistrar.RegisterServices(services);
         services.AddSingleton(downloader);
         _serviceProvider = services.BuildServiceProvider();

@@ -6,6 +6,8 @@ using Willow.Vosk.Enums;
 using Willow.Vosk.Registration;
 using Willow.Vosk.Settings;
 
+using Xunit.Abstractions;
+
 namespace Tests.Speech.SpeechServers;
 
 [Collection("vosk")]
@@ -15,12 +17,12 @@ public sealed class VoskDownloaderTests : IDisposable
     private readonly ISettings<VoskSettings> _settings;
     private readonly IVoskModelInstaller _sut;
 
-    public VoskDownloaderTests()
+    public VoskDownloaderTests(ITestOutputHelper testOutputHelper)
     {
         var downloader = Substitute.For<IVoskModelDownloader>();
         var services = new ServiceCollection();
         VoskServerRegistrar.RegisterServices(services);
-        services.AddLogging();
+        services.AddTestLogger( testOutputHelper);
         services.AddSettings();
         services.AddSingleton(downloader);
         _provider = services.BuildServiceProvider();
