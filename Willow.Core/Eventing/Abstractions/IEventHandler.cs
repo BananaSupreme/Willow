@@ -28,6 +28,6 @@ public interface IEventHandler<in TEvent>
     /// <summary>
     /// The handler for the event.
     /// </summary>
-    /// <param name="event">The event after having passed through all registered interceptors.</param>
+    /// <param name="event">The event item.</param>
     Task HandleAsync(TEvent @event);
 }

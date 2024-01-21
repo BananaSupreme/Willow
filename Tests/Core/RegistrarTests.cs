@@ -54,12 +54,6 @@ public sealed class RegistrarTests : IDisposable
     }
 
     [Fact]
-    public void When_RegisteringNewEventFromAssembly_ItsInterceptorsAreAlsoLoadedToIoC()
-    {
-        _eventRegistrar.RegisterFromAssemblies([typeof(TestEventHandler).Assembly]);
-        _serviceProvider.Invoking(static x => x.GetRequiredService<TestInterceptor>()).Should().NotThrow();
-    }
-    [Fact]
     public void When_RegisteringNewInterface_ItIsLoadable()
     {
         _registrar.RegisterDeriving<INodeProcessor>([typeof(TestNodeProcessor).Assembly]);
@@ -115,13 +109,5 @@ public sealed class TestNodeProcessor : INodeProcessor
     public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
         return new TokenProcessingResult(false, builder, tokens);
-    }
-}
-
-public class TestInterceptor : IEventInterceptor<Event>
-{
-    public async Task InterceptAsync(Event @event, Func<Event, Task> next)
-    {
-        await next(@event);
     }
 }

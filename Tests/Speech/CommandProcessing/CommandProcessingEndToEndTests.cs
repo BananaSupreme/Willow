@@ -4,13 +4,13 @@ using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
+using Willow.Core.Middleware.Registration;
 using Willow.Helpers.Extensions;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
 using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.SpeechToText.Eventing.Events;
-using Willow.Speech.SpeechToText.Registration;
 using Willow.Speech.Tokenization.Abstractions;
-using Willow.Speech.Tokenization.Eventing.Interceptors;
+using Willow.Speech.Tokenization.Middleware;
 using Willow.Speech.Tokenization.Registration;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
@@ -56,7 +56,6 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
 
     private void RegisterEvents()
     {
-        AudioTranscribedEventInterceptorRegistrar.RegisterInterceptor(eventDispatcher: _eventDispatcher);
         _eventDispatcher.RegisterHandler<AudioTranscribedEvent, AudioTranscribedEventHandler>();
         _eventDispatcher.RegisterHandler<CommandModifiedEvent, CommandModifiedEventHandler>();
         _eventDispatcher.RegisterHandler<CommandParsedEvent, ITestHandler>();
@@ -68,12 +67,13 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         services.AddSingleton(implementationFactory: _ => _handler);
         services.AddSingleton<AudioTranscribedEventHandler>();
         services.AddSingleton<CommandModifiedEventHandler>();
-        services.AddSingleton<PunctuationRemoverInterceptor>();
+        services.AddSingleton<PunctuationRemoverMiddleware>();
         services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>(ServiceLifetime.Singleton);
         services.AddSettings();
         VoiceCommandCompilationRegistrar.RegisterServices(services: services);
         TokenizationRegistrar.RegisterServices(services: services);
         EventingRegistrar.RegisterServices(services: services);
+        MiddlewareRegistrar.RegisterServices(services: services);
     }
 
     [Fact]

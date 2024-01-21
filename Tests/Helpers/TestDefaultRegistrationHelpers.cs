@@ -16,6 +16,7 @@ public static class TestDefaultRegistrationHelpers
     public static void AddTestLogger(this IServiceCollection services, ITestOutputHelper testOutputHelper)
     {
         services.AddSingleton(testOutputHelper);
+        services.AddSingleton<ILoggerFactory, TestLoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(TestLogger<>));
     }
 }

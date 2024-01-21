@@ -1,32 +1,32 @@
-﻿using Willow.Core.Eventing.Abstractions;
+﻿using Willow.Core.Middleware.Abstractions;
 using Willow.Speech.AudioBuffering.Abstractions;
 using Willow.Speech.Microphone.Eventing.Events;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.VAD.Abstractions;
 
-namespace Willow.Speech.VAD.Eventing.Interceptors;
+namespace Willow.Speech.VAD.Middleware;
 
 /// <summary>
 /// Detects speech in the audio, if found it buffers the audio until the user stops speaking or the buffer is full.
 /// </summary>
-internal sealed class VoiceActivityDetectionInterceptor : IEventInterceptor<AudioCapturedEvent>
+internal sealed class VoiceActivityDetectionMiddleware : IMiddleware<AudioCapturedEvent>
 {
     private readonly IAudioBuffer _audioBuffer;
-    private readonly ILogger<VoiceActivityDetectionInterceptor> _log;
+    private readonly ILogger<VoiceActivityDetectionMiddleware> _log;
     private readonly IVoiceActivityDetection _vad;
 
-    public VoiceActivityDetectionInterceptor(IVoiceActivityDetection vad,
+    public VoiceActivityDetectionMiddleware(IVoiceActivityDetection vad,
                                              IAudioBuffer audioBuffer,
-                                             ILogger<VoiceActivityDetectionInterceptor> log)
+                                             ILogger<VoiceActivityDetectionMiddleware> log)
     {
         _vad = vad;
         _audioBuffer = audioBuffer;
         _log = log;
     }
 
-    public async Task InterceptAsync(AudioCapturedEvent @event, Func<AudioCapturedEvent, Task> next)
+    public async Task ExecuteAsync(AudioCapturedEvent input, Func<AudioCapturedEvent, Task> next)
     {
-        var audioData = @event.AudioData;
+        var audioData = input.AudioData;
         var result = _vad.Detect(audioData);
         if (result.IsSpeechDetected && _audioBuffer.HasSpace(audioData.RawData.Length))
         {

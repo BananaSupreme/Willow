@@ -1,36 +1,36 @@
-﻿using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Middleware.Abstractions;
 using Willow.Speech.Microphone.Eventing.Events;
 using Willow.Speech.Resampling.Abstractions;
-using Willow.Speech.VAD.Eventing.Interceptors;
+using Willow.Speech.VAD.Middleware;
 
-namespace Willow.Speech.Resampling.Eventing.Interceptors;
+namespace Willow.Speech.Resampling.Middleware;
 
 /// <summary>
 /// Intercepts the <see cref="AudioCapturedEvent" /> to 16Khz.
 /// </summary>
-internal sealed class ResamplingInterceptor : IEventInterceptor<AudioCapturedEvent>
+internal sealed class ResamplingMiddleware : IMiddleware<AudioCapturedEvent>
 {
     private const int DesiredSampleRate = 16000;
-    private readonly ILogger<VoiceActivityDetectionInterceptor> _log;
+    private readonly ILogger<VoiceActivityDetectionMiddleware> _log;
     private readonly IResampler _resampler;
 
-    public ResamplingInterceptor(IResampler resampler, ILogger<VoiceActivityDetectionInterceptor> log)
+    public ResamplingMiddleware(IResampler resampler, ILogger<VoiceActivityDetectionMiddleware> log)
     {
         _resampler = resampler;
         _log = log;
     }
 
-    public async Task InterceptAsync(AudioCapturedEvent @event, Func<AudioCapturedEvent, Task> next)
+    public async Task ExecuteAsync(AudioCapturedEvent input, Func<AudioCapturedEvent, Task> next)
     {
-        if (@event.AudioData.SamplingRate == DesiredSampleRate)
+        if (input.AudioData.SamplingRate == DesiredSampleRate)
         {
             _log.ResamplingNotNeeded();
-            await next(@event);
+            await next(input);
             return;
         }
 
-        _log.Resampling(@event.AudioData.SamplingRate, DesiredSampleRate);
-        var resampled = _resampler.Resample(@event.AudioData, DesiredSampleRate);
+        _log.Resampling(input.AudioData.SamplingRate, DesiredSampleRate);
+        var resampled = _resampler.Resample(input.AudioData, DesiredSampleRate);
         await next(new AudioCapturedEvent(resampled));
     }
 }

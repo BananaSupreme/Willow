@@ -1,8 +1,10 @@
 ﻿using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Middleware.Abstractions;
 using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Abstractions;
+using Willow.Speech.Tokenization.Middleware;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Abstractions;
@@ -19,19 +21,29 @@ internal sealed class AudioTranscribedEventHandler : IEventHandler<AudioTranscri
     private readonly IEventDispatcher _eventDispatcher;
     private readonly ITokenizer _tokenizer;
     private readonly ITrieFactory _trieFactory;
+    private readonly IMiddlewarePipeline<AudioTranscribedEvent> _pipeline;
 
     public AudioTranscribedEventHandler(ITrieFactory trieFactory,
                                         ITokenizer tokenizer,
                                         IEnvironmentStateProvider environmentStateProvider,
+                                        IMiddlewareBuilderFactory<AudioTranscribedEvent> middlewareBuilderFactory,
+                                        PunctuationRemoverMiddleware punctuationRemoverMiddleware,
                                         IEventDispatcher eventDispatcher)
     {
         _trieFactory = trieFactory;
         _tokenizer = tokenizer;
         _environmentStateProvider = environmentStateProvider;
         _eventDispatcher = eventDispatcher;
+
+        _pipeline = middlewareBuilderFactory.Create().Add(punctuationRemoverMiddleware).Build();
     }
 
-    public Task HandleAsync(AudioTranscribedEvent @event)
+    public async Task HandleAsync(AudioTranscribedEvent @event)
+    {
+        await _pipeline.ExecuteAsync(@event, HandleCoreAsync);
+    }
+
+    public Task HandleCoreAsync(AudioTranscribedEvent @event)
     {
         var environment = _environmentStateProvider.Tags.ToArray();
         var tokens = _tokenizer.Tokenize(@event.Text);

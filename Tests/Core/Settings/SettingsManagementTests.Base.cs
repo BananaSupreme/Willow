@@ -154,6 +154,7 @@ public sealed partial class SettingsManagementTests : IDisposable
 
         return ISettings<T>.SettingsFilePath;
     }
+
     public interface ITestSettings
     {
         Guid Id { get; init; }

@@ -19,6 +19,7 @@
 
     <ItemGroup>
         <Folder Include="ScriptingInterface\Eventing\"/>
+        <Folder Include="Tokenization\Middleware\" />
     </ItemGroup>
 
     <ItemGroup>

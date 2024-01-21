@@ -10,7 +10,7 @@ using Willow.Speech.ScriptingInterface.Eventing.Events;
 namespace Willow.Speech.ScriptingInterface.Registration;
 
 /// <summary>
-/// Adds all voice commands in the assemblies and dispatches an updated to the commands.
+/// Adds all <see cref="IVoiceCommand"/> in the assemblies and dispatches an updated to the commands.
 /// </summary>
 internal sealed class ScriptingInterfaceAssemblyRegistrar : IAssemblyRegistrar
 {

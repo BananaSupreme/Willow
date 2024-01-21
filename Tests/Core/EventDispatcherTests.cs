@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace Tests.Core.Eventing;
+namespace Tests.Core;
 
-public sealed partial class EventDispatcherTests : IDisposable
+public sealed class EventDispatcherTests : IDisposable
 {
     private readonly ServiceProvider _provider;
     private readonly IEventDispatcher _sut;
@@ -19,13 +19,8 @@ public sealed partial class EventDispatcherTests : IDisposable
         var services = new ServiceCollection();
         services.AddTestLogger(testOutputHelper);
         services.AddSingleton<IEventDispatcher, EventDispatcher>();
-        services.AddSingleton(typeof(TestInterceptor<>));
-        services.AddSingleton(typeof(TestInterceptor2<>));
-        services.AddSingleton(typeof(ExceptionCatchingInterceptor<>));
-        services.AddSingleton(typeof(BlockingInterceptor<>));
         services.AddSingleton(typeof(TestEventHandler<>));
         services.AddSingleton(typeof(TestEventHandler2<>));
-        services.AddSingleton<TestGenericInterceptor>();
 
         _provider = services.BuildServiceProvider();
         _sut = _provider.GetRequiredService<IEventDispatcher>();
@@ -39,7 +34,7 @@ public sealed partial class EventDispatcherTests : IDisposable
     [Fact]
     public async Task When_EventNotFlushed_StillCompletes()
     {
-        var state = new StateWithTwoParameters(0, 0);
+        var state = new StateWithTwoParameters();
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
         _sut.Dispatch(state);
 
@@ -53,7 +48,7 @@ public sealed partial class EventDispatcherTests : IDisposable
     {
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler<StateWithTwoParameters>>();
         _sut.RegisterHandler<StateWithTwoParameters, TestEventHandler2<StateWithTwoParameters>>();
-        _sut.Dispatch(new StateWithTwoParameters(0, 0));
+        _sut.Dispatch(new StateWithTwoParameters());
         _sut.Flush();
 
         var handler = _provider.GetRequiredService<TestEventHandler<StateWithTwoParameters>>();
@@ -74,27 +69,38 @@ public sealed partial class EventDispatcherTests : IDisposable
 
         handler.PerformAction = static _ => throw new Exception();
 
-        _sut.Dispatch(new StateWithTwoParameters(0, 0));
+        _sut.Dispatch(new StateWithTwoParameters());
         _sut.Flush();
 
         handler.Called.Should().BeTrue();
         handler2.Called.Should().BeTrue();
     }
 
-    [Fact]
-    public void When_EventHandlerFails_InterceptorCanRespond()
+    public sealed record StateWithTwoParameters;
+
+    internal sealed class TestEventHandler<T> : IEventHandler<T>
     {
-        _sut.RegisterHandler<StateWithStringParameters, TestEventHandler<StateWithStringParameters>>();
-        _sut.RegisterInterceptor<StateWithStringParameters, ExceptionCatchingInterceptor<StateWithStringParameters>>();
+        public Func<T, T>? PerformAction { get; set; }
+        public bool Called { get; private set; }
+        public T Event { get; private set; } = default!;
 
-        var handler = _provider.GetRequiredService<TestEventHandler<StateWithStringParameters>>();
-        var interceptor = _provider.GetRequiredService<ExceptionCatchingInterceptor<StateWithStringParameters>>();
-        handler.PerformAction = static _ => throw new Exception();
+        public Task HandleAsync(T @event)
+        {
+            Event = @event;
+            Called = true;
+            PerformAction?.Invoke(@event);
+            return Task.CompletedTask;
+        }
+    }
 
-        _sut.Dispatch(new StateWithStringParameters(""));
-        _sut.Flush();
+    internal sealed class TestEventHandler2<T> : IEventHandler<T>
+    {
+        public bool Called { get; private set; }
 
-        handler.Called.Should().BeTrue();
-        interceptor.Called.Should().BeTrue();
+        public Task HandleAsync(T @event)
+        {
+            Called = true;
+            return Task.CompletedTask;
+        }
     }
 }

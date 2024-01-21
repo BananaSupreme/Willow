@@ -10,7 +10,7 @@ using Willow.Speech.AudioBuffering.Settings;
 using Willow.Speech.Microphone.Eventing.Events;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.VAD;
-using Willow.Speech.VAD.Eventing.Interceptors;
+using Willow.Speech.VAD.Middleware;
 using Willow.Speech.VAD.Settings;
 
 namespace Benchmarks;
@@ -19,7 +19,7 @@ namespace Benchmarks;
 public sealed class VadBenchmarks
 {
     private AudioCapturedEvent _audioDataEvent;
-    private VoiceActivityDetectionInterceptor _interceptor = null!;
+    private VoiceActivityDetectionMiddleware _middleware = null!;
 
     [GlobalSetup]
     public void Setup()
@@ -32,17 +32,17 @@ public sealed class VadBenchmarks
         sileroSettings.CurrentValue.Returns(static _ => new SileroSettings());
         var bufferSettings = Substitute.For<ISettings<AudioBufferSettings>>();
         bufferSettings.CurrentValue.Returns(static _ => new AudioBufferSettings());
-        _interceptor = new VoiceActivityDetectionInterceptor(
+        _middleware = new VoiceActivityDetectionMiddleware(
             new SileroVoiceActivityDetectionFacade(sileroSettings,
                                                    Substitute.For<ILogger<SileroVoiceActivityDetectionFacade>>()),
             new AudioBuffer(bufferSettings),
-            Substitute.For<ILogger<VoiceActivityDetectionInterceptor>>());
+            Substitute.For<ILogger<VoiceActivityDetectionMiddleware>>());
     }
 
     [Benchmark]
     public Task Vad()
     {
-        return _interceptor.InterceptAsync(_audioDataEvent, static _ => Task.CompletedTask);
+        return _middleware.ExecuteAsync(_audioDataEvent, static _ => Task.CompletedTask);
     }
 
     private static AudioData GetFromWavFile(byte[] wav)

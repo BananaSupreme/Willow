@@ -7,12 +7,6 @@
 /// </summary>
 internal interface IUnsafeEventRegistrar
 {
-    /// <seealso cref="IEventDispatcher.RegisterInterceptor{TEvent,TInterceptor}" />
-    void RegisterInterceptor(Type eventType, Type interceptor);
-
-    /// <seealso cref="IEventDispatcher.RegisterGenericInterceptor{TInterceptor}" />
-    void RegisterGenericInterceptor(Type interceptor);
-
     /// <seealso cref="IEventDispatcher.RegisterHandler{TEvent,TEventHandler}" />
     void RegisterHandler(Type eventType, Type eventHandler);
 }

@@ -29,19 +29,8 @@ internal sealed partial class EventDispatcher
         where TEvent : notnull
     {
         using var _ = _log.AddContext("eventType", eventName);
-        var interceptors = GetInterceptors<TEvent>();
-        if (interceptors.Count > 0)
-        {
-            _log.RunningWithInterceptors(interceptors.Count);
-            var toRun = GetNextInterceptor(interceptors, actualizedHandlers, 0);
-            await toRun(@event);
-        }
-        else
-        {
-            _log.RunningWithoutInterceptors();
-            await RunEvents(actualizedHandlers, @event);
-        }
-
+        _log.RunningEvent();
+        await RunEvents(actualizedHandlers, @event);
         _log.EventDispatchCompleted();
     }
 
