@@ -19,7 +19,7 @@ internal sealed record OneOfNodeProcessor(string CaptureName, Token[] ValidWords
 
     protected override bool IsTokenMatch(Token token)
     {
-        return ValidWords.Contains(token);
+        return Array.Exists(ValidWords, t => t.Match(token));
     }
 
     public override int GetHashCode()
