@@ -11,6 +11,6 @@ public sealed class AudioManipulationTests
         var random = new Random(1);
         rawData = rawData.Select(_ => (short)random.Next(0, short.MaxValue)).ToArray();
         var audioData = new AudioData(rawData, 1, 1, 1);
-        audioData.NormalizedData.Should().BeEquivalentTo(rawData.Select(static x => x / (float)32768.0));
+        audioData.NormalizedData.Value.Should().BeEquivalentTo(rawData.Select(static x => x / (float)32768.0));
     }
 }

@@ -12,6 +12,7 @@ using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Middleware;
 using Willow.Speech.Tokenization.Registration;
+using Willow.Speech.Tokenization.Tokenizers;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
@@ -260,6 +261,29 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         ];
 
         TestInternal("go! ~away, 42$",
+                     [],
+                     [commands[0].Id],
+                     [new Dictionary<string, Token> { { "input", new NumberToken(Value: 42) } }],
+                     commands);
+    }
+
+    [Fact]
+    public async Task When_MatchByHomophones_MatchCorrect()
+    {
+        RawVoiceCommand[] commands =
+        [
+            _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away #input"] }
+        ];
+
+        var tokenizer = _provider.GetServices<ITranscriptionTokenizer>()
+                                 .OfType<HomophonesTranscriptionTokenizer>()
+                                 .First();
+
+        await tokenizer.FlushAsync();
+
+        //Unless the default settings change, gogh is a homophone of go, if this breaks, we need to mock the settings here
+        //but I was lazy
+        TestInternal("gogh away 42",
                      [],
                      [commands[0].Id],
                      [new Dictionary<string, Token> { { "input", new NumberToken(Value: 42) } }],

@@ -16,13 +16,8 @@ internal sealed record WordNodeProcessor(WordToken Value) : INodeProcessor
 
     public TokenProcessingResult ProcessToken(ReadOnlyMemory<Token> tokens, CommandBuilder builder)
     {
-        return !tokens.IsEmpty && IsTokenMatch(tokens.Span[0])
+        return !tokens.IsEmpty && tokens.Span[0].Match(Value)
                    ? new TokenProcessingResult(true, builder, tokens[1..])
                    : new TokenProcessingResult(false, builder, tokens);
-    }
-
-    private bool IsTokenMatch(Token token)
-    {
-        return token is WordToken wordToken && wordToken == Value;
     }
 }
