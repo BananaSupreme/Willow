@@ -3,6 +3,7 @@ using Willow.Speech.AudioBuffering.Abstractions;
 using Willow.Speech.Microphone.Eventing.Events;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.VAD.Abstractions;
+using Willow.Speech.VAD.Models;
 
 namespace Willow.Speech.VAD.Middleware;
 
@@ -14,10 +15,12 @@ internal sealed class VoiceActivityDetectionMiddleware : IMiddleware<AudioCaptur
     private readonly IAudioBuffer _audioBuffer;
     private readonly ILogger<VoiceActivityDetectionMiddleware> _log;
     private readonly IVoiceActivityDetection _vad;
+    private AudioData _emptyAudioData;
+    private AudioData _lastData;
 
     public VoiceActivityDetectionMiddleware(IVoiceActivityDetection vad,
-                                             IAudioBuffer audioBuffer,
-                                             ILogger<VoiceActivityDetectionMiddleware> log)
+                                            IAudioBuffer audioBuffer,
+                                            ILogger<VoiceActivityDetectionMiddleware> log)
     {
         _vad = vad;
         _audioBuffer = audioBuffer;
@@ -26,48 +29,66 @@ internal sealed class VoiceActivityDetectionMiddleware : IMiddleware<AudioCaptur
 
     public async Task ExecuteAsync(AudioCapturedEvent input, Func<AudioCapturedEvent, Task> next)
     {
+        _emptyAudioData = _emptyAudioData == default ? input.AudioData with { RawData = [] } : _emptyAudioData;
         var audioData = input.AudioData;
         var result = _vad.Detect(audioData);
         if (result.IsSpeechDetected && _audioBuffer.HasSpace(audioData.RawData.Length))
         {
-            var startSample = audioData.FromTimeSpan(result.SpeechStart);
-            var endSample = audioData.FromTimeSpan(result.SpeechEnd);
-            _log.SpeechDetected(startSample, endSample);
+            if (_audioBuffer.IsEmpty)
+            {
+                LoadDataLogged(_lastData, VoiceActivityResult.Failed());
+                _lastData = _emptyAudioData;
+            }
 
-            //Load all the data so there won't be any weird cuts in the audio
-            LoadDataLogged(audioData);
+            LoadDataLogged(audioData, result);
+            return;
         }
-        else
+
+        if (_audioBuffer.IsEmpty)
         {
-            var bufferedData = _audioBuffer.UnloadAllData();
-            if (bufferedData.RawData.Length == 0)
-            {
-                _log.NoSpeechDetected();
-                return;
-            }
-
-            _log.UnloadedDataFromBuffer(bufferedData);
-            //If this is true, so we ended here because the buffer ran out of space, we want to make sure we're not losing samples here
-            if (result.IsSpeechDetected)
-            {
-                LoadDataLogged(audioData);
-            }
-
-            await next(new AudioCapturedEvent(bufferedData));
+            _log.NoSpeechDetected();
+            _lastData = audioData;
+            return;
         }
+
+        _lastData = _emptyAudioData;
+
+        //If that's the case we didn't detect any sound but we did before, so we should add this last bit because
+        //most of the time it contains the last bits of speech.
+        if (_audioBuffer.HasSpace(audioData.RawData.Length))
+        {
+            LoadDataLogged(audioData, result);
+        }
+
+        var bufferedData = _audioBuffer.UnloadAllData();
+        _log.UnloadedDataFromBuffer(bufferedData);
+
+        //If this is true, so we ended here because the buffer ran out of space, we want to make sure we're not
+        //losing samples here
+        if (result.IsSpeechDetected)
+        {
+            LoadDataLogged(audioData, result);
+        }
+
+        await next(new AudioCapturedEvent(bufferedData));
     }
 
-    private void LoadDataLogged(AudioData speechData)
+    private void LoadDataLogged(AudioData audioData, VoiceActivityResult result)
     {
-        _log.LoadingDataIntoBuffer(speechData);
-        if (_audioBuffer.TryLoadData(speechData))
+        var startSample = audioData.FromTimeSpan(result.SpeechStart);
+        var endSample = audioData.FromTimeSpan(result.SpeechEnd);
+        _log.SpeechDetected(startSample, endSample);
+
+        _log.LoadingDataIntoBuffer(audioData);
+        //Load all the data so there won't be any weird cuts in the audio
+        if (_audioBuffer.TryLoadData(audioData))
         {
             _log.DataLoadedIntoBuffer();
         }
     }
 }
 
-internal static partial class VoiceActivityDetectionInterceptorLoggingExtensions
+internal static partial class VoiceActivityDetectionMiddlewareLoggingExtensions
 {
     [LoggerMessage(EventId = 1,
                    Level = LogLevel.Debug,

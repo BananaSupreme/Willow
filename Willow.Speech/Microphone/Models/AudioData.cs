@@ -7,13 +7,11 @@
 /// <param name="SamplingRate">The sampling rate the samples are sampled in.</param>
 /// <param name="ChannelCount">The amount of channels the samples are in.</param>
 /// <param name="BitDepth">The bit depth of the samples.</param>
-public record struct AudioData(short[] RawData,
-                               int SamplingRate,
-                               ushort ChannelCount,
-                               ushort BitDepth)
+public readonly record struct AudioData(short[] RawData,
+                                        int SamplingRate,
+                                        ushort ChannelCount,
+                                        ushort BitDepth)
 {
-    private float[]? _cachedNormalizedData;
-
     /// <summary>
     /// Gets the length of time in this audio sample.
     /// </summary>
@@ -22,7 +20,7 @@ public record struct AudioData(short[] RawData,
     /// <summary>
     /// Returns a normalized float array of data with values between 1.0 and 0.0.
     /// </summary>
-    public float[] NormalizedData => _cachedNormalizedData ??= Normalize();
+    public Lazy<float[]> NormalizedData => new(Normalize());
 
     /// <summary>
     /// Returns the duration of audio that at the relevant <paramref name="position" />.

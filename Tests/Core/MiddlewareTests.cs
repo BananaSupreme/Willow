@@ -107,9 +107,9 @@ public sealed class MiddlewareTests : IDisposable
                  .ExecuteAsync(state, static input => Task.FromResult(input.Should().BeEquivalentTo("12345")));
     }
 
-    //This actually works with the previous test to show it happens since we're flipping the order of the interceptors
+    //This actually works with the previous test to show it happens since we're flipping the order of the middleware
     [Fact]
-    public async Task When_MultipleInterceptors_RunAtOrderRegistered()
+    public async Task When_MultipleMiddleware_RunAtOrderRegistered()
     {
         var state = new StateWithStringParameter("");
         var sut = _provider.GetRequiredService<IMiddlewareBuilderFactory<StateWithStringParameter>>();

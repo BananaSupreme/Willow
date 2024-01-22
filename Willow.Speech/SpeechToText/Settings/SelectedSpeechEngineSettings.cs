@@ -9,7 +9,7 @@ namespace Willow.Speech.SpeechToText.Settings;
 internal readonly record struct SelectedSpeechEngineSettings(SelectedSpeechEngine SelectedSpeechEngine)
 {
     /// <inheritdoc cref="SelectedSpeechEngineSettings" />
-    public SelectedSpeechEngineSettings() : this(SelectedSpeechEngine.Vosk)
+    public SelectedSpeechEngineSettings() : this(SelectedSpeechEngine.Whisper)
     {
     }
 }

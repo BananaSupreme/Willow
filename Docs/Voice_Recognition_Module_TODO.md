@@ -1,39 +1,30 @@
-- Now we are converting from S16 to a WAV file, but both models really want a float variation. If we do decide to do
-  this we might require to resample the audio to make sure it is always 16Khz. Considering 16Khz is pretty much lower
-  end of the spectrum a poor man algorithm can just skip samples.
-
-- WE ARE SUPER SLOW! BTW, still slow, but much quicker now that the mic recording time was lowered.
-
 - Allowing plugins to add speech recognition systems can be extremely powerful!
-
-- The VAD is currently swollowing some audio at the edges, we should solve this because it is making detection harder.
-- Also we might want to pad audio that is too short as well
 
 - Vosk Nuget doesn't support macOS, mac doesn't have nvidia GPUs either, so we are a bit stuck here with mac support,
   eventually we would need to create our own binaries for Vosk.
-  Also we need to have some way to start and stop engines, and to choose the correct engines.
 
-- SileroVAD was implemented using some code from the internet, theres much improvments that can be made there, really,
-  batching, GPU and quantization might all be possible, some are certainly possible and should be looked into.
+- SileroVAD was implemented using some code from the internet, not sure if the library is supported, maybe its worth
+  doing it ourselves or joining to support that library.
 
 - We are resampling the audio now, but it really is a poor man algorithm
 
 - The PvRecord library creates short[] in every frame, all the arrays for converting and manipulation audio, they can
   all clearly be reused, a pull request should be made in the original library to allow for the use of a buffer. Making
-  a wrapper around the ArrayPool<T> might also be a good idea, so when we carry the data back and forth less allocations
+  a wrapper around the ArrayPool<T> might also be a good idea, so when we carry the data back and forth fewer allocations
   are made.
 
 - Whisper is still reading it as a WAV file, we should probably convert it to a float array, and then we can use the
   same code for both models.
 
 - Further down the line, maybe some tests and benchmarks so we can see how good are our models performing, consider
-  trade offs in deafults, allows us to offer more than a single default. Also if we ever consider different solutions to
+  trade offs in defaults, allows us to offer more than a single default. Also if we ever consider different solutions to
   some of the problems we face we can actually have data to understand our problem domain. We can consider testing
   against a ground of just taking the sample and feeding it into whisper
 
 - Lets vectorize the conversion between short samples and floats
 
 - Further down the line, noise filtration?
+
 - Double speed the audio for when running on whisper?
 
 - Further down the line, We can fine tune the AI by using synthetic data created by GPT model to create various
@@ -42,7 +33,7 @@
 
 - Further down the line should build a prompt builder, that knows to either look into previous input in dictation mode,
   possibly selection box context as well could be amazing, and in command mode give context into possible commands and
-  possible keywords that are environment relevent, maybe give the use the ability to build their own context. It seems
+  possible keywords that are environment relevant, maybe give the use the ability to build their own context. It seems
   like the prompt and prefix get simply combined each allowing 244 tokens, so really we can use them all for a 488 token
   window.
 
@@ -68,5 +59,3 @@ languages. It can be filtered or processed to extract shorter command-like utter
 Custom Datasets: For very specific command structures like "move to place X," sometimes researchers create their own
 datasets by recording commands in controlled environments. This allows for tailoring the dataset to the exact
 requirements of the project.
-
-These datasets can be used not on

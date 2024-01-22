@@ -10,6 +10,11 @@ namespace Willow.Speech.AudioBuffering.Abstractions;
 internal interface IAudioBuffer
 {
     /// <summary>
+    /// True if the buffer is empty.
+    /// </summary>
+    public bool IsEmpty { get; }
+
+    /// <summary>
     /// True if the buffer has enough space to add <paramref name="space" />.
     /// </summary>
     /// <param name="space">The amount of space needed.</param>

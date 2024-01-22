@@ -104,7 +104,7 @@ internal sealed class MicrophoneAccess
             Thread.Yield();
         }
 
-        var data = new AudioData(buffer, recorder.SampleRate, 1, 16);
+        var data = new AudioData(buffer.ToArray(), recorder.SampleRate, 1, 16);
         return data;
     }
 }

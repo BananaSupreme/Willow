@@ -30,7 +30,7 @@ internal sealed class SileroVoiceActivityDetectionFacade : IVoiceActivityDetecti
     {
         var currentValue = _sileroSettings.CurrentValue;
         _log.VoiceActivityDetectionStarted(currentValue);
-        var result = _sileroVad.GetSpeechTimestamps(audioSegment.NormalizedData,
+        var result = _sileroVad.GetSpeechTimestamps(audioSegment.NormalizedData.Value,
                                                     currentValue.Threshold,
                                                     currentValue.MinSpeechDurationMilliseconds,
                                                     float.PositiveInfinity,

@@ -23,8 +23,8 @@ internal sealed class AudioBuffer : IAudioBuffer
         _samplingRateInBuffer = settings.CurrentValue.AcceptedSamplingRate;
     }
 
-    private bool IsEmpty => _size == 0;
     private int SpaceLeft => _buffer.Length - _size;
+    public bool IsEmpty => _size == 0;
 
     public bool TryLoadData(AudioData audioData)
     {

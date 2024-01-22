@@ -27,4 +27,9 @@ public sealed record HomophonesToken(WordToken Internal, string[] Homophones) : 
             _ => Internal.Match(other)
         };
     }
+
+    public override string ToString()
+    {
+        return $"Internal: {Value}, Homophones: {string.Join(' ', Homophones)}";
+    }
 }
