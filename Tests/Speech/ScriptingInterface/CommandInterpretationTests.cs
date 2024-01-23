@@ -38,6 +38,7 @@ public sealed class CommandInterpretationTests : IDisposable
     {
         _provider.Dispose();
     }
+
     [Fact]
     public void When_ProcessingCommand_StoreCommandsInCapturedValues()
     {

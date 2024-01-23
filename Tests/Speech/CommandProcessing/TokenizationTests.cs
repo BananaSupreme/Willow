@@ -273,9 +273,6 @@ public sealed class TokenizationTests : IDisposable
 
     public void Dispose()
     {
-        if (_provider is IDisposable disposable)
-        {
-            disposable.Dispose();
-        }
+        (_provider as IDisposable)?.Dispose();
     }
 }

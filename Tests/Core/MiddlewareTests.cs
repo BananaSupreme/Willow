@@ -165,10 +165,7 @@ public sealed class MiddlewareTests : IDisposable
 
     public void Dispose()
     {
-        if (_provider is IDisposable disposable)
-        {
-            disposable.Dispose();
-        }
+        (_provider as IDisposable)?.Dispose();
     }
 
     private sealed record StateWithTwoParameters(int Value1, int Value2);
