@@ -13,10 +13,12 @@ using Willow.Speech.VAD;
 using Willow.Speech.VAD.Middleware;
 using Willow.Speech.VAD.Settings;
 
+// ReSharper disable ClassCanBeSealed.Global
+
 namespace Benchmarks;
 
 [MemoryDiagnoser]
-public sealed class VadBenchmarks
+public class VadBenchmarks
 {
     private AudioCapturedEvent _audioDataEvent;
     private VoiceActivityDetectionMiddleware _middleware = null!;

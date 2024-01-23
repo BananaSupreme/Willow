@@ -272,7 +272,7 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
     {
         RawVoiceCommand[] commands =
         [
-            _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go away #input"] }
+            _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go [coarse|hello]:hit #input"] }
         ];
 
         var tokenizer = _provider.GetServices<ITranscriptionTokenizer>()
@@ -283,10 +283,15 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
 
         //Unless the default settings change, gogh is a homophone of go, if this breaks, we need to mock the settings here
         //but I was lazy
-        TestInternal("gogh away 42",
+        TestInternal("gogh course 42",
                      [],
                      [commands[0].Id],
-                     [new Dictionary<string, Token> { { "input", new NumberToken(Value: 42) } }],
+                     [
+                         new Dictionary<string, Token>
+                         {
+                             { "input", new NumberToken(Value: 42) }, { "hit", new WordToken("coarse") }
+                         }
+                     ],
                      commands);
     }
 

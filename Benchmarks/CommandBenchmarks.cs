@@ -14,12 +14,16 @@ using Willow.DeviceAutomation;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
 using Willow.Speech;
 using Willow.Speech.SpeechToText.Eventing.Events;
+using Willow.Speech.Tokenization.Abstractions;
+using Willow.Speech.Tokenization.Tokenizers;
 using Willow.StartUp;
+
+// ReSharper disable ClassCanBeSealed.Global
 
 namespace Benchmarks;
 
 [MemoryDiagnoser]
-public sealed class CommandBenchmarks
+public class CommandBenchmarks
 {
     private IEventDispatcher _dispatcher = null!;
 
@@ -29,8 +33,8 @@ public sealed class CommandBenchmarks
         var services = new ServiceCollection();
         services.AddLogging();
         WillowStartup.Register([typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly], services);
-        services.AddSingleton(static _ => Substitute.For<IInputSimulator>());
         DeviceAutomationRegistrator.RegisterServices(services);
+        services.AddSingleton(static _ => Substitute.For<IInputSimulator>());
         var provider = services.CreateServiceProvider();
         _dispatcher = provider.GetRequiredService<IEventDispatcher>();
         var registrar = provider.GetRequiredService<IAssemblyRegistrationEntry>();
@@ -39,6 +43,11 @@ public sealed class CommandBenchmarks
                                          typeof(ISpeechAssemblyMarker).Assembly,
                                          typeof(IBuiltInCommandsAssemblyMarker).Assembly
                                      ]);
+
+        var tokenizer = provider.GetServices<ITranscriptionTokenizer>()
+                                .OfType<HomophonesTranscriptionTokenizer>()
+                                .First();
+        tokenizer.FlushAsync().GetAwaiter().GetResult();
     }
 
     [Benchmark]

@@ -9,10 +9,12 @@ using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
 using Willow.WhisperServer;
 
+// ReSharper disable ClassCanBeSealed.Global
+
 namespace Benchmarks;
 
 [MemoryDiagnoser]
-public sealed class WhisperBenchmarks
+public class WhisperBenchmarks
 {
     private AudioData _audioData;
     private WhisperEngine _pythonWhisperEngine = null!;
