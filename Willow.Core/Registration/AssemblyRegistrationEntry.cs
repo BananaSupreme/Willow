@@ -92,7 +92,7 @@ internal static partial class AssemblyRegistrationEntryLoggingExtensions
     [LoggerMessage(EventId = 5, Level = LogLevel.Error, Message = "Error while trying to create the assembly record")]
     public static partial void FailedCreatingRecord(this ILogger logger, Exception ex);
 
-    [LoggerMessage(EventId = 6, Level = LogLevel.Debug, Message = "Registrars added from the assembly: (registrars)")]
+    [LoggerMessage(EventId = 6, Level = LogLevel.Debug, Message = "Registrars added from the assembly: ({registrars})")]
     public static partial void NewRegistrarsFromAssembly(this ILogger logger,
                                                          EnumeratorLogger<IAssemblyRegistrar> registrars);
 
@@ -105,16 +105,16 @@ internal static partial class AssemblyRegistrationEntryLoggingExtensions
     [LoggerMessage(EventId = 9, Level = LogLevel.Information, Message = "Registering the services")]
     public static partial void RegisteringServices(this ILogger logger);
 
-    [LoggerMessage(EventId = 10, Level = LogLevel.Debug, Message = "Registering the services into the container")]
+    [LoggerMessage(EventId = 10, Level = LogLevel.Debug, Message = "Registering the services into the container ({descriptors})")]
     public static partial void RegisteringIntoContainer(this ILogger logger,
                                                         EnumeratorLogger<PreparedDescriptor> descriptors);
 
-    [LoggerMessage(EventId = 11, Level = LogLevel.Information, Message = "Found services in assembly: (services)")]
+    [LoggerMessage(EventId = 11, Level = LogLevel.Information, Message = "Found services in assembly: ({services})")]
     public static partial void ServicesFound(this ILogger logger, EnumeratorLogger<ServiceRegistrationRecord> services);
 
     [LoggerMessage(EventId = 12,
                    Level = LogLevel.Warning,
-                   Message = "Number of iterations exceeded, registering whats left: (descriptors)")]
+                   Message = "Number of iterations exceeded, registering whats left: ({descriptors})")]
     public static partial void IterationsExceeded(this ILogger logger, EnumeratorLogger<PreparedDescriptor> descriptors);
 
     [LoggerMessage(EventId = 13, Level = LogLevel.Error, Message = "Stopping the service failed!")]
