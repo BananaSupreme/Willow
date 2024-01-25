@@ -1,16 +1,15 @@
 ﻿using System.Threading.Channels;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Willow.Core.Eventing.Abstractions;
-using Willow.Helpers.Extensions;
+using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Eventing;
 
-internal sealed partial class EventDispatcher : BackgroundService, IEventDispatcher, IUnsafeEventRegistrar
+internal sealed partial class EventDispatcher : IBackgroundWorker, IEventDispatcher, IUnsafeEventRegistrar
 {
-    private readonly Dictionary<string, List<Type>> _eventHandlersStorage = [];
+    private readonly Dictionary<string, HashSet<Type>> _eventHandlersStorage = [];
     private readonly ILogger<EventDispatcher> _log;
     private readonly Channel<Task> _runningTasks = Channel.CreateUnbounded<Task>();
 
@@ -28,10 +27,16 @@ internal sealed partial class EventDispatcher : BackgroundService, IEventDispatc
         RegisterHandler(typeof(TEvent), typeof(TEventHandler));
     }
 
+    public void UnregisterHandler<TEvent, TEventHandler>()
+        where TEventHandler : IEventHandler<TEvent> where TEvent : notnull
+    {
+        UnregisterHandler(typeof(TEvent), typeof(TEventHandler));
+    }
+
     public void RegisterHandler(Type eventType, Type eventHandler)
     {
-        var eventName = TypeExtensions.GetFullName(eventType);
-        _log.HandlerRegistering(TypeExtensions.GetFullName(eventHandler), eventName);
+        var eventName = eventType.ToString();
+        _log.HandlerRegistering(eventHandler.ToString(), eventName);
         if (_eventHandlersStorage.TryGetValue(eventName, out var handlers))
         {
             handlers.Add(eventHandler);
@@ -41,6 +46,18 @@ internal sealed partial class EventDispatcher : BackgroundService, IEventDispatc
         _eventHandlersStorage.Add(eventName, [eventHandler]);
     }
 
+    public void UnregisterHandler(Type eventType, Type eventHandler)
+    {
+        var eventName = eventType.ToString();
+        _log.HandlerUnregistering(eventHandler.ToString(), eventName);
+        if (_eventHandlersStorage.TryGetValue(eventName, out var handlers))
+        {
+            handlers.Remove(eventHandler);
+            return;
+        }
+
+        _eventHandlersStorage.Add(eventName, [eventHandler]);
+    }
 
     public void Flush()
     {
@@ -50,15 +67,26 @@ internal sealed partial class EventDispatcher : BackgroundService, IEventDispatc
         }
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        await Task.Run(async () => await RunQueue(stoppingToken), stoppingToken);
+        await RunQueue(cancellationToken);
     }
 
-    private async Task RunQueue(CancellationToken stoppingToken)
+    public Task StopAsync()
     {
-        await foreach (var task in _runningTasks.Reader.ReadAllAsync(stoppingToken))
+        Flush();
+        return Task.CompletedTask;
+    }
+
+    private async Task RunQueue(CancellationToken cancellationToken)
+    {
+        await foreach (var task in _runningTasks.Reader.ReadAllAsync(cancellationToken))
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
             await RunAndIgnoreErrorsAsync(task);
         }
     }
@@ -98,24 +126,29 @@ internal static partial class EventDispatcherLoggingExtensions
                    Level = LogLevel.Debug,
                    Message = "Registering handler of type ({handlerType}) for event ({eventType}).")]
     public static partial void HandlerRegistering(this ILogger logger, string handlerType, string eventType);
+    
+    [LoggerMessage(EventId = 5,
+                   Level = LogLevel.Debug,
+                   Message = "Unregistering handler of type ({handlerType}) for event ({eventType}).")]
+    public static partial void HandlerUnregistering(this ILogger logger, string handlerType, string eventType);
 
-    [LoggerMessage(EventId = 5, Level = LogLevel.Error, Message = "Error encountered while handling event:\r\n")]
+    [LoggerMessage(EventId = 6, Level = LogLevel.Error, Message = "Error encountered while handling event:\r\n")]
     public static partial void EventHandlingError(this ILogger logger, Exception ex);
 
-    [LoggerMessage(EventId = 6, Level = LogLevel.Debug, Message = "Successfully handled event.")]
+    [LoggerMessage(EventId = 7, Level = LogLevel.Debug, Message = "Successfully handled event.")]
     public static partial void EventHandledSuccessfully(this ILogger logger);
 
-    [LoggerMessage(EventId = 7, Level = LogLevel.Debug, Message = "Starting event handler.")]
+    [LoggerMessage(EventId = 8, Level = LogLevel.Debug, Message = "Starting event handler.")]
     public static partial void EventHandlerStarting(this ILogger logger);
 
-    [LoggerMessage(EventId = 8, Level = LogLevel.Debug, Message = "Event dispatch completed.")]
+    [LoggerMessage(EventId = 9, Level = LogLevel.Debug, Message = "Event dispatch completed.")]
     public static partial void EventDispatchCompleted(this ILogger logger);
 
-    [LoggerMessage(EventId = 9,
+    [LoggerMessage(EventId = 10,
                    Level = LogLevel.Debug,
                    Message = "Starting event dispatch for event type ({eventType}).")]
     public static partial void EventDispatchStarting(this ILogger logger, string eventType);
 
-    [LoggerMessage(EventId = 10, Level = LogLevel.Trace, Message = "Aggregated exceptions details.")]
+    [LoggerMessage(EventId = 11, Level = LogLevel.Trace, Message = "Aggregated exceptions details.")]
     public static partial void AggregateExceptionEncountered(this ILogger logger, AggregateException ex);
 }

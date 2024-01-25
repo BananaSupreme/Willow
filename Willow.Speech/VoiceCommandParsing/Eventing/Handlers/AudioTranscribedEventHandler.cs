@@ -12,6 +12,8 @@ using Willow.Speech.VoiceCommandParsing.Eventing.Events;
 
 namespace Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 
+//GUIDE_REQUIRED THE AUDIO PROCESSING PIPELINE, FROM MIC TO FINAL EXECUTION
+//GUIDE_REQUIRED THE COMMAND COMPILATION PIPELINE
 /// <summary>
 /// Parses a transcription and executes all the consecutive commands in the input.
 /// </summary>

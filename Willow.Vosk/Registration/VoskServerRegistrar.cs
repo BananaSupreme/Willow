@@ -9,10 +9,10 @@ namespace Willow.Vosk.Registration;
 // ReSharper disable once ClassNeverInstantiated.Global
 public sealed class VoskServerRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSpeechToTextEngine<VoskEngine>();
         services.AddSingleton<IVoskModelInstaller, VoskModelInstaller>();
-        services.AddHttpClient<IVoskModelDownloader, VoskModelDownloader>();
+        services.AddSingleton<IVoskModelDownloader, VoskModelDownloader>();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 
-using DryIoc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Willow.Core.Middleware.Abstractions;
 using Willow.Core.Registration.Abstractions;
@@ -15,28 +16,31 @@ namespace Willow.Core.Middleware.Registration;
 internal sealed class MiddlewareAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly ILogger<MiddlewareAssemblyRegistrar> _log;
-    private readonly IRegistrator _registrator;
 
-    public MiddlewareAssemblyRegistrar(ILogger<MiddlewareAssemblyRegistrar> log, IRegistrator registrator)
+    public MiddlewareAssemblyRegistrar(ILogger<MiddlewareAssemblyRegistrar> log)
     {
         _log = log;
-        _registrator = registrator;
     }
 
-    public void RegisterFromAssemblies(Assembly[] assemblies)
+    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
     {
-        var types = assemblies.SelectMany(static assembly =>
-                                              assembly.GetTypes()
-                                                      .Where(static type => type.IsConcrete())
-                                                      .Where(static type =>
-                                                                 type.DerivesOpenGeneric(typeof(IMiddleware<>))))
-                              .ToArray();
+        var types = assembly.GetAllDerivingOpenGeneric(typeof(IMiddleware<>));
 
         _log.MiddlewareDetected(new EnumeratorLogger<string>(types.Select(static x => x.Name)));
         foreach (var type in types)
         {
-            _registrator.Register(type, Reuse.Singleton, ifAlreadyRegistered: IfAlreadyRegistered.Keep);
+            services.TryAddSingleton(type);
         }
+    }
+
+    public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
+    {
+        return Task.CompletedTask;
     }
 }
 

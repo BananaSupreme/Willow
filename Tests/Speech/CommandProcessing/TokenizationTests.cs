@@ -5,9 +5,9 @@ using Tests.Helpers;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Registration;
-using Willow.Core.Registration.Abstractions;
 using Willow.Core.Settings.Abstractions;
 using Willow.Core.Settings.Events;
+using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Enums;
 using Willow.Speech.Tokenization.Registration;
@@ -31,16 +31,18 @@ public sealed class TokenizationTests : IDisposable
         _homophoneSettings = Substitute.For<ISettings<HomophoneSettings>>();
         var services = new ServiceCollection();
         services.AddTestLogger(testOutputHelper);
+        services.AddRegistration();
         services.AddSettings();
         services.AddSingleton(_homophoneSettings);
-        TokenizationRegistrar.RegisterServices(services);
-        EventingRegistrar.RegisterServices(services);
-        RegistrationRegistrar.RegisterServices(services);
+        new TokenizationRegistrar().RegisterServices(services);
+        new EventingRegistrar().RegisterServices(services);
+        services.AddAllTypesAsMappingFromOwnAssembly<ITranscriptionTokenizer>();
+        services.AddRegistration();
         _provider = services.CreateServiceProvider();
-        var assemblyRegistrationEntry = _provider.GetRequiredService<IAssemblyRegistrationEntry>();
-        assemblyRegistrationEntry.RegisterAssemblies([typeof(ITokenizer).Assembly]);
         _homophoneSettings.CurrentValue.Returns(new HomophoneSettings(false, HomophoneType.Caverphone, []));
         _sut = _provider.GetRequiredService<ITokenizer>();
+        var dispatcher = _provider.GetRequiredService<IEventDispatcher>();
+        dispatcher.RegisterHandler<SettingsUpdatedEvent<HomophoneSettings>, HomophonesTranscriptionTokenizer>();
     }
 
     public static object[][] ValidTestDataWrapper =>

@@ -24,8 +24,8 @@ public class WhisperBenchmarks
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        SettingsRegistrar.RegisterServices(services);
-        WillowWhisperServerRegistrar.RegisterServices(services);
+        new SettingsRegistrar().RegisterServices(services);
+        new WillowWhisperServerRegistrar().RegisterServices(services);
 
         var serviceProvider = services.CreateServiceProvider();
 
@@ -50,7 +50,7 @@ public class WhisperBenchmarks
     [GlobalCleanup]
     public async Task Cleanup()
     {
-        await _pythonWhisperEngine.StopAsync(CancellationToken.None);
+        await _pythonWhisperEngine.StopAsync();
     }
 
     private static AudioData GetFromWavFile(byte[] wav)

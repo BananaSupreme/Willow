@@ -5,6 +5,7 @@ using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Eventing.Registration;
 using Willow.Core.Middleware.Registration;
+using Willow.Core.Registration;
 using Willow.Helpers.Extensions;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
 using Willow.Speech.ScriptingInterface.Models;
@@ -42,9 +43,10 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         _handler = Substitute.For<ITestHandler>();
         _environmentStateProvider = Substitute.For<IEnvironmentStateProvider>();
         var services = new ServiceCollection();
+        services.AddRegistration();
         services.AddTestLogger(testOutputHelper);
         RegisterServices(services: services);
-        services.AddAllTypesFromOwnAssembly<INodeCompiler>(lifetime: ServiceLifetime.Singleton);
+        services.AddAllTypesFromOwnAssembly<INodeCompiler>();
         _provider = services.BuildServiceProvider();
         _eventDispatcher = _provider.GetRequiredService<IEventDispatcher>();
         RegisterEvents();
@@ -58,7 +60,7 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
     private void RegisterEvents()
     {
         _eventDispatcher.RegisterHandler<AudioTranscribedEvent, AudioTranscribedEventHandler>();
-        _eventDispatcher.RegisterHandler<CommandModifiedEvent, CommandModifiedEventHandler>();
+        _eventDispatcher.RegisterHandler<CommandsAddedEvent, CommandModifiedEventHandler>();
         _eventDispatcher.RegisterHandler<CommandParsedEvent, ITestHandler>();
     }
 
@@ -69,12 +71,12 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         services.AddSingleton<AudioTranscribedEventHandler>();
         services.AddSingleton<CommandModifiedEventHandler>();
         services.AddSingleton<PunctuationRemoverMiddleware>();
-        services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>(ServiceLifetime.Singleton);
+        services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>();
         services.AddSettings();
-        VoiceCommandCompilationRegistrar.RegisterServices(services: services);
-        TokenizationRegistrar.RegisterServices(services: services);
-        EventingRegistrar.RegisterServices(services: services);
-        MiddlewareRegistrar.RegisterServices(services: services);
+        new VoiceCommandCompilationRegistrar().RegisterServices(services: services);
+        new TokenizationRegistrar().RegisterServices(services: services);
+        new EventingRegistrar().RegisterServices(services: services);
+        new MiddlewareRegistrar().RegisterServices(services: services);
     }
 
     [Fact]
@@ -337,7 +339,7 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
                     captured.Add(item: @event.Parameters);
                 });
 
-        _eventDispatcher.Dispatch(@event: new CommandModifiedEvent(Commands: commands));
+        _eventDispatcher.Dispatch(@event: new CommandsAddedEvent(Commands: commands));
         _eventDispatcher.Flush();
 
         _eventDispatcher.Dispatch(@event: new AudioTranscribedEvent(Text: input));

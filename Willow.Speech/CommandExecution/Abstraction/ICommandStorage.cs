@@ -12,10 +12,16 @@ namespace Willow.Speech.CommandExecution.Abstraction;
 internal interface ICommandStorage
 {
     /// <summary>
-    /// Sets the available commands in the storage.
+    /// Adds to the available commands in the storage.
     /// </summary>
-    /// <param name="commands">The commands to set.</param>
-    internal void SetAvailableCommands(ExecutableCommands[] commands);
+    /// <param name="commands">The commands to add.</param>
+    internal void AddCommands(ExecutableCommands[] commands);
+
+    /// <summary>
+    /// Removes from the available commands in the storage.
+    /// </summary>
+    /// <param name="commands">The commands to remove.</param>
+    internal void RemoveCommands(ExecutableCommands[] commands);
 
     /// <summary>
     /// Executes command.

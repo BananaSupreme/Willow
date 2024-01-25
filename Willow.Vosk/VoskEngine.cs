@@ -14,7 +14,6 @@ using Willow.Helpers.Locking;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
-using Willow.Speech.SpeechToText.Enums;
 using Willow.Vosk.Abstractions;
 using Willow.Vosk.Settings;
 
@@ -48,7 +47,7 @@ internal sealed class VoskEngine
 
     public async ValueTask DisposeAsync()
     {
-        await StopAsync(CancellationToken.None);
+        await StopAsync();
     }
 
     public void Dispose()
@@ -68,7 +67,7 @@ internal sealed class VoskEngine
         await StartAsync();
     }
 
-    public string Name => nameof(SelectedSpeechEngine.Vosk);
+    public string Name => "Vosk";
     public SupportedOss SupportedOss => SupportedOss.Windows;
     public bool IsRunning { get; private set; }
 
@@ -104,7 +103,7 @@ internal sealed class VoskEngine
                        cancellationToken);
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken = default)
+    public async Task StopAsync()
     {
         using var __ = await _lock.LockAsync();
         _log.StoppingVosk();

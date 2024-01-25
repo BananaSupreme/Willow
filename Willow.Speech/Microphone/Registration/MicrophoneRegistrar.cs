@@ -7,9 +7,8 @@ namespace Willow.Speech.Microphone.Registration;
 
 internal sealed class MicrophoneRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<IMicrophoneAccess, MicrophoneAccess>();
-        services.AddHostedService<MicrophoneWorker>();
     }
 }

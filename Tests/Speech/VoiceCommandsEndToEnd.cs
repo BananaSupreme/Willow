@@ -1,6 +1,4 @@
-﻿using DryIoc.Microsoft.DependencyInjection;
-
-using Tests.Helpers;
+﻿using Tests.Helpers;
 
 using Willow.Core;
 using Willow.Core.Eventing.Abstractions;
@@ -10,7 +8,6 @@ using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Tokens;
-using Willow.StartUp;
 
 using Xunit.Abstractions;
 
@@ -22,23 +19,26 @@ public sealed class VoiceCommandsEndToEnd
 
     public VoiceCommandsEndToEnd(ITestOutputHelper testOutputHelper)
     {
-        var services = new ServiceCollection();
-        services.AddTestLogger(testOutputHelper);
-        WillowStartup.Register([typeof(ICoreAssemblyMarker).Assembly, typeof(ISpeechAssemblyMarker).Assembly], services);
-        services.AddSettings();
-        _serviceProvider = services.CreateServiceProvider();
+        _serviceProvider = WillowStartup.StartAsync(null, s =>
+        {
+            s.AddTestLogger(testOutputHelper);
+            s.AddSettings();
+            return s;
+        }).GetAwaiter().GetResult();
         var registrar = _serviceProvider.GetRequiredService<IAssemblyRegistrationEntry>();
-        registrar.RegisterAssemblies([
-                                         typeof(ICoreAssemblyMarker).Assembly,
-                                         typeof(ISpeechAssemblyMarker).Assembly,
-                                         GetType().Assembly
-                                     ]);
+        registrar.RegisterAssembliesAsync([
+                                              typeof(ISpeechAssemblyMarker).Assembly,
+                                              GetType().Assembly
+                                          ])
+                 .GetAwaiter()
+                 .GetResult();
     }
 
     [Fact]
     public void Sanity()
     {
         var eventDispatcher = _serviceProvider.GetRequiredService<IEventDispatcher>();
+        eventDispatcher.Flush();
         eventDispatcher.Dispatch(new AudioTranscribedEvent("Test mario Repeat Repeat"));
         eventDispatcher.Flush();
 

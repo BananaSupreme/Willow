@@ -1,5 +1,6 @@
 ﻿using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Middleware.Abstractions;
+using Willow.Core.Registration.Abstractions;
 using Willow.Speech.Microphone.Eventing.Events;
 using Willow.Speech.Resampling.Middleware;
 using Willow.Speech.SpeechToText.Abstractions;
@@ -18,10 +19,10 @@ namespace Willow.Speech.SpeechToText.Eventing.Handlers;
 internal sealed class AudioCapturedTranscriptionEventHandler : IEventHandler<AudioCapturedEvent>
 {
     private readonly IEventDispatcher _eventDispatcher;
-    private readonly IEnumerable<ISpeechToTextEngine> _speechToTextEngines;
+    private readonly ICollectionProvider<ISpeechToTextEngine> _speechToTextEngines;
     private readonly IMiddlewarePipeline<AudioCapturedEvent> _pipeline;
 
-    public AudioCapturedTranscriptionEventHandler(IEnumerable<ISpeechToTextEngine> speechToTextEngines,
+    public AudioCapturedTranscriptionEventHandler(ICollectionProvider<ISpeechToTextEngine> speechToTextEngines,
                                                   IMiddlewareBuilderFactory<AudioCapturedEvent> middlewareBuilderFactory,
                                                   ResamplingMiddleware resamplingMiddleware,
                                                   VoiceActivityDetectionMiddleware voiceActivityDetectionMiddleware,
@@ -48,7 +49,7 @@ internal sealed class AudioCapturedTranscriptionEventHandler : IEventHandler<Aud
 
     public async Task HandleCoreAsync(AudioCapturedEvent @event)
     {
-        var speechToTextEngine = _speechToTextEngines.FirstOrDefault(static x => x.IsRunning);
+        var speechToTextEngine = _speechToTextEngines.Get().FirstOrDefault(static x => x.IsRunning);
         if (speechToTextEngine is null)
         {
             return;

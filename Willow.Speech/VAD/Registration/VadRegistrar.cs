@@ -7,7 +7,7 @@ namespace Willow.Speech.VAD.Registration;
 
 internal sealed class VadRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<IVoiceActivityDetection, SileroVoiceActivityDetectionFacade>();
     }

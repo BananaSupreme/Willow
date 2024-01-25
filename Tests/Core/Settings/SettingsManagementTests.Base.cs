@@ -24,8 +24,8 @@ public sealed partial class SettingsManagementTests : IDisposable
     {
         var services = new ServiceCollection();
         services.AddTestLogger(testOutputHelper);
-        EventingRegistrar.RegisterServices(services);
-        SettingsRegistrar.RegisterServices(services);
+        new EventingRegistrar().RegisterServices(services);
+        new SettingsRegistrar().RegisterServices(services);
         services.AddSingleton<TestHandler<TestSettings>>();
         services.AddSingleton<TestHandler<TestSettingsRecord>>();
         services.AddSingleton<TestHandler<TestSettingsRecordStruct>>();

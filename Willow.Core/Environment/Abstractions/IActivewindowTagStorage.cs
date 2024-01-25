@@ -15,8 +15,14 @@ internal interface IActiveWindowTagStorage
     public Tag[] GetByProcessName(string processName);
 
     /// <summary>
-    /// Sets the tag dictionary.
+    /// Adds the tags to storage.
     /// </summary>
-    /// <remarks>THIS IS A TEMPORARY SOLUTION AND WILL CHANGE.</remarks>
-    public void Set(IDictionary<string, Tag[]> tags);
+    /// <param name="tags">The mappings of the tags.</param>
+    public void Add(IDictionary<string, Tag[]> tags);
+
+    /// <summary>
+    /// Removes the tags from storage.
+    /// </summary>
+    /// <param name="tags">The mappings of the tags.</param>
+    public void Remove(IDictionary<string, Tag[]> tags);
 }

@@ -7,9 +7,8 @@ namespace Willow.Speech.Tokenization.Registration;
 
 internal sealed class TokenizationRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
-        services.AddSingleton<IAssemblyRegistrar, TokenizationAssemblyRegistrar>();
         services.AddSingleton<ITokenizer, Tokenizer>();
     }
 }

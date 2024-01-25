@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Collections.Frozen;
+using System.IO.Compression;
 using System.Text.Json;
 
 using Willow.Core.Eventing.Abstractions;
@@ -23,7 +24,7 @@ internal sealed class HomophonesTranscriptionTokenizer
     private const string DictionaryLocation = "./Tokenization/Resources";
     private readonly ISettings<HomophoneSettings> _settings;
     private Task? _dictionaryLoadingTask;
-    private Dictionary<string, string[]>? _homophones;
+    private FrozenDictionary<string, string[]>? _homophones;
 
     public HomophonesTranscriptionTokenizer(ISettings<HomophoneSettings> settings)
     {
@@ -106,8 +107,9 @@ internal sealed class HomophonesTranscriptionTokenizer
             var path = Path.Combine(DictionaryLocation, dictionaryName);
             await using var file = File.OpenRead(path);
             await using var brotli = new BrotliStream(file, CompressionMode.Decompress);
-            _homophones = await JsonSerializer.DeserializeAsync<Dictionary<string, string[]>>(brotli)
-                          ?? throw new InvalidOperationException();
+            var homophones = await JsonSerializer.DeserializeAsync<Dictionary<string, string[]>>(brotli)
+                             ?? throw new InvalidOperationException();
+            _homophones = homophones.ToFrozenDictionary();
             return;
         }
 

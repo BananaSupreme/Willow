@@ -27,10 +27,18 @@ internal sealed class CommandStorage : ICommandStorage
         _privacySettings = privacySettings;
     }
 
-    public void SetAvailableCommands(ExecutableCommands[] commands)
+    public void AddCommands(ExecutableCommands[] commands)
     {
-        _log.CommandsUpdated(new EnumeratorLogger<Guid>(commands.Select(static x => x.Id)));
-        _storage = commands.ToDictionary(static x => x.Id, static x => x.CommandActivator).ToFrozenDictionary();
+        _log.CommandsAdded(new EnumeratorLogger<Guid>(commands.Select(static x => x.Id)));
+        var newCommands = commands.ToDictionary(static x => x.Id, static x => x.CommandActivator);
+        _storage = _storage.Union(newCommands).ToFrozenDictionary();
+    }
+
+    public void RemoveCommands(ExecutableCommands[] commands)
+    {
+        _log.CommandsRemoved(new EnumeratorLogger<Guid>(commands.Select(static x => x.Id)));
+        var newCommands = commands.ToDictionary(static x => x.Id, static x => x.CommandActivator);
+        _storage = _storage.Except(newCommands).ToFrozenDictionary();
     }
 
     public async Task ExecuteCommandAsync(Guid id, VoiceCommandContext context)
@@ -57,16 +65,19 @@ internal sealed class CommandStorage : ICommandStorage
 
 internal static partial class CommandStorageLoggingExtensions
 {
-    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Updated commands in storage: {commands}")]
-    public static partial void CommandsUpdated(this ILogger logger, EnumeratorLogger<Guid> commands);
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Added commands to storage: {commands}")]
+    public static partial void CommandsAdded(this ILogger logger, EnumeratorLogger<Guid> commands);
 
-    [LoggerMessage(EventId = 2, Level = LogLevel.Trace, Message = "Looking for command")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Removed commands from storage: {commands}")]
+    public static partial void CommandsRemoved(this ILogger logger, EnumeratorLogger<Guid> commands);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Looking for command")]
     public static partial void LookingForCommand(this ILogger logger);
 
-    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message = "Command was not found")]
+    [LoggerMessage(EventId = 4, Level = LogLevel.Warning, Message = "Command was not found")]
     public static partial void CommandNotFoundInStorage(this ILogger logger);
 
-    [LoggerMessage(EventId = 4,
+    [LoggerMessage(EventId = 5,
                    Level = LogLevel.Information,
                    Message = "Command matched, executing ({commandName}) with parameters: {parameters}")]
     public static partial void CommandMatched(this ILogger logger,

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
+using Willow.Helpers.Extensions;
+
 namespace Willow.Helpers;
 
 public static class SafeMultipleFunctionExecutor
@@ -75,7 +77,7 @@ public static class SafeMultipleFunctionExecutor
             afterProcessing?.Invoke(input, input2);
         });
 
-        await Task.WhenAll(tasks);
+        await tasks.WhenAll();
         return exceptions.ToArray();
     }
 }

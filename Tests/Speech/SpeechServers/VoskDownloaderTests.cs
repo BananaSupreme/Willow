@@ -21,7 +21,7 @@ public sealed class VoskDownloaderTests : IDisposable
     {
         var downloader = Substitute.For<IVoskModelDownloader>();
         var services = new ServiceCollection();
-        VoskServerRegistrar.RegisterServices(services);
+        new VoskServerRegistrar().RegisterServices(services);
         services.AddTestLogger( testOutputHelper);
         services.AddSettings();
         services.AddSingleton(downloader);

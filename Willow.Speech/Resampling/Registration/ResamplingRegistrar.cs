@@ -7,7 +7,7 @@ namespace Willow.Speech.Resampling.Registration;
 
 internal sealed class ResamplingRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<IResampler, Resampler>();
     }

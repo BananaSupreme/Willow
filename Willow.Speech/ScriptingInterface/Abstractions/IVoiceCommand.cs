@@ -3,7 +3,7 @@ using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 
 namespace Willow.Speech.ScriptingInterface.Abstractions;
-
+//GUIDE_REQUIRED
 /// <summary>
 /// This interface defines voice commands in the system.
 /// <list type="bullet">

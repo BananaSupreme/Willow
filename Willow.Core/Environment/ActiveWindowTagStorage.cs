@@ -10,7 +10,7 @@ internal sealed class ActiveWindowTagStorage : IActiveWindowTagStorage
 {
     private readonly ILogger<ActiveWindowChangedEventHandler> _log;
     private readonly ISettings<PrivacySettings> _privacySettings;
-    private IDictionary<string, Tag[]> _storage = new Dictionary<string, Tag[]>();
+    private readonly Dictionary<string, Tag[]> _storage = [];
 
     public ActiveWindowTagStorage(ILogger<ActiveWindowChangedEventHandler> log,
                                   ISettings<PrivacySettings> privacySettings)
@@ -35,9 +35,38 @@ internal sealed class ActiveWindowTagStorage : IActiveWindowTagStorage
         return [];
     }
 
-    public void Set(IDictionary<string, Tag[]> tags)
+    public void Add(IDictionary<string, Tag[]> tags)
     {
-        _storage = tags;
+        foreach (var (key, value) in tags)
+        {
+            if (_storage.TryGetValue(key, out var existingTags))
+            {
+                _storage[key] = existingTags.Union(value).Distinct().ToArray();
+                continue;
+            }
+
+            _storage.Add(key, value);
+        }
+    }
+
+    public void Remove(IDictionary<string, Tag[]> tags)
+    {
+        foreach (var (key, value) in tags)
+        {
+            if (!_storage.TryGetValue(key, out var existingTags))
+            {
+                continue;
+            }
+
+            var remainingTags = existingTags.Except(value).ToArray();
+            if (remainingTags.Length == 0)
+            {
+                _storage.Remove(key);
+                continue;
+            }
+
+            _storage[key] = remainingTags;
+        }
     }
 }
 
@@ -51,6 +80,7 @@ internal static partial class ActiveWindowTagStorageLoggingExtensions
 
     [LoggerMessage(EventId = 3, Level = LogLevel.Debug, Message = "Tags not found on process ({processName})")]
     public static partial void ProcessNotFoundRegistered(this ILogger logger, RedactingLogger<string> processName);
-    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Found tags:\r\n{tags}")]
+
+    [LoggerMessage(EventId = 4, Level = LogLevel.Information, Message = "Found tags:\r\n{tags}")]
     public static partial void FoundTags(this ILogger logger, JsonLogger<Dictionary<string, Tag[]>> tags);
 }

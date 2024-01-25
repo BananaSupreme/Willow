@@ -1,6 +1,5 @@
 ﻿using Willow.Core.Eventing.Abstractions;
 using Willow.Helpers;
-using Willow.Helpers.Extensions;
 using Willow.Helpers.Logging.Extensions;
 
 namespace Willow.Core.Eventing;
@@ -9,7 +8,7 @@ internal sealed partial class EventDispatcher
 {
     public void Dispatch<TEvent>(TEvent @event) where TEvent : notnull
     {
-        var eventName = TypeExtensions.GetFullName<TEvent>();
+        var eventName = typeof(TEvent).ToString();
         _log.EventDispatchStarting(eventName);
         if (!_eventHandlersStorage.TryGetValue(eventName, out var handlers))
         {
@@ -57,7 +56,7 @@ internal sealed partial class EventDispatcher
 
     private void AddLogContext<TEvent>(IEventHandler<TEvent> handler, TEvent _) where TEvent : notnull
     {
-        _log.AddContext("handlerName", TypeExtensions.GetFullName(handler.GetType()));
+        _log.AddContext("handlerName", handler.GetType().ToString());
     }
 
     private void LogException<TEvent>(IEventHandler<TEvent> _, TEvent __, Exception ex) where TEvent : notnull

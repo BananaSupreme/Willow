@@ -1,5 +1,6 @@
 ﻿namespace Willow.Core.Middleware.Abstractions;
 
+//GUIDE_REQUIRED
 /// <summary>
 /// A middleware in the pipeline that processes input <typeparamref name="T"/>.
 /// </summary>

@@ -1,5 +1,6 @@
 ﻿using Willow.Core.Settings.Abstractions;
 using Willow.Speech.AudioBuffering;
+using Willow.Speech.AudioBuffering.Exceptions;
 using Willow.Speech.AudioBuffering.Settings;
 using Willow.Speech.Microphone.Models;
 
@@ -39,7 +40,7 @@ public sealed class AudioBufferTests
         var data = _baseData with { RawData = new short[1] };
         _sut.TryLoadData(data).Should().BeTrue();
         data = _baseData with { RawData = new short[1], SamplingRate = 100 };
-        _sut.Invoking(x => x.TryLoadData(data)).Should().Throw<Exception>();
+        _sut.Invoking(x => x.TryLoadData(data)).Should().Throw<MismatchedFeaturesException>();
     }
 
     [Fact]
@@ -48,7 +49,7 @@ public sealed class AudioBufferTests
         var data = _baseData with { RawData = new short[1] };
         _sut.TryLoadData(data).Should().BeTrue();
         data = _baseData with { RawData = new short[1], BitDepth = 100 };
-        _sut.Invoking(x => x.TryLoadData(data)).Should().Throw<Exception>();
+        _sut.Invoking(x => x.TryLoadData(data)).Should().Throw<MismatchedFeaturesException>();
     }
 
     [Fact]

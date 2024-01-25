@@ -1,52 +1,7 @@
-﻿using System.Reflection;
-
-namespace Willow.Helpers.Extensions;
+﻿namespace Willow.Helpers.Extensions;
 
 public static class TypeExtensions
 {
-    /// <summary>
-    /// Returns the fullname or name if full name does not exist of <typeparamref name="T" />
-    /// </summary>
-    /// <remarks>
-    /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
-    /// IT WITHOUT NOTICE!
-    /// </remarks>
-    /// <typeparam name="T">the type to provide the name of</typeparam>
-    /// <returns>The full name or name if full name does not exist</returns>
-    public static string GetFullName<T>()
-    {
-        return GetFullName(typeof(T));
-    }
-
-    /// <summary>
-    /// Returns the fullname or name if full name does not exist of <paramref name="t" />
-    /// </summary>
-    /// <remarks>
-    /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
-    /// IT WITHOUT NOTICE!
-    /// </remarks>
-    /// <param name="t">the type to provide the name of</param>
-    /// <returns>The full name or name if full name does not exist</returns>
-    public static string GetFullName(Type t)
-    {
-        return t.FullName ?? t.Name;
-    }
-
-    /// <summary>
-    /// Finds all concrete types deriving <paramref name="type" /> in the assembly requested.
-    /// </summary>
-    /// <remarks>
-    /// NOTE THAT THE API SURFACE IN THE HELPERS MODULE IS NOT STABLE AND BREAKING CHANGES MIGHT BE APPLIED TO
-    /// IT WITHOUT NOTICE!
-    /// </remarks>
-    /// <param name="type">The type to look for concrete derivations of.</param>
-    /// <param name="assembly">The assembly to search the types in.</param>
-    /// <returns>Concrete types assignable to <paramref name="type" />.</returns>
-    public static Type[] GetAllDerivingInAssembly(this Type type, Assembly assembly)
-    {
-        return assembly.GetTypes().Where(static t => t.IsConcrete()).Where(t => t.IsAssignableTo(type)).ToArray();
-    }
-
     /// <summary>
     /// Tests whether a type derives from an open generic type definitions, even when specifying a specific type.
     /// </summary>

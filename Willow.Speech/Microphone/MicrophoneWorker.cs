@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Hosting;
-
-using Willow.Core.Eventing.Abstractions;
+﻿using Willow.Core.Eventing.Abstractions;
+using Willow.Core.Registration.Abstractions;
 using Willow.Speech.Microphone.Abstractions;
 using Willow.Speech.Microphone.Eventing.Events;
 
 namespace Willow.Speech.Microphone;
 
-internal sealed class MicrophoneWorker : BackgroundService
+internal sealed class MicrophoneWorker : IBackgroundWorker
 {
     private readonly IEventDispatcher _eventDispatcher;
     private readonly IMicrophoneAccess _microphoneAccess;
@@ -17,23 +16,26 @@ internal sealed class MicrophoneWorker : BackgroundService
         _microphoneAccess = microphoneAccess;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        await Task.Run(() => ExecuteInternal(stoppingToken), stoppingToken);
+        await Task.Run(() => ExecuteInternal(cancellationToken), cancellationToken);
     }
 
-    private void ExecuteInternal(CancellationToken stoppingToken)
+    public Task StopAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    private void ExecuteInternal(CancellationToken cancellationToken)
     {
         foreach (var recording in _microphoneAccess.StartRecording())
         {
-            if (!stoppingToken.IsCancellationRequested)
-            {
-                _eventDispatcher.Dispatch(new AudioCapturedEvent(recording));
-            }
-            else
+            if (cancellationToken.IsCancellationRequested)
             {
                 break;
             }
+
+            _eventDispatcher.Dispatch(new AudioCapturedEvent(recording));
         }
 
         _microphoneAccess.StopRecording();

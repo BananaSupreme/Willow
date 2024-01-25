@@ -23,10 +23,10 @@ public sealed class VoskEngineTests : IAsyncLifetime
     {
         var downloader = Substitute.For<IVoskModelDownloader>();
         var services = new ServiceCollection();
-        EventingRegistrar.RegisterServices(services);
+        new EventingRegistrar().RegisterServices(services);
         services.AddSettings();
         services.AddTestLogger(testOutputHelper);
-        VoskServerRegistrar.RegisterServices(services);
+        new VoskServerRegistrar().RegisterServices(services);
         services.AddSingleton(downloader);
         _serviceProvider = services.BuildServiceProvider();
         downloader.GetVoskModelZip(Arg.Any<VoskModel>())
@@ -61,7 +61,7 @@ public sealed class VoskEngineTests : IAsyncLifetime
         await whisperEngine.StartAsync(CancellationToken.None);
         var transcriptionResult = await whisperEngine.TranscribeAudioAsync(_audioData);
         transcriptionResult.Should().Be(Expected);
-        await whisperEngine.StopAsync(CancellationToken.None);
+        await whisperEngine.StopAsync();
         transcriptionResult.Should().Be(Expected);
     }
 

@@ -3,6 +3,7 @@ using Willow.Core.Environment.Models;
 
 namespace Willow.Core.Environment.Abstractions;
 
+//GUIDE_REQUIRED EXPLAIN ABOUT TAGS IN THE SYSTEM
 /// <summary>
 /// Reports about the state of the current environment.
 /// </summary>

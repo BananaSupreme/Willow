@@ -5,16 +5,17 @@ namespace Willow.Vosk;
 
 internal sealed class VoskModelDownloader : IVoskModelDownloader
 {
-    private readonly HttpClient _client;
+    private readonly IHttpClientFactory _clientFactory;
 
-    public VoskModelDownloader(HttpClient client)
+    public VoskModelDownloader(IHttpClientFactory clientFactory)
     {
-        _client = client;
+        _clientFactory = clientFactory;
     }
 
     public async Task<Stream> GetVoskModelZip(VoskModel voskModel)
     {
-        return await _client.GetStreamAsync(GetDownloadPath(voskModel));
+        using var client = _clientFactory.CreateClient();
+        return await client.GetStreamAsync(GetDownloadPath(voskModel));
     }
 
     private static string GetDownloadPath(VoskModel voskModel)

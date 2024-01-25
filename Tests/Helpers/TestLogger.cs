@@ -2,8 +2,6 @@
 
 using Xunit.Abstractions;
 
-using TypeExtensions = Willow.Helpers.Extensions.TypeExtensions;
-
 namespace Tests.Helpers;
 
 internal sealed class TestLogger<T> : ILogger<T>
@@ -22,7 +20,7 @@ internal sealed class TestLogger<T> : ILogger<T>
                             Func<TState, Exception?, string> formatter)
     {
         _testOutputHelper.WriteLine(
-            $"[{logLevel} - {DateTime.Now:s} - {TypeExtensions.GetFullName<T>()}:{eventId}]: {formatter(state, exception)}");
+            $"[{logLevel} - {DateTime.Now:s} - {typeof(T)}:{eventId}]: {formatter(state, exception)}");
     }
 
     public bool IsEnabled(LogLevel logLevel)

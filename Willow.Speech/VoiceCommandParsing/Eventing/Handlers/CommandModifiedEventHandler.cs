@@ -1,36 +1,71 @@
 ﻿using Willow.Core.Eventing.Abstractions;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
+using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Models;
-using Willow.Speech.VoiceCommandParsing.Abstractions;
 
 namespace Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 
 /// <summary>
-/// Triggers a rebuilt of the internal <see cref="ITrie" /> with the new command set.
+/// Manages the current collection of events in the system, against the <see cref="ITrieFactory"/>.
 /// </summary>
-internal sealed class CommandModifiedEventHandler : IEventHandler<CommandModifiedEvent>
+internal sealed class CommandModifiedEventHandler
+    : IEventHandler<CommandReconstructionRequested>,
+      IEventHandler<CommandsAddedEvent>,
+      IEventHandler<CommandsRemovedEvent>
 {
     private readonly ITrieFactory _trieFactory;
+    private readonly HashSet<PreCompiledVoiceCommand> _commands = [];
 
     public CommandModifiedEventHandler(ITrieFactory trieFactory)
     {
         _trieFactory = trieFactory;
     }
 
-    public Task HandleAsync(CommandModifiedEvent @event)
+    public Task HandleAsync(CommandReconstructionRequested @event)
     {
-        var baseCommands = @event.Commands.SelectMany(static x =>
-                                 {
-                                     return x.InvocationPhrases.Select(
-                                         phrase => new PreCompiledVoiceCommand(x.Id,
-                                                                               phrase,
-                                                                               x.TagRequirements,
-                                                                               x.CapturedValues));
-                                 })
-                                 .ToArray();
-        _trieFactory.Set(baseCommands);
-
+        _trieFactory.Set(_commands.ToArray());
         return Task.CompletedTask;
+    }
+
+    public Task HandleAsync(CommandsAddedEvent @event)
+    {
+        var preCompiled = @event.Commands.ToPreCompiled();
+        foreach (var preCompiledVoiceCommand in preCompiled)
+        {
+            _commands.Add(preCompiledVoiceCommand);
+        }
+
+        _trieFactory.Set(_commands.ToArray());
+        return Task.CompletedTask;
+    }
+
+    public Task HandleAsync(CommandsRemovedEvent @event)
+    {
+        var preCompiled = @event.Commands.ToPreCompiled();
+        foreach (var preCompiledVoiceCommand in preCompiled)
+        {
+            _commands.Remove(preCompiledVoiceCommand);
+        }
+
+        _trieFactory.Set(_commands.ToArray());
+        return Task.CompletedTask;
+    }
+}
+
+file static class RawVoiceCommandExtensions
+{
+    public static PreCompiledVoiceCommand[] ToPreCompiled(this RawVoiceCommand[] commands)
+    {
+        return commands.SelectMany(static x =>
+                       {
+                           return x.InvocationPhrases.Select(
+                               phrase => new PreCompiledVoiceCommand(
+                                   x.Id,
+                                   phrase,
+                                   x.TagRequirements,
+                                   x.CapturedValues));
+                       })
+                       .ToArray();
     }
 }

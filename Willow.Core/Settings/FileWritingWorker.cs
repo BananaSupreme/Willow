@@ -1,13 +1,12 @@
 ﻿using System.Text;
 using System.Threading.Channels;
 
-using Microsoft.Extensions.Hosting;
-
+using Willow.Core.Registration.Abstractions;
 using Willow.Core.Settings.Models;
 
 namespace Willow.Core.Settings;
 
-internal sealed class FileWritingWorker : BackgroundService, IQueuedFileWriter
+internal sealed class FileWritingWorker : IBackgroundWorker, IQueuedFileWriter
 {
     private readonly byte[] _buffer = new byte[512];
     private readonly Channel<FileUpdateRequest> _channel = Channel.CreateUnbounded<FileUpdateRequest>();
@@ -32,15 +31,26 @@ internal sealed class FileWritingWorker : BackgroundService, IQueuedFileWriter
         }
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        await Task.Run(async () => await AcceptFilesAsync(stoppingToken), stoppingToken);
+        await AcceptFilesAsync(cancellationToken);
+    }
+
+    public Task StopAsync()
+    {
+        Flush();
+        return Task.CompletedTask;
     }
 
     private async Task AcceptFilesAsync(CancellationToken cancellationToken)
     {
         await foreach (var request in _channel.Reader.ReadAllAsync(cancellationToken))
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
             var attempt = 0;
             while (attempt < 10)
             {

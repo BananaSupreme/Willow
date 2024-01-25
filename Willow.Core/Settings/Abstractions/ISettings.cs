@@ -1,8 +1,8 @@
 ﻿using Willow.Core.Settings.Events;
-using Willow.Helpers.Extensions;
 
 namespace Willow.Core.Settings.Abstractions;
 
+//GUIDE_REQUIRED SETTINGS
 /// <summary>
 /// A settings object backed by the file system
 /// </summary>
@@ -36,8 +36,7 @@ public interface ISettings<T> where T : new()
 {
     internal static string SettingsFolderPath => "./Settings";
 
-    internal static string SettingsFilePath =>
-        $"{SettingsFolderPath}/{TypeExtensions.GetFullName<T>().Replace('.', '_')}.json";
+    internal static string SettingsFilePath => $"{SettingsFolderPath}/{typeof(T).ToString().Replace('.', '_')}.json";
 
     /// <summary>
     /// The most recent value of <typeparamref name="T" /> found in the system.

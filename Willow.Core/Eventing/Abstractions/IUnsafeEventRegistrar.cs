@@ -9,4 +9,7 @@ internal interface IUnsafeEventRegistrar
 {
     /// <seealso cref="IEventDispatcher.RegisterHandler{TEvent,TEventHandler}" />
     void RegisterHandler(Type eventType, Type eventHandler);
+
+    /// <seealso cref="IEventDispatcher.UnregisterHandler{TEvent,TEventHandler}" />
+    void UnregisterHandler(Type eventType, Type eventHandler);
 }

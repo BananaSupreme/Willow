@@ -1,4 +1,5 @@
-﻿using Willow.Helpers.Logging.Loggers;
+﻿using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.Tokenization.Consts;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 using Willow.Speech.VoiceCommandCompilation.Exceptions;
@@ -11,10 +12,10 @@ namespace Willow.Speech.VoiceCommandCompilation;
 
 internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
 {
-    private readonly IEnumerable<INodeCompiler> _internalParsers;
+    private readonly ICollectionProvider<INodeCompiler> _internalParsers;
     private readonly ILogger<VoiceCommandCompiler> _log;
 
-    public VoiceCommandCompiler(IEnumerable<INodeCompiler> internalParsers, ILogger<VoiceCommandCompiler> log)
+    public VoiceCommandCompiler(ICollectionProvider<INodeCompiler> internalParsers, ILogger<VoiceCommandCompiler> log)
     {
         _internalParsers = internalParsers;
         _log = log;
@@ -23,9 +24,8 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
     public INodeProcessor[] Compile(PreCompiledVoiceCommand command)
     {
         _log.CompilationStarted(command);
-        _log.CompilersFound(
-            new EnumeratorLogger<TypeNameLogger<INodeCompiler>>(
-                _internalParsers.Select(static x => new TypeNameLogger<INodeCompiler>(x))));
+        _log.CompilersFound(new EnumeratorLogger<TypeNameLogger<INodeCompiler>>(
+                                _internalParsers.Get().Select(static x => new TypeNameLogger<INodeCompiler>(x))));
         if (string.IsNullOrWhiteSpace(command.InvocationPhrase))
         {
             throw new CommandCompilationException("Command string cannot be empty");
@@ -40,7 +40,7 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
             var wordEnd = index > 0 ? index : commandSpan.Length;
             var word = commandSpan[..wordEnd];
             _log.ParsingWord(word.Length);
-            var node = word.ParseCommandWord(_internalParsers.ToArray(), command.CapturedValues);
+            var node = word.ParseCommandWord(_internalParsers.Get().ToArray(), command.CapturedValues);
             _log.WordParsed(node, word.Length);
             nodes.Add(node);
 
@@ -69,6 +69,7 @@ internal static partial class VoiceCommandCompilerLoggingExtensions
     [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Compilers found: {nodeCompilers}")]
     public static partial void CompilersFound(this ILogger logger,
                                               EnumeratorLogger<TypeNameLogger<INodeCompiler>> nodeCompilers);
+
     [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = "Started parsing word with length ({wordLength})")]
     public static partial void ParsingWord(this ILogger logger, int wordLength);
 

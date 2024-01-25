@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.Extensions;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 
 namespace Willow.Speech.VoiceCommandCompilation.Registration;
@@ -10,15 +13,18 @@ namespace Willow.Speech.VoiceCommandCompilation.Registration;
 /// </summary>
 internal sealed class VoiceCommandCompilationAssemblyRegistrar : IAssemblyRegistrar
 {
-    private readonly IInterfaceRegistrar _interfaceRegistrar;
-
-    public VoiceCommandCompilationAssemblyRegistrar(IInterfaceRegistrar interfaceRegistrar)
+    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
     {
-        _interfaceRegistrar = interfaceRegistrar;
+        services.AddAllTypesDeriving<INodeCompiler>(assembly);
     }
 
-    public void RegisterFromAssemblies(Assembly[] assemblies)
+    public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {
-        _interfaceRegistrar.RegisterDeriving<INodeCompiler>(assemblies);
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
+    {
+        return Task.CompletedTask;
     }
 }

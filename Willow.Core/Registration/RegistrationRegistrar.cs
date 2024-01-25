@@ -4,11 +4,11 @@ using Willow.Core.Registration.Abstractions;
 
 namespace Willow.Core.Registration;
 
-internal sealed class RegistrationRegistrar : IServiceRegistrar
+internal static class RegistrationRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public static void AddRegistration(this IServiceCollection services)
     {
+        services.AddSingleton(typeof(ICollectionProvider<>), typeof(CollectionProvider<>));
         services.AddSingleton<IAssemblyRegistrationEntry, AssemblyRegistrationEntry>();
-        services.AddSingleton<IInterfaceRegistrar, InterfaceRegistrar>();
     }
 }

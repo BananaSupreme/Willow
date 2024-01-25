@@ -10,7 +10,7 @@ namespace Willow.DeviceAutomation;
 
 public sealed class DeviceAutomationRegistrator : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<IInputSimulator, InputSimulator>();
         services.AddSingleton<IRobot, Robot>();

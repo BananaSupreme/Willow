@@ -15,7 +15,7 @@ public sealed class MiddlewareTests : IDisposable
     {
         var services = new ServiceCollection();
         services.AddTestLogger(outputHelper);
-        MiddlewareRegistrar.RegisterServices(services);
+        new MiddlewareRegistrar().RegisterServices(services);
         services.AddSingleton(typeof(IMiddleware<>), typeof(TestMiddleware<>));
         _provider = services.BuildServiceProvider();
     }

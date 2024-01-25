@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization.Abstractions;
 
 namespace Willow.Speech.Tokenization.Registration;
@@ -10,15 +13,18 @@ namespace Willow.Speech.Tokenization.Registration;
 /// </summary>
 internal sealed class TokenizationAssemblyRegistrar : IAssemblyRegistrar
 {
-    private readonly IInterfaceRegistrar _interfaceRegistrar;
-
-    public TokenizationAssemblyRegistrar(IInterfaceRegistrar interfaceRegistrar)
+    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
     {
-        _interfaceRegistrar = interfaceRegistrar;
+        services.AddAllTypesDeriving<ITranscriptionTokenizer>(assembly);
     }
 
-    public void RegisterFromAssemblies(Assembly[] assemblies)
+    public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {
-        _interfaceRegistrar.RegisterDeriving<ITranscriptionTokenizer>(assemblies);
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
+    {
+        return Task.CompletedTask;
     }
 }

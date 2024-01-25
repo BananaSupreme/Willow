@@ -1,4 +1,5 @@
 ﻿using Willow.Core.Privacy.Settings;
+using Willow.Core.Registration.Abstractions;
 using Willow.Core.Settings.Abstractions;
 using Willow.Helpers;
 using Willow.Helpers.Logging.Loggers;
@@ -14,16 +15,17 @@ internal sealed class Tokenizer : ITokenizer
 {
     private readonly ILogger<Tokenizer> _log;
     private readonly ISettings<PrivacySettings> _privacySettings;
-    private readonly ITranscriptionTokenizer[] _specializedNodeProcessors;
+    private readonly ICollectionProvider<ITranscriptionTokenizer> _specializedNodeProcessors;
+    private readonly FallBackTranscriptionTokenizer _fallBackTranscriptionTokenizer;
 
-    public Tokenizer(IEnumerable<ITranscriptionTokenizer> specializedNodeProcessors,
+    public Tokenizer(ICollectionProvider<ITranscriptionTokenizer> specializedNodeProcessors,
                      ILogger<Tokenizer> log,
                      ISettings<PrivacySettings> privacySettings)
     {
+        _specializedNodeProcessors = specializedNodeProcessors;
         _log = log;
         _privacySettings = privacySettings;
-        FallBackTranscriptionTokenizer fallBackTranscriptionTokenizer = new(log);
-        _specializedNodeProcessors = [.. specializedNodeProcessors, fallBackTranscriptionTokenizer];
+        _fallBackTranscriptionTokenizer = new FallBackTranscriptionTokenizer(log);
     }
 
     public Token[] Tokenize(string input)
@@ -55,7 +57,8 @@ internal sealed class Tokenizer : ITokenizer
 
     private ReadOnlySpan<char> ProcessSpan(ReadOnlySpan<char> inputSpan, List<Token> tokens)
     {
-        foreach (var specializedNodeProcessor in _specializedNodeProcessors)
+        var allNodeProcessors = _specializedNodeProcessors.Get().Append(_fallBackTranscriptionTokenizer);
+        foreach (var specializedNodeProcessor in allNodeProcessors)
         {
             var (isSuccessful, token, charsProcessed) = specializedNodeProcessor.Process(inputSpan);
             if (isSuccessful)

@@ -9,13 +9,11 @@ namespace Willow.Core.Environment.Registration;
 
 internal sealed class EnvironmentRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         RegisterActiveWindow(services);
-        services.AddSingleton<IAssemblyRegistrar, ActiveWindowsTagAssemblyRegistrar>();
         services.AddSingleton<IEnvironmentStateProvider, EnvironmentStateProvider>();
         services.AddSingleton<IActiveWindowTagStorage, ActiveWindowTagStorage>();
-        services.AddHostedService<ActiveWindowDetectorWorker>();
     }
 
     private static void RegisterActiveWindow(IServiceCollection services)

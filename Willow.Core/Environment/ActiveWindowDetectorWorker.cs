@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.Hosting;
-
-using Willow.Core.Environment.Abstractions;
+﻿using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Eventing.Events;
 using Willow.Core.Environment.Models;
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Privacy.Settings;
+using Willow.Core.Registration.Abstractions;
 using Willow.Helpers.Logging.Loggers;
 
 namespace Willow.Core.Environment;
 
-internal sealed class ActiveWindowDetectorWorker : BackgroundService
+internal sealed class ActiveWindowDetectorWorker : IBackgroundWorker
 {
     private readonly IActiveWindowDetector _activeWindowDetector;
     private readonly IEventDispatcher _eventDispatcher;
@@ -28,14 +27,19 @@ internal sealed class ActiveWindowDetectorWorker : BackgroundService
         _log = log;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        await Task.Run(async () => await ExecuteInternalAsync(stoppingToken), stoppingToken);
+        await Task.Run(async () => await ExecuteInternalAsync(cancellationToken), cancellationToken);
     }
 
-    private async Task ExecuteInternalAsync(CancellationToken stoppingToken)
+    public Task StopAsync()
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteInternalAsync(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
         {
             _log.CheckingWindow();
             var window = _activeWindowDetector.GetActiveWindow();
@@ -52,7 +56,7 @@ internal sealed class ActiveWindowDetectorWorker : BackgroundService
                 _eventDispatcher.Dispatch(new ActiveWindowChangedEvent(window));
             }
 
-            await Task.Delay(300, stoppingToken);
+            await Task.Delay(300, cancellationToken);
         }
     }
 }

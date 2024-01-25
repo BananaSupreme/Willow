@@ -1,8 +1,8 @@
 ﻿Some blocking tasks, they are expanded upon in their respective TODOs, this should be done before we're ready to go
 public with the project
 
-- At the moment all assemblies must be loaded at start-up, it makes a command builder in the UI impossible we should
-  find a solution on how the different parts of the system need to load and unload what they require at runtime.
+- Activation mode should just be a string rather than a defined enum so it can be extended, defining multiple activations
+  should result at a cross between activations and tags
 - Plugin store, I mean that also means how does the app detect plugins...
 - Nugets, and how do we compose the project, and manage dependencies, I feel like this part will cause us a lot of
   headaches

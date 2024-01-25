@@ -13,7 +13,6 @@ using Willow.Helpers.Locking;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.SpeechToText.Abstractions;
-using Willow.Speech.SpeechToText.Enums;
 using Willow.WhisperServer.Extensions;
 using Willow.WhisperServer.Models;
 using Willow.WhisperServer.Settings;
@@ -62,7 +61,7 @@ internal sealed class WhisperEngine
         }
 
         _disposed = true;
-        await StopAsync(CancellationToken.None);
+        await StopAsync();
         PythonEngine.Shutdown();
         PythonEngine.EndAllowThreads(_state);
     }
@@ -79,7 +78,7 @@ internal sealed class WhisperEngine
         return Task.CompletedTask;
     }
 
-    public string Name => nameof(SelectedSpeechEngine.Whisper);
+    public string Name => "Whisper";
     public SupportedOss SupportedOss => SupportedOss.Windows;
     public bool IsRunning { get; private set; }
 
@@ -102,7 +101,7 @@ internal sealed class WhisperEngine
         IsRunning = true;
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken = default)
+    public async Task StopAsync()
     {
         using var locker = await _lock.LockAsync();
         _log.StoppingWhisper();

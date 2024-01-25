@@ -3,6 +3,7 @@
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 public sealed class ActivateTagsAttribute : Attribute
 {
+    //GUIDE_REQUIRED ENVIRONMENT TAGS
     /// <summary>
     /// This is scanned when the an assembly is loaded and is the way to add tags that should be associated to a process.
     /// </summary>

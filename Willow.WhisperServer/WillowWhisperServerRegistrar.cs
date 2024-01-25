@@ -8,7 +8,7 @@ namespace Willow.WhisperServer;
 // ReSharper disable once ClassNeverInstantiated.Global
 public sealed class WillowWhisperServerRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSpeechToTextEngine<WhisperEngine>();
     }

@@ -7,9 +7,8 @@ namespace Willow.Speech.ScriptingInterface.Registration;
 
 internal sealed class ScriptingInterfaceRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
-        services.AddSingleton<IAssemblyRegistrar, ScriptingInterfaceAssemblyRegistrar>();
         services.AddSingleton<IVoiceCommandInterpreter, VoiceCommandInterpreter>();
     }
 }

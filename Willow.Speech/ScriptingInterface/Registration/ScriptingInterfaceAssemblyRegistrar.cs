@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Registration.Abstractions;
+using Willow.Helpers.Extensions;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
 
@@ -15,31 +16,43 @@ namespace Willow.Speech.ScriptingInterface.Registration;
 internal sealed class ScriptingInterfaceAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IEventDispatcher _eventDispatcher;
-    private readonly IInterfaceRegistrar _interfaceRegistrar;
-    private readonly IServiceProvider _serviceProvider;
     private readonly IVoiceCommandInterpreter _voiceCommandInterpreter;
 
-    public ScriptingInterfaceAssemblyRegistrar(IServiceProvider serviceProvider,
-                                               IVoiceCommandInterpreter voiceCommandInterpreter,
-                                               IEventDispatcher eventDispatcher,
-                                               IInterfaceRegistrar interfaceRegistrar)
+    public ScriptingInterfaceAssemblyRegistrar(IVoiceCommandInterpreter voiceCommandInterpreter,
+                                               IEventDispatcher eventDispatcher)
     {
-        _serviceProvider = serviceProvider;
         _voiceCommandInterpreter = voiceCommandInterpreter;
         _eventDispatcher = eventDispatcher;
-        _interfaceRegistrar = interfaceRegistrar;
     }
 
-    public void RegisterFromAssemblies(Assembly[] assemblies)
+    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
     {
-        _interfaceRegistrar.RegisterDeriving<IVoiceCommand>(assemblies);
-        DispatchCommands();
+        services.AddAllTypesDeriving<IVoiceCommand>(assembly);
     }
 
-    private void DispatchCommands()
+    public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {
-        var commands = _serviceProvider.GetServices<IVoiceCommand>();
-        var rawVoiceCommands = commands.Select(_voiceCommandInterpreter.InterpretCommand).ToArray();
-        _eventDispatcher.Dispatch(new CommandModifiedEvent(rawVoiceCommands));
+        var commands = serviceProvider.GetServices<IVoiceCommand>().ToArray();
+        if (commands.Length == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        var actualized = commands.Select(_voiceCommandInterpreter.InterpretCommand);
+        _eventDispatcher.Dispatch(new CommandsAddedEvent(actualized.ToArray()));
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
+    {
+        var commands = serviceProvider.GetServices<IVoiceCommand>().ToArray();
+        if (commands.Length == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        var actualized = commands.Select(_voiceCommandInterpreter.InterpretCommand);
+        _eventDispatcher.Dispatch(new CommandsRemovedEvent(actualized.ToArray()));
+        return Task.CompletedTask;
     }
 }

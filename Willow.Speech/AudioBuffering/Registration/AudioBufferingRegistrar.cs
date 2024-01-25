@@ -7,7 +7,7 @@ namespace Willow.Speech.AudioBuffering.Registration;
 
 internal sealed class AudioBufferingRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<IAudioBuffer, AudioBuffer>();
     }

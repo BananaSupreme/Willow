@@ -30,7 +30,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Willow.Core\Willow.Core.csproj"/>
-        <ProjectReference Include="..\Willow.StartUp\Willow.StartUp.csproj"/>
         <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj"/>
         <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>

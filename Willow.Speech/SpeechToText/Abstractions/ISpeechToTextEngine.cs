@@ -1,17 +1,14 @@
 ﻿using Willow.Core.Environment.Enums;
 using Willow.Speech.Microphone.Models;
-using Willow.Speech.SpeechToText.Enums;
 
 namespace Willow.Speech.SpeechToText.Abstractions;
 
+//GUIDE_REQUIRED NEW SPEECH ENGINES.
 /// <summary>
 /// Defines a speech to text engine that can be used by the system.
 /// </summary>
 /// <remarks>
-/// The system guarantees that only one engine is active at every single time. <br/>
-/// <b>
-/// <i>Note that only engines defined in <see cref="SelectedSpeechEngine" /> are considered at this moment.</i>
-/// </b>
+/// The system guarantees that only one engine is active at every single time.
 /// </remarks>
 public interface ISpeechToTextEngine
 {
@@ -55,5 +52,5 @@ public interface ISpeechToTextEngine
     /// left over state when the user has changed the engine.
     /// </i></b>
     /// </remarks>
-    Task StopAsync(CancellationToken cancellationToken = default);
+    Task StopAsync();
 }

@@ -7,9 +7,8 @@ namespace Willow.Core.Eventing.Registration;
 
 public sealed class EventingRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
-        services.AddSingleton<IEventRegistrar, EventRegistrar>();
         services.AddSingleton<IEventDispatcher, EventDispatcher>();
         services.AddSingleton<IUnsafeEventRegistrar>(static provider =>
                                                          (IUnsafeEventRegistrar)provider

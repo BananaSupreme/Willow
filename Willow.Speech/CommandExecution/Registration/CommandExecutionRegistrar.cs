@@ -7,7 +7,7 @@ namespace Willow.Speech.CommandExecution.Registration;
 
 internal sealed class CommandExecutionRegistrar : IServiceRegistrar
 {
-    public static void RegisterServices(IServiceCollection services)
+    public void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<ICommandStorage, CommandStorage>();
     }

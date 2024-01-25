@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 
 using Willow.Core.Settings.Abstractions;
+using Willow.Helpers.Extensions;
 using Willow.Helpers.Locking;
 using Willow.Helpers.Logging.Extensions;
 using Willow.Helpers.Logging.Loggers;
@@ -83,7 +84,7 @@ internal sealed class VoskModelInstaller : IVoskModelInstaller
     {
         var files = Directory.GetFiles(modelPath, "*", SearchOption.AllDirectories);
         var checksumTasks = files.Select(async x => await ChecksumFileAsync(x));
-        var checksums = await Task.WhenAll(checksumTasks);
+        var checksums = await checksumTasks.WhenAll();
         var combinedChecksum = MD5.HashData(checksums.SelectMany(static x => x).ToArray());
         _log.CombinedChecksum(combinedChecksum);
         return combinedChecksum;

@@ -2,6 +2,7 @@
 
 namespace Willow.Core.Privacy.Settings;
 
+//GUIDE_REQUIRED
 /// <summary>
 /// The privacy parameters, implementors must look here whenever logging or saving any personal info.
 /// </summary>

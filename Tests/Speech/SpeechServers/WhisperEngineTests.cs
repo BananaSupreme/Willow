@@ -18,9 +18,9 @@ public sealed class WhisperEngineTests : IAsyncLifetime
     public WhisperEngineTests(ITestOutputHelper testOutputHelper)
     {
         var services = new ServiceCollection();
-        EventingRegistrar.RegisterServices(services);
+        new EventingRegistrar().RegisterServices(services);
         services.AddSettings();
-        WillowWhisperServerRegistrar.RegisterServices(services);
+        new WillowWhisperServerRegistrar().RegisterServices(services);
         services.AddTestLogger(testOutputHelper);
         _serviceProvider = services.BuildServiceProvider();
     }
@@ -50,7 +50,7 @@ public sealed class WhisperEngineTests : IAsyncLifetime
         await whisperEngine.StartAsync(CancellationToken.None);
         var transcriptionResult = await whisperEngine.TranscribeAudioAsync(_audioData);
         transcriptionResult.Should().Be(Expected);
-        await whisperEngine.StopAsync(CancellationToken.None);
+        await whisperEngine.StopAsync();
         transcriptionResult.Should().Be(Expected);
     }
 

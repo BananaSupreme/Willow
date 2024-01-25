@@ -1,5 +1,6 @@
 ﻿using Tests.Helpers;
 
+using Willow.Core.Registration;
 using Willow.Helpers.Extensions;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
@@ -38,9 +39,10 @@ public sealed class CommandCompilationTests : IDisposable
         _base = _base with { CapturedValues = _capturedValues };
 
         var services = new ServiceCollection();
+        services.AddRegistration();
         services.AddTestLogger(testOutputHelper);
         services.AddSingleton<IVoiceCommandCompiler, VoiceCommandCompiler>();
-        services.AddAllTypesFromOwnAssembly<INodeCompiler>(ServiceLifetime.Singleton);
+        services.AddAllTypesFromOwnAssembly<INodeCompiler>();
         _provider = services.BuildServiceProvider();
         _sut = _provider.GetRequiredService<IVoiceCommandCompiler>();
     }
