@@ -1,20 +1,31 @@
-﻿using Willow.Core.Environment.Enums;
-using Willow.Speech.ScriptingInterface.Abstractions;
+﻿using Willow.Speech.ScriptingInterface.Abstractions;
 
 namespace Willow.Speech.ScriptingInterface.Attributes;
 
 /// <summary>
 /// Defines the relevant activation method for the <see cref="IVoiceCommand" />
 /// </summary>
+/// <remarks>
+/// Not setting this will resort it to become the default, command mode, to make a command apply to all modes set
+/// explicitly to null. <br/>
+/// If a command is valid across multiple modes, multiple activations can be given and a cross of all tags and modes
+/// would be created.
+/// </remarks>
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class ActivationModeAttribute : Attribute
 {
-    public ActivationModeAttribute(ActivationMode activationMode)
+    public ActivationModeAttribute(string? activationMode)
     {
-        ActivationMode = activationMode;
+        ActivationModes = activationMode is not null ? [activationMode] : null;
+    }
+
+    public ActivationModeAttribute(params string[] activationModeses)
+    {
+        ActivationModes = activationModeses;
     }
 
     /// <summary>
     /// Selected activation mode.
     /// </summary>
-    public ActivationMode ActivationMode { get; }
+    public string[]? ActivationModes { get; }
 }

@@ -1,5 +1,6 @@
 ﻿using Tests.Helpers;
 
+using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
 using Willow.Speech.ScriptingInterface;
@@ -78,8 +79,8 @@ public sealed class CommandInterpretationTests : IDisposable
         var result1 = _sut.InterpretCommand(voiceCommand);
 
         result1.TagRequirements.Should()
-               .BeEquivalentTo(new TagRequirement[] { new([new Tag(nameof(ActivationMode.Dictation))]) },
-                               static options => options.ComparingByValue<TagRequirement>());
+               .BeEquivalentTo(new TagRequirement[] { new([new Tag(Dictation)]) },
+                               static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
     }
 
     [Fact]
@@ -90,8 +91,8 @@ public sealed class CommandInterpretationTests : IDisposable
         var result1 = _sut.InterpretCommand(voiceCommand);
 
         result1.TagRequirements.Should()
-               .BeEquivalentTo(new TagRequirement[] { new([new Tag(nameof(ActivationMode.Command))]) },
-                               static options => options.ComparingByValue<TagRequirement>());
+               .BeEquivalentTo(new TagRequirement[] { new([new Tag(IEnvironmentStateProvider.DefaultActivationMode)]) },
+                               static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
     }
 
     [Fact]
@@ -102,8 +103,8 @@ public sealed class CommandInterpretationTests : IDisposable
         var result1 = _sut.InterpretCommand(voiceCommand);
 
         result1.TagRequirements.Should()
-               .BeEquivalentTo(new TagRequirement[] { new([new Tag(nameof(ActivationMode.Command))]) },
-                               static options => options.ComparingByValue<TagRequirement>());
+               .BeEquivalentTo(new TagRequirement[] { new([new Tag(IEnvironmentStateProvider.DefaultActivationMode)]) },
+                               static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
     }
 
     [Fact]
@@ -116,14 +117,75 @@ public sealed class CommandInterpretationTests : IDisposable
         result1.TagRequirements.Should()
                .BeEquivalentTo(new TagRequirement[]
                                {
-                                   new([new Tag(nameof(ActivationMode.Command)), new Tag(TestTag)]),
+                                   new([new Tag(IEnvironmentStateProvider.DefaultActivationMode), new Tag(TestTag)]),
                                    new([
-                                           new Tag(nameof(ActivationMode.Command)),
+                                           new Tag(IEnvironmentStateProvider.DefaultActivationMode),
                                            new Tag(TestTag2),
                                            new Tag(TestTag3)
                                        ])
                                },
-                               static options => options.ComparingByValue<TagRequirement>());
+                               static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
+    }
+
+    [Fact]
+    public void When_VoiceCommandHasNoTagsAndNullActivation_InterpretCommandIncludesEmptyTag()
+    {
+        var voiceCommand = new NullActivationModeTestVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.TagRequirements.Should().ContainSingle();
+        result1.TagRequirements.First().Should().Be(new TagRequirement([]));
+    }
+
+    [Fact]
+    public void When_VoiceCommandHasMultipleTagsAndNullActivation_InterpretCommandIncludesAllTagsAndNoMode()
+    {
+        var voiceCommand = new NullActivationModeWithTagsTestVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.TagRequirements.Should()
+               .BeEquivalentTo(new TagRequirement[]
+                               {
+                                   new([new Tag(TestTag), new Tag(TestTag2)]), new([new Tag(TestTag3)])
+                               },
+                               static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
+    }
+
+    [Fact]
+    public void When_VoiceCommandHasNoTagsAndMultipleActivations_InterpretCommandIncludesTagsPerActivation()
+    {
+        var voiceCommand = new MultipleActivationModeTestVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.TagRequirements.Should()
+               .BeEquivalentTo(
+                   new TagRequirement[]
+                   {
+                       new([new Tag(IEnvironmentStateProvider.DefaultActivationMode)]), new([new Tag(Dictation)])
+                   },
+                   static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
+    }
+
+    [Fact]
+    public void When_VoiceCommandHasMultipleTagsAndMultipleActivation_InterpretCommandIncludesCrossOfAll()
+    {
+        var voiceCommand = new MultipleActivationModeWithTagsTestVoiceCommand();
+
+        var result1 = _sut.InterpretCommand(voiceCommand);
+
+        result1.TagRequirements.Should()
+               .BeEquivalentTo(
+                   new TagRequirement[]
+                   {
+                       new([new Tag(IEnvironmentStateProvider.DefaultActivationMode), new Tag(TestTag), new Tag(TestTag2)]),
+                       new([new Tag(IEnvironmentStateProvider.DefaultActivationMode), new Tag(TestTag3)]),
+                       new([new Tag(Dictation), new Tag(TestTag), new Tag(TestTag2)]),
+                       new([new Tag(Dictation), new Tag(TestTag3)])
+                   },
+                   static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
     }
 
     [Fact]
@@ -243,7 +305,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
@@ -260,7 +322,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
@@ -272,18 +334,68 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
-    [ActivationMode(ActivationMode.Dictation)]
+    private const string Dictation = "dictation";
+
+    [ActivationMode(Dictation)]
     private sealed class DictationTestVoiceCommand : IVoiceCommand
     {
         public string InvocationPhrase => TestInvocationPhrase;
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
+        }
+    }
+
+    [ActivationMode(Dictation, IEnvironmentStateProvider.DefaultActivationMode)]
+    private sealed class MultipleActivationModeTestVoiceCommand : IVoiceCommand
+    {
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    [ActivationMode(Dictation, IEnvironmentStateProvider.DefaultActivationMode)]
+    [Tag(TestTag, TestTag2)]
+    [Tag(TestTag3)]
+    private sealed class MultipleActivationModeWithTagsTestVoiceCommand : IVoiceCommand
+    {
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    [ActivationMode(activationMode: null)]
+    private sealed class NullActivationModeTestVoiceCommand : IVoiceCommand
+    {
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    [ActivationMode(activationMode: null)]
+    [Tag(TestTag, TestTag2)]
+    [Tag(TestTag3)]
+    private sealed class NullActivationModeWithTagsTestVoiceCommand : IVoiceCommand
+    {
+        public string InvocationPhrase => TestInvocationPhrase;
+
+        public Task ExecuteAsync(VoiceCommandContext context)
+        {
+            throw new NotSupportedException();
         }
     }
 
@@ -294,7 +406,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
@@ -304,7 +416,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
@@ -314,7 +426,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
@@ -324,7 +436,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 
@@ -336,7 +448,7 @@ public sealed class CommandInterpretationTests : IDisposable
 
         public Task ExecuteAsync(VoiceCommandContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

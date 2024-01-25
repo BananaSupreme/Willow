@@ -11,7 +11,7 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
     private readonly HashSet<Tag> _customTags = [];
     private readonly ILogger<EnvironmentStateProvider> _log;
     private readonly ISettings<PrivacySettings> _privacySettings;
-    private ActivationMode _activationMode = ActivationMode.Command;
+    private string _activationMode = IEnvironmentStateProvider.DefaultActivationMode;
     private ActiveWindowInfo _activeWindow = new(string.Empty);
     private Tag[]? _cache;
     private Tag[] _windowTags = [];
@@ -35,7 +35,7 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
         RestoreCache();
     }
 
-    public void SetActivationMode(ActivationMode activationMode)
+    public void SetActivationMode(string activationMode)
     {
         _log.ActivationModeChanged(activationMode);
         _activationMode = activationMode;
@@ -70,7 +70,7 @@ internal sealed class EnvironmentStateProvider : IEnvironmentStateProvider
         _cache =
         [
             new Tag(ActiveOs.ToString()),
-            new Tag(_activationMode.ToString()),
+            new Tag(_activationMode),
             .. _windowTags,
             .. _customTags,
             new Tag(_activeWindow.ProcessName)
@@ -99,7 +99,7 @@ internal static partial class EnvironmentStateProviderLoggingExtensions
     public static partial void ActiveWindowChanged(this ILogger log, RedactingLogger<ActiveWindowInfo> activeWindow);
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "Activation mode changed ({activationMode})")]
-    public static partial void ActivationModeChanged(this ILogger log, ActivationMode activationMode);
+    public static partial void ActivationModeChanged(this ILogger log, string activationMode);
 
     [LoggerMessage(EventId = 3, Level = LogLevel.Debug, Message = "Environment tags changed: {tags}")]
     public static partial void WindowTagsChanged(this ILogger log, RedactingLogger<EnumeratorLogger<Tag>> tags);

@@ -10,6 +10,11 @@ namespace Willow.Core.Environment.Abstractions;
 public interface IEnvironmentStateProvider
 {
     /// <summary>
+    /// The default activation mode in the system, basically command mode.
+    /// </summary>
+    internal const string DefaultActivationMode = "command";
+
+    /// <summary>
     /// All the currently active tags.
     /// </summary>
     IReadOnlyList<Tag> Tags { get; }
@@ -35,7 +40,7 @@ public interface IEnvironmentStateProvider
     /// Sets the current activation mode in the system.
     /// </summary>
     /// <param name="activationMode">Current activation mode.</param>
-    void SetActivationMode(ActivationMode activationMode);
+    void SetActivationMode(string activationMode);
 
     /// <summary>
     /// Activates an arbitrary tag in the system. <br/>

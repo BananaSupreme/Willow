@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
+using Willow.Core.Environment.Abstractions;
 using Willow.Core.Environment.Enums;
 using Willow.Core.Environment.Models;
 using Willow.Helpers.Extensions;
@@ -96,17 +97,33 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
 
     private static TagRequirement[] GetTags(Type type)
     {
-        Tag activationTag = new(GetActivationMode(type).ToString());
-        var tagAttribute = type.GetCustomAttributes(false).OfType<TagAttribute>().ToArray();
-        return tagAttribute.Any()
-                   ? tagAttribute.Select(x => new TagRequirement([activationTag, ..x.Tags])).ToArray()
-                   : [new TagRequirement([activationTag])];
+        var validActivationModes = GetActivationMode(type);
+        if (validActivationModes is null || validActivationModes.Length == 0)
+        {
+            var tagAttribute = type.GetCustomAttributes(false).OfType<TagAttribute>().ToArray();
+            return tagAttribute.Length != 0
+                       ? tagAttribute.Select(static x => new TagRequirement(x.Tags)).ToArray()
+                       : [new TagRequirement([])];
+        }
+
+        return validActivationModes.SelectMany(GetTagsWithActivation).ToArray();
+
+        TagRequirement[] GetTagsWithActivation(string activationMode)
+        {
+            var activationTag = new Tag(activationMode);
+            var tagAttribute = type.GetCustomAttributes(false).OfType<TagAttribute>().ToArray();
+            return tagAttribute.Length != 0
+                       ? tagAttribute.Select(x => new TagRequirement([activationTag, ..x.Tags])).ToArray()
+                       : [new TagRequirement([activationTag])];
+        }
     }
 
-    private static ActivationMode GetActivationMode(Type type)
+    private static string[]? GetActivationMode(Type type)
     {
         var activationModeAttribute = type.GetCustomAttributes(false).OfType<ActivationModeAttribute>().FirstOrDefault();
-        return activationModeAttribute?.ActivationMode ?? ActivationMode.Command;
+        return activationModeAttribute is null
+                   ? [IEnvironmentStateProvider.DefaultActivationMode]
+                   : activationModeAttribute.ActivationModes;
     }
 
     private static string[] GetAliases(Type type)
