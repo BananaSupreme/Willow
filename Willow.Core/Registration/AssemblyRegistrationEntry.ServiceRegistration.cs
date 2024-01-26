@@ -39,6 +39,8 @@ internal sealed partial class AssemblyRegistrationEntry
 
         if (registerAssemblyRegistrars)
         {
+            //We're running twice here, and registering a second time, because the registrar might depend on something
+            //That is defined already within the system
             services.AddAllTypesDeriving<IAssemblyRegistrar>(assembly);
         }
 
@@ -140,6 +142,7 @@ internal sealed partial class AssemblyRegistrationEntry
         }
     }
 
+    //This doesn't work very well, maybe it will be smarter to just check if the DI can just load the dependency
     private bool IsRegistered(Type type)
     {
         return _container.IsRegistered(type)

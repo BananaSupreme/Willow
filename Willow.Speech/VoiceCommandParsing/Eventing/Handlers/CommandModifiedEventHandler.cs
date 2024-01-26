@@ -10,7 +10,7 @@ namespace Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
 /// Manages the current collection of events in the system, against the <see cref="ITrieFactory"/>.
 /// </summary>
 internal sealed class CommandModifiedEventHandler
-    : IEventHandler<CommandReconstructionRequested>,
+    : IEventHandler<CommandReconstructionRequestedEvent>,
       IEventHandler<CommandsAddedEvent>,
       IEventHandler<CommandsRemovedEvent>
 {
@@ -22,7 +22,7 @@ internal sealed class CommandModifiedEventHandler
         _trieFactory = trieFactory;
     }
 
-    public Task HandleAsync(CommandReconstructionRequested @event)
+    public Task HandleAsync(CommandReconstructionRequestedEvent @event)
     {
         _trieFactory.Set(_commands.ToArray());
         return Task.CompletedTask;

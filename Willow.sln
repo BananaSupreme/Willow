@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6FCA3B24-E
 		Docs\Command_Syntax.md = Docs\Command_Syntax.md
 		Docs\Scripting_Interface_Module_TODO.md = Docs\Scripting_Interface_Module_TODO.md
 		Docs\Voice_Recognition_Module_TODO.md = Docs\Voice_Recognition_Module_TODO.md
+		Docs\Core_TODO.md = Docs\Core_TODO.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Core", "Willow.Core\Willow.Core.csproj", "{9443C7F9-914C-4144-BB3C-84DF37530F98}"

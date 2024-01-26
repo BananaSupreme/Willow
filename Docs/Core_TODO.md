@@ -1,11 +1,7 @@
 - We should consider how to let the user know when errors occur in the pipeline, maybe we can capture Error level logs
   for ui displays? can we plug into the ILogger in that way? -- a sink on serilog.
-- AssemblyRegistrars are only good at startup, they should know how to remove and add a new assembly at runtime as well
-  this requires us to go through every AssemblyRegistrar look what it does for registration and consider how the
-  reciprocal remove function would work, this might be simple for somethings such as registrations but much more
-  difficult for things such as commands.
-- Design decisions guides required - why is everything a singleton? The plugins and why are they built like this.
-  Why new settings?
+- GUIDE_REQUIRED Design decisions guides required - why is everything a singleton? The plugins and why are they built
+  like this. Why new settings?
 - safe keeping this one when we will consider how to enable smart moving around the text we are in, for example "
   change *word *second" to switch the word for another...
   Windows

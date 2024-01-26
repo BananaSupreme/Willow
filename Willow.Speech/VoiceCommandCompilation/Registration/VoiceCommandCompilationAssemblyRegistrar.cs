@@ -2,8 +2,10 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
+using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Registration.Abstractions;
 using Willow.Helpers.Extensions;
+using Willow.Speech.ScriptingInterface.Eventing.Events;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;
 
 namespace Willow.Speech.VoiceCommandCompilation.Registration;
@@ -13,6 +15,13 @@ namespace Willow.Speech.VoiceCommandCompilation.Registration;
 /// </summary>
 internal sealed class VoiceCommandCompilationAssemblyRegistrar : IAssemblyRegistrar
 {
+    private readonly IEventDispatcher _eventDispatcher;
+
+    public VoiceCommandCompilationAssemblyRegistrar(IEventDispatcher eventDispatcher)
+    {
+        _eventDispatcher = eventDispatcher;
+    }
+
     public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
     {
         services.AddAllTypesDeriving<INodeCompiler>(assembly);
@@ -20,11 +29,13 @@ internal sealed class VoiceCommandCompilationAssemblyRegistrar : IAssemblyRegist
 
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {
+        _eventDispatcher.Dispatch(new CommandReconstructionRequestedEvent());
         return Task.CompletedTask;
     }
 
     public Task StopAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {
+        _eventDispatcher.Dispatch(new CommandReconstructionRequestedEvent());
         return Task.CompletedTask;
     }
 }

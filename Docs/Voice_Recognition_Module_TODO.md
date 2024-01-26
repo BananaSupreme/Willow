@@ -1,7 +1,7 @@
 - Vosk Nuget doesn't support macOS, mac doesn't have nvidia GPUs either, so we are a bit stuck here with mac support,
   eventually we would need to create our own binaries for Vosk.
 
-- SileroVAD was implemented using some code from the internet, not sure if the library is supported, maybe its worth
+- SileroVAD was implemented using some code from the internet, not sure if the library is supported on mac, maybe its worth
   doing it ourselves or joining to support that library.
 
 - We are resampling the audio now, but it really is a poor man algorithm

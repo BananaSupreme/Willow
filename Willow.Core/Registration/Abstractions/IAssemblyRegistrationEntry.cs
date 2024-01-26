@@ -2,12 +2,6 @@
 
 namespace Willow.Core.Registration.Abstractions;
 
-//The service can have trouble registering if it loads up the dependencies in the wrong order (that is loading
-//dependencies that depend on dependencies that are not registered, also need to remember the registration order
-//because it will be reversed when removing the type.
-//Also when stopping and starting the services, if i can use a child container or something similar to allow assembly register
-//filter its own dependencies and get only the right registrations.
-//Can wrap a IServiceProvider, that always filters the type to see which belongs to its own assembly
 /// <summary>
 /// the assembly registration entry point, from here all <see cref="IAssemblyRegistrar" /> in the DI will be called.
 /// </summary>

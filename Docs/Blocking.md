@@ -2,11 +2,11 @@
 public with the project
 
 - Equivalent commands warning
-- Plugin store, I mean that also means how does the app detect plugins...
+- Commands source generator
 - Nugets, and how do we compose the project, and manage dependencies, I feel like this part will cause us a lot of
   headaches
-- Commands source generator
-- commands and tags for common use cases (this can be built upon later, but at least the basics)
-- UI
 - DOCS! The XML docs part is done, we should add documentations explaining how the system ties together.
   How the speech system works together, how the eventing works, how settings works, a guide to building voice commands.
+- commands and tags for common use cases (this can be built upon later, but at least the basics)
+- UI
+- Plugin store, I mean that also means how does the app detect plugins...
