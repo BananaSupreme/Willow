@@ -134,7 +134,7 @@ internal sealed class VoskModelInstaller : IVoskModelInstaller
         var files = Directory.GetFiles(topLevel, "*", SearchOption.AllDirectories);
         foreach (var file in files)
         {
-            var relativePath = file.Substring(topLevel.Length + 1);
+            var relativePath = file[(topLevel.Length + 1)..];
             var destinationPath = Path.Combine(modelPath, relativePath);
 
             Directory.CreateDirectory(Path.GetDirectoryName(destinationPath) ?? throw new UnreachableException());
@@ -147,7 +147,7 @@ internal sealed class VoskModelInstaller : IVoskModelInstaller
 
     private static string GetChecksumFileName(VoskModel voskModel)
     {
-        return Path.Combine(VoskSettings.VoskFolder, $"checksum_{voskModel}");
+        return Path.Combine(Directory.GetCurrentDirectory(), VoskSettings.VoskFolder, $"checksum_{voskModel}");
     }
 }
 

@@ -1,4 +1,7 @@
-﻿using DryIoc.Microsoft.DependencyInjection;
+﻿using System.Collections.Frozen;
+using System.Text.Json;
+
+using DryIoc.Microsoft.DependencyInjection;
 
 using Tests.Helpers;
 
@@ -38,6 +41,7 @@ public sealed class TokenizationTests : IDisposable
         new EventingRegistrar().RegisterServices(services);
         services.AddAllTypesAsMappingFromOwnAssembly<ITranscriptionTokenizer>();
         services.AddRegistration();
+        services.AddSingleton<IHomophonesDictionaryLoader, HomophoneDictionaryLoaderTestDouble>();
         _provider = services.CreateServiceProvider();
         _homophoneSettings.CurrentValue.Returns(new HomophoneSettings(false, HomophoneType.Caverphone, []));
         _sut = _provider.GetRequiredService<ITokenizer>();
@@ -276,5 +280,36 @@ public sealed class TokenizationTests : IDisposable
     public void Dispose()
     {
         (_provider as IDisposable)?.Dispose();
+    }
+}
+
+//This is really similar to the actual homophones loader, but its here so the tests would still work even if we change
+//slightly the dictionaries and how they are built.
+file sealed class HomophoneDictionaryLoaderTestDouble : IHomophonesDictionaryLoader
+{
+    private readonly ISettings<HomophoneSettings> _settings;
+
+    public HomophoneDictionaryLoaderTestDouble(ISettings<HomophoneSettings> settings)
+    {
+        _settings = settings;
+    }
+
+    public async Task<FrozenDictionary<string, string[]>?> LoadDictionaryAsync()
+    {
+        if (!_settings.CurrentValue.ShouldTestHomophones
+            || _settings.CurrentValue.HomophoneType is not (HomophoneType.CarnegieMelonDictionaryEquivalents
+                or HomophoneType.CarnegieMelonDictionaryNearEquivalents))
+        {
+            return null;
+        }
+
+        var dictionaryName = _settings.CurrentValue.HomophoneType == HomophoneType.CarnegieMelonDictionaryEquivalents
+                                 ? "homophones.dict"
+                                 : "near_homophones.dict";
+        var path = Path.Combine("Speech", "CommandProcessing", dictionaryName);
+        await using var file = File.OpenRead(path);
+        var homophones = await JsonSerializer.DeserializeAsync<Dictionary<string, string[]>>(file)
+                         ?? throw new InvalidOperationException();
+        return homophones.ToFrozenDictionary();
     }
 }

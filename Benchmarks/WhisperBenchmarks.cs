@@ -29,7 +29,7 @@ public class WhisperBenchmarks
 
         var serviceProvider = services.CreateServiceProvider();
 
-        var filePath = Path.Combine(Environment.CurrentDirectory, "TestData/test.wav");
+        var filePath = Path.Combine(Environment.CurrentDirectory, "TestData", "test.wav");
 
         _audioData = GetFromWavFile(await File.ReadAllBytesAsync(filePath));
         _pythonWhisperEngine = serviceProvider.GetRequiredService<IEnumerable<ISpeechToTextEngine>>()

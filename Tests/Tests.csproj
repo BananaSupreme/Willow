@@ -50,6 +50,12 @@
         <None Update="Speech\SpeechServers\vosk-model-small-en-us-0.15.zip">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Speech\CommandProcessing\homophones.dict">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Speech\CommandProcessing\near_homophones.dict">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

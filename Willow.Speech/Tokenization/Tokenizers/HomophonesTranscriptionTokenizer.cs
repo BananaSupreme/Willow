@@ -21,14 +21,16 @@ namespace Willow.Speech.Tokenization.Tokenizers;
 internal sealed class HomophonesTranscriptionTokenizer
     : ITranscriptionTokenizer, IEventHandler<SettingsUpdatedEvent<HomophoneSettings>>
 {
-    private const string DictionaryLocation = "./Tokenization/Resources";
     private readonly ISettings<HomophoneSettings> _settings;
+    private readonly IHomophonesDictionaryLoader _homophonesDictionaryLoader;
     private Task? _dictionaryLoadingTask;
     private FrozenDictionary<string, string[]>? _homophones;
 
-    public HomophonesTranscriptionTokenizer(ISettings<HomophoneSettings> settings)
+    public HomophonesTranscriptionTokenizer(ISettings<HomophoneSettings> settings,
+                                            IHomophonesDictionaryLoader homophonesDictionaryLoader)
     {
         _settings = settings;
+        _homophonesDictionaryLoader = homophonesDictionaryLoader;
         _dictionaryLoadingTask = LoadDictionaryAsync();
     }
 
@@ -97,23 +99,7 @@ internal sealed class HomophonesTranscriptionTokenizer
 
     private async Task LoadDictionaryAsync()
     {
-        if (_settings.CurrentValue.ShouldTestHomophones
-            && _settings.CurrentValue.HomophoneType is HomophoneType.CarnegieMelonDictionaryEquivalents
-                or HomophoneType.CarnegieMelonDictionaryNearEquivalents)
-        {
-            var dictionaryName = _settings.CurrentValue.HomophoneType == HomophoneType.CarnegieMelonDictionaryEquivalents
-                                     ? "homophones.brotli"
-                                     : "near_homophones.brotli";
-            var path = Path.Combine(DictionaryLocation, dictionaryName);
-            await using var file = File.OpenRead(path);
-            await using var brotli = new BrotliStream(file, CompressionMode.Decompress);
-            var homophones = await JsonSerializer.DeserializeAsync<Dictionary<string, string[]>>(brotli)
-                             ?? throw new InvalidOperationException();
-            _homophones = homophones.ToFrozenDictionary();
-            return;
-        }
-
-        _homophones = null;
+        await Task.Run(async () => _homophones = await _homophonesDictionaryLoader.LoadDictionaryAsync());
     }
 
     internal async Task FlushAsync()

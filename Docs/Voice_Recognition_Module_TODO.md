@@ -1,5 +1,3 @@
-- Allowing plugins to add speech recognition systems can be extremely powerful!
-
 - Vosk Nuget doesn't support macOS, mac doesn't have nvidia GPUs either, so we are a bit stuck here with mac support,
   eventually we would need to create our own binaries for Vosk.
 

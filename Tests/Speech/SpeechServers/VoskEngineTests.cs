@@ -37,7 +37,7 @@ public sealed class VoskEngineTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var filePath = Path.Combine(Environment.CurrentDirectory, "Speech/SpeechServers/test.wav");
+        var filePath = Path.Combine(Environment.CurrentDirectory, "Speech", "SpeechServers", "test.wav");
         var audioData = await File.ReadAllBytesAsync(filePath);
         _audioData = GetFromWavFile(audioData);
     }

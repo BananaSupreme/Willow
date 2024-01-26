@@ -26,7 +26,7 @@ public class VadBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        var filePath = Path.Combine(Environment.CurrentDirectory, "TestData/test.wav");
+        var filePath = Path.Combine(Environment.CurrentDirectory, "TestData", "test.wav");
         var audioData = GetFromWavFile(File.ReadAllBytes(filePath));
         audioData = audioData with { RawData = audioData.RawData[..audioData.SamplingRate] };
         _audioDataEvent = new AudioCapturedEvent(audioData);

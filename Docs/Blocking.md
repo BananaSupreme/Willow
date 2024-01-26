@@ -1,8 +1,7 @@
 ﻿Some blocking tasks, they are expanded upon in their respective TODOs, this should be done before we're ready to go
 public with the project
 
-- Activation mode should just be a string rather than a defined enum so it can be extended, defining multiple activations
-  should result at a cross between activations and tags
+- Equivalent commands warning
 - Plugin store, I mean that also means how does the app detect plugins...
 - Nugets, and how do we compose the project, and manage dependencies, I feel like this part will cause us a lot of
   headaches

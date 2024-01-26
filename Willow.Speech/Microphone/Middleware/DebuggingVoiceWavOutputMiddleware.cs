@@ -11,7 +11,7 @@ namespace Willow.Speech.Microphone.Middleware;
 /// </summary>
 internal sealed class DebuggingVoiceWavOutputMiddleware : IMiddleware<AudioCapturedEvent>
 {
-    private const string FolderName = "./wavFiles";
+    private const string FolderName = "wavFiles";
 
     public DebuggingVoiceWavOutputMiddleware()
     {
@@ -23,7 +23,7 @@ internal sealed class DebuggingVoiceWavOutputMiddleware : IMiddleware<AudioCaptu
     {
         var timeStamp = TimeSpan.FromTicks(Stopwatch.GetTimestamp());
         var fileName = $@"recording - {timeStamp:hh\.mm\.fffffff}_{Guid.NewGuid()}.wav";
-        fileName = Path.Combine(FolderName, fileName);
+        fileName = Path.Combine(Directory.GetCurrentDirectory(), FolderName, fileName);
         await using (var file = File.Create(fileName))
         {
             await file.WriteAsync(input.AudioData.ToWavFile());

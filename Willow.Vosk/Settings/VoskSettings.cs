@@ -11,11 +11,11 @@ namespace Willow.Vosk.Settings;
 /// </param>
 public readonly record struct VoskSettings(VoskModel VoskModel)
 {
-    public const string VoskFolder = "./vosk";
+    public const string VoskFolder = "vosk";
 
     public VoskSettings() : this(VoskModel.Small)
     {
     }
 
-    public string ModelPath => Path.Combine(VoskFolder, VoskModel.ToString());
+    public string ModelPath => Path.Combine(Directory.GetCurrentDirectory(), VoskFolder, VoskModel.ToString());
 }
