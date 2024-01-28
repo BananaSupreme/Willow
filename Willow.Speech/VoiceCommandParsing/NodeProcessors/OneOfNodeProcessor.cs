@@ -10,8 +10,7 @@ namespace Willow.Speech.VoiceCommandParsing.NodeProcessors;
 /// </summary>
 /// <param name="CaptureName">The variable name in the command parameters to capture the token.</param>
 /// <param name="ValidWords">The words that should be said to consider the operation a success.</param>
-internal sealed record
-    OneOfNodeProcessor(string CaptureName, Token[] ValidWords) : INodeProcessor //CapturingNodeProcessor(CaptureName)
+internal sealed record OneOfNodeProcessor(string CaptureName, Token[] ValidWords) : INodeProcessor
 {
     public bool IsLeaf => false;
     public uint Weight => (uint)ValidWords.Length;

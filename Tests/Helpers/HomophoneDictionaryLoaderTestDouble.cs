@@ -1,5 +1,4 @@
 ﻿using System.Collections.Frozen;
-using System.IO.Compression;
 using System.Text.Json;
 
 using Willow.Core.Settings.Abstractions;
@@ -7,13 +6,15 @@ using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Enums;
 using Willow.Speech.Tokenization.Settings;
 
-namespace Willow.Speech.Tokenization;
+namespace Tests.Helpers;
 
-internal sealed class HomophonesDictionaryLoader : IHomophonesDictionaryLoader
+//This is really similar to the actual homophones loader, but its here so the tests would still work even if we change
+//slightly the dictionaries and how they are built.
+internal sealed class HomophoneDictionaryLoaderTestDouble : IHomophonesDictionaryLoader
 {
     private readonly ISettings<HomophoneSettings> _settings;
 
-    public HomophonesDictionaryLoader(ISettings<HomophoneSettings> settings)
+    public HomophoneDictionaryLoaderTestDouble(ISettings<HomophoneSettings> settings)
     {
         _settings = settings;
     }
@@ -28,12 +29,11 @@ internal sealed class HomophonesDictionaryLoader : IHomophonesDictionaryLoader
         }
 
         var dictionaryName = _settings.CurrentValue.HomophoneType == HomophoneType.CarnegieMelonDictionaryEquivalents
-                                 ? "homophones.brotli"
-                                 : "near_homophones.brotli";
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "Tokenization", "Resources", dictionaryName);
+                                 ? "homophones.dict"
+                                 : "near_homophones.dict";
+        var path = Path.Combine("Speech", "CommandProcessing", dictionaryName);
         await using var file = File.OpenRead(path);
-        await using var brotli = new BrotliStream(file, CompressionMode.Decompress);
-        var homophones = await JsonSerializer.DeserializeAsync<Dictionary<string, string[]>>(brotli)
+        var homophones = await JsonSerializer.DeserializeAsync<Dictionary<string, string[]>>(file)
                          ?? throw new InvalidOperationException();
         return homophones.ToFrozenDictionary();
     }

@@ -103,7 +103,7 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
             var tagAttribute = type.GetCustomAttributes(false).OfType<TagAttribute>().ToArray();
             return tagAttribute.Length != 0
                        ? tagAttribute.Select(static x => new TagRequirement(x.Tags)).ToArray()
-                       : [new TagRequirement([])];
+                       : [TagRequirement.Empty];
         }
 
         return validActivationModes.SelectMany(GetTagsWithActivation).ToArray();

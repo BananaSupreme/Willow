@@ -13,14 +13,21 @@
 /// <param name="Tags">All the tags that must be satisfied when </param>
 public readonly record struct TagRequirement(Tag[] Tags)
 {
+    public static readonly TagRequirement Empty = new([]);
+
     public bool Equals(TagRequirement other)
     {
         return Tags.SequenceEqual(other.Tags);
     }
 
+    /// <summary>
+    /// Test whether environment contains all the tags required in this group.
+    /// </summary>
+    /// <param name="tags">The tags in the environment.</param>
+    /// <returns>Whether the environment satisfies the requirements in the tags.</returns>
     public bool IsSatisfied(Tag[] tags)
     {
-        return tags.Length == 0 || Array.TrueForAll(Tags, tags.Contains);
+        return Tags.Length == 0 || Array.TrueForAll(Tags, tags.Contains);
     }
 
     public override int GetHashCode()

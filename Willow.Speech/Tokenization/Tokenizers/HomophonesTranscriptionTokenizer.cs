@@ -1,6 +1,4 @@
 ﻿using System.Collections.Frozen;
-using System.IO.Compression;
-using System.Text.Json;
 
 using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Settings.Abstractions;
