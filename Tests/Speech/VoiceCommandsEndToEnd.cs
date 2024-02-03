@@ -5,6 +5,7 @@ using Willow.Core.Eventing.Abstractions;
 using Willow.Core.Registration.Abstractions;
 using Willow.Speech;
 using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 using Willow.Speech.SpeechToText.Eventing.Events;
 using Willow.Speech.Tokenization.Tokens;
@@ -19,17 +20,18 @@ public sealed class VoiceCommandsEndToEnd
 
     public VoiceCommandsEndToEnd(ITestOutputHelper testOutputHelper)
     {
-        _serviceProvider = WillowStartup.StartAsync(null, s =>
-        {
-            s.AddTestLogger(testOutputHelper);
-            s.AddSettings();
-            return s;
-        }).GetAwaiter().GetResult();
+        _serviceProvider = WillowStartup.StartAsync(null,
+                                                    s =>
+                                                    {
+                                                        s.AddTestLogger(testOutputHelper);
+                                                        s.AddSettings();
+                                                        s.AddSingleton<Counter>();
+                                                        return s;
+                                                    })
+                                        .GetAwaiter()
+                                        .GetResult();
         var registrar = _serviceProvider.GetRequiredService<IAssemblyRegistrationEntry>();
-        registrar.RegisterAssembliesAsync([
-                                              typeof(ISpeechAssemblyMarker).Assembly,
-                                              GetType().Assembly
-                                          ])
+        registrar.RegisterAssembliesAsync([typeof(ISpeechAssemblyMarker).Assembly, GetType().Assembly])
                  .GetAwaiter()
                  .GetResult();
     }
@@ -43,17 +45,23 @@ public sealed class VoiceCommandsEndToEnd
         eventDispatcher.Flush();
 
         var testVoiceCommand = _serviceProvider.GetRequiredService<TestVoiceCommand>();
-        var testVoiceCommandModifer = _serviceProvider.GetRequiredService<TestVoiceCommandModifer>();
+        var counter = _serviceProvider.GetRequiredService<Counter>();
 
         testVoiceCommand.Called.Should().BeTrue();
-        testVoiceCommandModifer.CalledAmount.Should().Be(2);
+        counter.Counted.Should().Be(2);
     }
 }
 
 public class TestVoiceCommand : IVoiceCommand
 {
+    private readonly Counter _counter;
     public bool Called { get; private set; }
     public string InvocationPhrase => "Test ?[*capture]:hit";
+
+    public TestVoiceCommand(Counter counter)
+    {
+        _counter = counter;
+    }
 
     public Task ExecuteAsync(VoiceCommandContext context)
     {
@@ -66,16 +74,17 @@ public class TestVoiceCommand : IVoiceCommand
 
         return Task.CompletedTask;
     }
-}
 
-public class TestVoiceCommandModifer : IVoiceCommand
-{
-    public int CalledAmount { get; private set; }
-    public string InvocationPhrase => "Repeat";
-
-    public Task ExecuteAsync(VoiceCommandContext context)
+    [VoiceCommand("Repeat")]
+    public Task TestVoiceCommandModifer(VoiceCommandContext context)
     {
-        CalledAmount++;
+        //This indirection is because the source generator copies the properties to another class.
+        _counter.Counted++;
         return Task.CompletedTask;
     }
+}
+
+public sealed class Counter
+{
+    public int Counted { get; set; }
 }

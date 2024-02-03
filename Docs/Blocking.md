@@ -1,7 +1,6 @@
 ﻿Some blocking tasks, they are expanded upon in their respective TODOs, this should be done before we're ready to go
 public with the project
 
-- Commands source generator
 - Nugets, and how do we compose the project, and manage dependencies, I feel like this part will cause us a lot of
   headaches
 - DOCS! The XML docs part is done, we should add documentations explaining how the system ties together.

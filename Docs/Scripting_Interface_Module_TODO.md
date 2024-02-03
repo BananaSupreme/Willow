@@ -1,5 +1,3 @@
-- Source generator that autogenerates the IVoiceCommand from functions, it should copy constructor and private fields
-  from the enclosing class to allow for DI
 - some notification when two equivilant commands are added, just to make sure the user is aware that the resolution of
   those commands is undetermined and either will execute, also it will always be the same one
 

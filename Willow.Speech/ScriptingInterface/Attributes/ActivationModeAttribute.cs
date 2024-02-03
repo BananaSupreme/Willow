@@ -11,8 +11,8 @@ namespace Willow.Speech.ScriptingInterface.Attributes;
 /// If a command is valid across multiple modes, multiple activations can be given and a cross of all tags and modes
 /// would be created.
 /// </remarks>
-[AttributeUsage(AttributeTargets.Class)]
-public sealed class ActivationModeAttribute : Attribute
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public sealed class ActivationModeAttribute : Attribute, IVoiceCommandDescriptor
 {
     public ActivationModeAttribute(string? activationMode)
     {

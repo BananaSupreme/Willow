@@ -1,4 +1,5 @@
 ﻿using Willow.Core.Environment.Enums;
+using Willow.Speech.ScriptingInterface.Abstractions;
 
 namespace Willow.Speech.ScriptingInterface.Attributes;
 
@@ -8,8 +9,8 @@ namespace Willow.Speech.ScriptingInterface.Attributes;
 /// <remarks>
 /// If this attribute is not defined the system assumes <c>SupportedOss.Any</c>
 /// </remarks>
-[AttributeUsage(AttributeTargets.Class)]
-public sealed class SupportedOssAttribute : Attribute
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public sealed class SupportedOssAttribute : Attribute, IVoiceCommandDescriptor
 {
     public SupportedOssAttribute(SupportedOss supportedOss)
     {

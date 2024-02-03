@@ -9,6 +9,7 @@ using Willow.Helpers.Extensions;
 using Willow.Helpers.Logging.Loggers;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Attributes;
+using Willow.Speech.ScriptingInterface.Extensions;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.Speech.ScriptingInterface;
@@ -68,25 +69,8 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
 
     private static string ProcessNameFromTypeName(Type type)
     {
-        var typeName = GetTypeNameWithoutEndings(type);
+        var typeName = type.Name.AsSpan().GetTypeNameWithoutVoiceCommandEndings();
         return typeName.GetTitleFromPascal().ToString();
-    }
-
-    private static ReadOnlySpan<char> GetTypeNameWithoutEndings(Type type)
-    {
-        const string Command = "Command";
-        const string VoiceCommand = "VoiceCommand";
-        var typeName = type.Name.AsSpan();
-        if (typeName.EndsWith(VoiceCommand))
-        {
-            typeName = typeName[..^VoiceCommand.Length];
-        }
-        else if (typeName.EndsWith(Command))
-        {
-            typeName = typeName[..^Command.Length];
-        }
-
-        return typeName;
     }
 
     private static string GetDescription(Type type)

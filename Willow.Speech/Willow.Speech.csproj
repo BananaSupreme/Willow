@@ -8,6 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.1.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
         <PackageReference Include="Phonix" Version="1.0.2" />
         <PackageReference Include="PvRecorder" Version="1.2.4"/>
         <PackageReference Include="SileroVad" Version="1.1.0.1"/>

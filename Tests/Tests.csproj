@@ -30,6 +30,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Willow.Core\Willow.Core.csproj"/>
+        <ProjectReference Include="..\Willow.SourceGenerators\Willow.SourceGenerators.csproj" OutputItemType="Analyzer"/>
         <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj"/>
         <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>
@@ -51,10 +52,10 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Speech\CommandProcessing\homophones.dict">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Speech\CommandProcessing\near_homophones.dict">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

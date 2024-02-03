@@ -9,8 +9,8 @@ namespace Willow.Speech.ScriptingInterface.Attributes;
 /// It is recommended to always include this attribute to allow the user to better understand the system which they are
 /// using.
 /// </remarks>
-[AttributeUsage(AttributeTargets.Class)]
-public sealed class DescriptionAttribute : Attribute
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public sealed class DescriptionAttribute : Attribute, IVoiceCommandDescriptor
 {
     public DescriptionAttribute(string tag)
     {

@@ -12,26 +12,15 @@ namespace Willow.Speech.ScriptingInterface.Attributes;
 /// When no attribute exists it is assumed a singular attribute with no tags defined. That is it is relevant in all
 /// environments.
 /// </remarks>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-public sealed class TagAttribute : Attribute, IVoiceCommandDescriptor
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+public sealed class VoiceCommandAttribute : Attribute, IVoiceCommandDescriptor
 {
-    public TagAttribute()
-    {
-        Tags = [];
-    }
+    public string InvocationPhrase { get; }
 
-    public TagAttribute(string tag)
-    {
-        Tags = [new Tag(tag)];
-    }
+    public string[] RequiredMethods { get; set; } = [];
 
-    public TagAttribute(params string[] tags)
+    public VoiceCommandAttribute(string invocationPhrase)
     {
-        Tags = tags.Select(x => new Tag(x)).ToArray();
+        InvocationPhrase = invocationPhrase;
     }
-
-    /// <summary>
-    /// The group of tags.
-    /// </summary>
-    public Tag[] Tags { get; }
 }

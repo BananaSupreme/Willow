@@ -1,4 +1,6 @@
-﻿namespace Willow.Speech.ScriptingInterface.Attributes;
+﻿using Willow.Speech.ScriptingInterface.Abstractions;
+
+namespace Willow.Speech.ScriptingInterface.Attributes;
 
 /// <summary>
 /// The display name to be used by the command,
@@ -12,7 +14,8 @@
 /// "AnotherCommandInTheSystem" -> "Another Command In The System". <br/>
 /// "FinalThatEndsWithCommand" -> "Final That Ends With".
 /// </example>
-public sealed class NameAttribute : Attribute
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public sealed class NameAttribute : Attribute, IVoiceCommandDescriptor
 {
     public NameAttribute(string name)
     {

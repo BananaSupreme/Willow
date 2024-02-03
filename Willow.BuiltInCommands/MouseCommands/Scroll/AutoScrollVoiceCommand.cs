@@ -8,6 +8,7 @@ using Willow.Core.Settings.Abstractions;
 using Willow.DeviceAutomation.InputDevices.Abstractions;
 using Willow.Helpers.Locking;
 using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands.Scroll;
@@ -21,6 +22,7 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
     private readonly IEnvironmentStateProvider _environmentStateProvider;
     private readonly IInputSimulator _inputSimulator;
     private readonly ISettings<ScrollSettings> _settings;
+
     public AutoScrollVoiceCommand(IInputSimulator inputSimulator,
                                   IEnvironmentStateProvider environmentStateProvider,
                                   ISettings<ScrollSettings> settings)
@@ -86,6 +88,27 @@ internal sealed class AutoScrollVoiceCommand : IVoiceCommand
             environmentStateProvider.DeactivateTag(_autoScrollingTag);
             await _cts.CancelAsync();
         }
+    }
+
+    [Tag(AutoScrollingTagString)]
+    [VoiceCommand("?[scroll]:_ [faster|slower]:change")]
+    public Task ChangeAutoScrollSpeed(VoiceCommandContext context)
+    {
+        var change = context.Parameters["change"].GetString();
+
+        switch (change)
+        {
+            case "faster":
+                _settings.Update(new ScrollSettings(Speed: _settings.CurrentValue.Speed - 10));
+                break;
+            case "slower":
+                _settings.Update(new ScrollSettings(Speed: _settings.CurrentValue.Speed + 10));
+                break;
+            default:
+                throw new UnreachableException();
+        }
+
+        return Task.CompletedTask;
     }
 
     private static Vector2 GetFromDirection(string direction)
