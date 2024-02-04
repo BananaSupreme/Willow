@@ -1,8 +1,8 @@
 using Tests.Helpers;
 
-using Willow.Core.Eventing.Registration;
+using Willow.Eventing.Registration;
 using Willow.Speech.Microphone.Models;
-using Willow.Speech.SpeechToText.Abstractions;
+using Willow.Speech.SpeechToText;
 using Willow.WhisperServer;
 
 using Xunit.Abstractions;

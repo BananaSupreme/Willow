@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Willow.Core.Settings.Abstractions;
+using Willow.Settings;
 using Willow.Speech.AudioBuffering;
 using Willow.Speech.AudioBuffering.Settings;
-using Willow.Speech.Microphone.Eventing.Events;
+using Willow.Speech.Microphone.Events;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.VAD;
 using Willow.Speech.VAD.Middleware;

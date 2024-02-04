@@ -1,7 +1,6 @@
 ﻿using Tests.Helpers;
 
-using Willow.Core.Eventing;
-using Willow.Core.Eventing.Abstractions;
+using Willow.Eventing;
 
 using Xunit.Abstractions;
 

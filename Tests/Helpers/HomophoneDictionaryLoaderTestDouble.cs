@@ -1,7 +1,7 @@
 ﻿using System.Collections.Frozen;
 using System.Text.Json;
 
-using Willow.Core.Settings.Abstractions;
+using Willow.Settings;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Enums;
 using Willow.Speech.Tokenization.Settings;

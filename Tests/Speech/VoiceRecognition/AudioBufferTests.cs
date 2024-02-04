@@ -1,4 +1,4 @@
-﻿using Willow.Core.Settings.Abstractions;
+﻿using Willow.Settings;
 using Willow.Speech.AudioBuffering;
 using Willow.Speech.AudioBuffering.Exceptions;
 using Willow.Speech.AudioBuffering.Settings;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using Willow.Core.Settings.Abstractions;
+using Willow.Settings;
 
 using Xunit.Abstractions;
 

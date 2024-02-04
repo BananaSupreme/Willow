@@ -1,25 +1,26 @@
 ﻿using Tests.Helpers;
 
-using Willow.Core.Environment.Abstractions;
-using Willow.Core.Environment.Models;
-using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Eventing.Registration;
-using Willow.Core.Middleware.Registration;
-using Willow.Core.Registration;
+using Willow.Environment;
+using Willow.Environment.Models;
+using Willow.Eventing;
+using Willow.Eventing.Registration;
 using Willow.Helpers.Extensions;
+using Willow.Middleware.Registration;
+using Willow.Registration;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
 using Willow.Speech.ScriptingInterface.Models;
-using Willow.Speech.SpeechToText.Eventing.Events;
-using Willow.Speech.Tokenization.Abstractions;
+using Willow.Speech.SpeechToText.Events;
+using Willow.Speech.Tokenization;
 using Willow.Speech.Tokenization.Middleware;
 using Willow.Speech.Tokenization.Registration;
 using Willow.Speech.Tokenization.Tokenizers;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
-using Willow.Speech.VoiceCommandCompilation.Abstractions;
+using Willow.Speech.VoiceCommandCompilation;
+using Willow.Speech.VoiceCommandCompilation.NodeCompilers;
 using Willow.Speech.VoiceCommandCompilation.Registration;
-using Willow.Speech.VoiceCommandParsing.Eventing.Events;
-using Willow.Speech.VoiceCommandParsing.Eventing.Handlers;
+using Willow.Speech.VoiceCommandParsing.EventHandlers;
+using Willow.Speech.VoiceCommandParsing.Events;
 
 using Xunit.Abstractions;
 
@@ -43,10 +44,8 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
         _handler = Substitute.For<ITestHandler>();
         _environmentStateProvider = Substitute.For<IEnvironmentStateProvider>();
         var services = new ServiceCollection();
-        services.AddRegistration();
         services.AddTestLogger(testOutputHelper);
         RegisterServices(services: services);
-        services.AddAllTypesFromOwnAssembly<INodeCompiler>();
         _provider = services.BuildServiceProvider();
         _eventDispatcher = _provider.GetRequiredService<IEventDispatcher>();
         RegisterEvents();
@@ -66,12 +65,14 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
 
     private void RegisterServices(ServiceCollection services)
     {
+        services.AddRegistration();
         services.AddSingleton(implementationFactory: _ => _environmentStateProvider);
         services.AddSingleton(implementationFactory: _ => _handler);
         services.AddSingleton<AudioTranscribedEventHandler>();
         services.AddSingleton<CommandModifiedEventHandler>();
         services.AddSingleton<PunctuationRemoverMiddleware>();
-        services.AddAllTypesFromOwnAssembly<ITranscriptionTokenizer>();
+        services.AddAllTypesFromAssemblyMarked<ITranscriptionTokenizer, HomophonesTranscriptionTokenizer>();
+        services.AddAllTypesFromAssemblyMarked<INodeCompiler, AndNodeCompiler>();
         services.AddSettings();
         new VoiceCommandCompilationRegistrar().RegisterServices(services: services);
         new TokenizationRegistrar().RegisterServices(services: services);
@@ -344,7 +345,6 @@ public sealed class CommandProcessingEndToEndTests : IDisposable
 
         _eventDispatcher.Dispatch(@event: new AudioTranscribedEvent(Text: input));
         _eventDispatcher.Flush();
-        _eventDispatcher.Flush(); //Second time because the event can trigger downstream events
 
         result.Should().BeEquivalentTo(expectation: expectedCommand);
         captured.Should().BeEquivalentTo(expectation: expectedCaptures);

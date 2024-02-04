@@ -1,8 +1,8 @@
 ﻿using Tests.Helpers;
 
-using Willow.Core.Environment;
-using Willow.Core.Environment.Abstractions;
-using Willow.Core.Environment.Models;
+using Willow.Environment;
+using Willow.Environment.Abstractions;
+using Willow.Environment.Models;
 
 using Xunit.Abstractions;
 

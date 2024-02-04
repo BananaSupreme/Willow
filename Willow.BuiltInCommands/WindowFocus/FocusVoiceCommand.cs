@@ -1,7 +1,7 @@
-﻿using Willow.Core.Environment.Enums;
-using Willow.DeviceAutomation.InputDevices.Abstractions;
+﻿using Willow.DeviceAutomation.InputDevices;
 using Willow.DeviceAutomation.InputDevices.Enums;
-using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Environment.Enums;
+using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 

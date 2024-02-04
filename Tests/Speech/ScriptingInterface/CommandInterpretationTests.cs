@@ -1,8 +1,8 @@
 ﻿using Tests.Helpers;
 
-using Willow.Core.Environment.Abstractions;
-using Willow.Core.Environment.Enums;
-using Willow.Core.Environment.Models;
+using Willow.Environment;
+using Willow.Environment.Enums;
+using Willow.Environment.Models;
 using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Attributes;

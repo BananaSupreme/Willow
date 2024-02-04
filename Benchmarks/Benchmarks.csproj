@@ -17,7 +17,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj"/>
-        <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj"/>
+        <ProjectReference Include="..\Willow.Core\Willow.Core\Willow.Core.csproj" />
+        <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj" />
+        <ProjectReference Include="..\Willow.Speech\Willow.Speech\Willow.Speech.csproj" />
         <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>
 

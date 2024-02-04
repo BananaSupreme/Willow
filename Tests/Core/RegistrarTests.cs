@@ -5,9 +5,8 @@ using DryIoc.Microsoft.DependencyInjection;
 
 using Tests.Helpers;
 
-using Willow.Core.Registration;
-using Willow.Core.Registration.Abstractions;
-using Willow.Core.Registration.Exceptions;
+using Willow.Registration;
+using Willow.Registration.Exceptions;
 
 using Xunit.Abstractions;
 

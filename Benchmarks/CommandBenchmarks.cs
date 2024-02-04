@@ -1,18 +1,17 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-
 using Microsoft.Extensions.DependencyInjection;
 
 using NSubstitute;
 
+using Willow;
 using Willow.BuiltInCommands;
-using Willow.Core;
-using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Registration.Abstractions;
-using Willow.DeviceAutomation.InputDevices.Abstractions;
+using Willow.DeviceAutomation.InputDevices;
+using Willow.Eventing;
+using Willow.Registration;
 using Willow.Speech;
-using Willow.Speech.SpeechToText.Eventing.Events;
-using Willow.Speech.Tokenization.Abstractions;
+using Willow.Speech.SpeechToText.Events;
+using Willow.Speech.Tokenization;
 using Willow.Speech.Tokenization.Tokenizers;
 
 // ReSharper disable ClassCanBeSealed.Global

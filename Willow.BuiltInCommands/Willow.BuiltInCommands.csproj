@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Willow.Core\Willow.Core.csproj"/>
-        <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.csproj"/>
+        <ProjectReference Include="..\Willow.Core\Willow.Core.Abstractions\Willow.Core.Abstractions.csproj" />
+        <ProjectReference Include="..\Willow.DeviceAutomation\Willow.DeviceAutomation.Abstractions\Willow.DeviceAutomation.Abstractions.csproj" />
         <ProjectReference Include="..\Willow.SourceGenerators\Willow.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\Willow.Speech\Willow.Speech.csproj"/>
+        <ProjectReference Include="..\Willow.Speech\Willow.Speech.Abstractions\Willow.Speech.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

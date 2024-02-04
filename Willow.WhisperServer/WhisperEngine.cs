@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 
 using Python.Included;
 
-using Willow.Core.Environment.Enums;
-using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Privacy.Settings;
-using Willow.Core.Settings.Abstractions;
-using Willow.Core.Settings.Events;
+using Willow.Environment.Enums;
+using Willow.Eventing;
 using Willow.Helpers.Locking;
 using Willow.Helpers.Logging.Loggers;
+using Willow.Privacy.Settings;
+using Willow.Settings;
+using Willow.Settings.Events;
 using Willow.Speech.Microphone.Models;
-using Willow.Speech.SpeechToText.Abstractions;
+using Willow.Speech.SpeechToText;
 using Willow.WhisperServer.Extensions;
 using Willow.WhisperServer.Models;
 using Willow.WhisperServer.Settings;

@@ -74,7 +74,7 @@ public class VoiceCommandGenerator : IIncrementalGenerator
 
                                             [global::System.Runtime.CompilerServices.CompilerGenerated]
                                             {{string.Join<AttributeListSyntax>("\r\n\t", voiceCommandMethodInfo.AttributeLists)}}
-                                            public class {{voiceCommandMethodInfo.MethodName}} : global::Willow.Speech.ScriptingInterface.Abstractions.IVoiceCommand
+                                            public class {{voiceCommandMethodInfo.MethodName}} : global::Willow.Speech.ScriptingInterface.IVoiceCommand
                                             {
                                                 {{string.Join<PropertyDeclarationSyntax>("\r\n\t", voiceCommandMethodInfo.PropertyDeclarationSyntax)}}
                                             

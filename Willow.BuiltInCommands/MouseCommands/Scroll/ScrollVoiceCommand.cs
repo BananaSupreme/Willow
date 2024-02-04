@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 
-using Willow.DeviceAutomation.InputDevices.Abstractions;
-using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.DeviceAutomation.InputDevices;
+using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands.Scroll;

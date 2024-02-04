@@ -1,13 +1,13 @@
 ﻿using Tests.Helpers;
 
-using Willow.Core;
-using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Registration.Abstractions;
+using Willow;
+using Willow.Eventing;
+using Willow.Registration;
 using Willow.Speech;
-using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
-using Willow.Speech.SpeechToText.Eventing.Events;
+using Willow.Speech.SpeechToText.Events;
 using Willow.Speech.Tokenization.Tokens;
 
 using Xunit.Abstractions;

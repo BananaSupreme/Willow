@@ -1,6 +1,6 @@
 using Tests.Helpers;
 
-using Willow.Core.Eventing.Registration;
+using Willow.Eventing.Registration;
 using Willow.Speech.Microphone.Models;
 using Willow.Vosk;
 using Willow.Vosk.Abstractions;

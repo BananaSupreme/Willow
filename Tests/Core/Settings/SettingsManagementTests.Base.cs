@@ -2,11 +2,11 @@
 
 using Tests.Helpers;
 
-using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Eventing.Registration;
-using Willow.Core.Settings.Abstractions;
-using Willow.Core.Settings.Events;
-using Willow.Core.Settings.Registration;
+using Willow.Eventing;
+using Willow.Eventing.Registration;
+using Willow.Settings;
+using Willow.Settings.Events;
+using Willow.Settings.Registration;
 
 using Xunit.Abstractions;
 

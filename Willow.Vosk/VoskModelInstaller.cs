@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 
 using Microsoft.Extensions.Logging;
 
-using Willow.Core.Settings.Abstractions;
 using Willow.Helpers.Extensions;
 using Willow.Helpers.Locking;
 using Willow.Helpers.Logging.Extensions;
 using Willow.Helpers.Logging.Loggers;
+using Willow.Settings;
 using Willow.Vosk.Abstractions;
 using Willow.Vosk.Enums;
 using Willow.Vosk.Settings;

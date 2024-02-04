@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using Willow.SourceGenerators;
 using Willow.Speech;
-using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.Speech.ScriptingInterface;
 
 namespace Tests.Speech.ScriptingInterface;
 
@@ -601,6 +601,8 @@ public sealed class CommandSourceGeneratorTests
                                         [
                                             MetadataReference.CreateFromFile(
                                                 typeof(ISpeechAssemblyMarker).Assembly.Location),
+                                            MetadataReference.CreateFromFile(
+                                                typeof(IVoiceCommand).Assembly.Location),
                                             MetadataReference.CreateFromFile(typeof(Attribute).Assembly.Location),
                                             MetadataReference.CreateFromFile(
                                                 Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!,

@@ -5,7 +5,7 @@ using Newtonsoft.Json.Serialization;
 
 using Tests.Helpers;
 
-using Willow.Core.Environment.Models;
+using Willow.Environment.Models;
 using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.VoiceCommandCompilation;
 using Willow.Speech.VoiceCommandCompilation.Abstractions;

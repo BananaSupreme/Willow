@@ -2,12 +2,13 @@
 
 using Tests.Helpers;
 
-using Willow.Core.Eventing.Abstractions;
-using Willow.Core.Eventing.Registration;
-using Willow.Core.Registration;
-using Willow.Core.Settings.Abstractions;
-using Willow.Core.Settings.Events;
+using Willow.Eventing;
+using Willow.Eventing.Registration;
 using Willow.Helpers.Extensions;
+using Willow.Registration;
+using Willow.Settings;
+using Willow.Settings.Events;
+using Willow.Speech.Tokenization;
 using Willow.Speech.Tokenization.Abstractions;
 using Willow.Speech.Tokenization.Enums;
 using Willow.Speech.Tokenization.Registration;
@@ -36,7 +37,7 @@ public sealed class TokenizationTests : IDisposable
         services.AddSingleton(_homophoneSettings);
         new TokenizationRegistrar().RegisterServices(services);
         new EventingRegistrar().RegisterServices(services);
-        services.AddAllTypesAsMappingFromOwnAssembly<ITranscriptionTokenizer>();
+        services.AddAllTypesAsMappingFromAssemblyMarked<ITranscriptionTokenizer, HomophonesTranscriptionTokenizer>();
         services.AddRegistration();
         services.AddSingleton<IHomophonesDictionaryLoader, HomophoneDictionaryLoaderTestDouble>();
         _provider = services.CreateServiceProvider();

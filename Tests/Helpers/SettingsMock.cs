@@ -1,4 +1,4 @@
-﻿using Willow.Core.Settings.Abstractions;
+﻿using Willow.Settings;
 
 namespace Tests.Helpers;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Registration.Abstractions;
+using Willow.Registration;
 using Willow.Speech.SpeechToText.Extensions;
 using Willow.Vosk.Abstractions;
 

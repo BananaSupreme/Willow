@@ -1,6 +1,6 @@
 ﻿using Tests.Helpers;
 
-using Willow.Core.Settings.Abstractions;
+using Willow.Settings;
 using Willow.Vosk.Abstractions;
 using Willow.Vosk.Enums;
 using Willow.Vosk.Registration;

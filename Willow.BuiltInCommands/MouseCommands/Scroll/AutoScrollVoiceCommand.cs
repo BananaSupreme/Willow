@@ -2,11 +2,11 @@
 using System.Numerics;
 
 using Willow.BuiltInCommands.MouseCommands.Scroll.Settings;
-using Willow.Core.Environment.Abstractions;
-using Willow.Core.Environment.Models;
-using Willow.Core.Settings.Abstractions;
-using Willow.DeviceAutomation.InputDevices.Abstractions;
-using Willow.Speech.ScriptingInterface.Abstractions;
+using Willow.DeviceAutomation.InputDevices;
+using Willow.Environment;
+using Willow.Environment.Models;
+using Willow.Settings;
+using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 

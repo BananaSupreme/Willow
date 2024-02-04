@@ -1,7 +1,7 @@
 ﻿using Tests.Helpers;
 
-using Willow.Core.Middleware.Abstractions;
-using Willow.Core.Middleware.Registration;
+using Willow.Middleware;
+using Willow.Middleware.Registration;
 
 using Xunit.Abstractions;
 

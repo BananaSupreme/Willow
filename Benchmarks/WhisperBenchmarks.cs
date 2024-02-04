@@ -4,9 +4,9 @@ using DryIoc.Microsoft.DependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Core.Settings.Registration;
+using Willow.Settings.Registration;
 using Willow.Speech.Microphone.Models;
-using Willow.Speech.SpeechToText.Abstractions;
+using Willow.Speech.SpeechToText;
 using Willow.WhisperServer;
 
 // ReSharper disable ClassCanBeSealed.Global
