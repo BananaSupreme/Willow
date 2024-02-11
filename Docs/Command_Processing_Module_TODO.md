@@ -4,7 +4,5 @@
   tokens and the command could never be executed)
 - Expand on the issues and exceptions that the command compiler throws, our users will certainly appreciate the issues
   floated
-- We should certainly look into caching repeated commands, no point in processing a sentatnce twice if the user said the
-  same thing.
 - A warning for the user that commands have become equivilant could be nice, but we can also apply a general warning
   when the user 
