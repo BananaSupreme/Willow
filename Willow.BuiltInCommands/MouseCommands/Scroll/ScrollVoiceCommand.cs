@@ -3,10 +3,12 @@ using System.Numerics;
 
 using Willow.DeviceAutomation.InputDevices;
 using Willow.Speech.ScriptingInterface;
+using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands.Scroll;
 
+[ActivationMode(activationMode: null)]
 internal sealed class ScrollVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
@@ -30,7 +32,7 @@ internal sealed class ScrollVoiceCommand : IVoiceCommand
         return Task.CompletedTask;
     }
 
-    private Vector2 GetFromDirection(string direction)
+    private static Vector2 GetFromDirection(string direction)
     {
         return direction switch
         {

@@ -21,9 +21,9 @@ public sealed class CommandCompilationTests : IDisposable
     private static readonly Dictionary<string, object> _capturedValues = new()
     {
         {
-            "devices", new Token[] { new WordToken("Microphone"), new WordToken("Kettle"), new WordToken("Bananas") }
+            "_devices", new Token[] { new WordToken("Microphone"), new WordToken("Kettle"), new WordToken("Bananas") }
         },
-        { "genres", new Token[] { new WordToken("Music"), new WordToken("Rock"), new WordToken("Folk") } }
+        { "_genres", new Token[] { new WordToken("Music"), new WordToken("Rock"), new WordToken("Folk") } }
     };
 
     private readonly PreCompiledVoiceCommand _base;
@@ -143,7 +143,7 @@ public sealed class CommandCompilationTests : IDisposable
         ("turn [_devices]:device off",
          [
              new WordNodeProcessor(new WordToken("turn")),
-             new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"]),
+             new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"]),
              new WordNodeProcessor(new WordToken("off"))
          ]),
         ("show weather ?[*location]:capture",
@@ -223,25 +223,25 @@ public sealed class CommandCompilationTests : IDisposable
         ("play OneOf:genre{_genres} music",
          [
              new WordNodeProcessor(new WordToken("play")),
-             new OneOfNodeProcessor("genre", (Token[])_capturedValues["genres"]),
+             new OneOfNodeProcessor("genre", (Token[])_capturedValues["_genres"]),
              new WordNodeProcessor(new WordToken("music"))
          ]),
         ("turn Optional[OneOf:device{_devices}]:hit off",
          [
              new WordNodeProcessor(new WordToken("turn")),
-             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"])),
+             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
              new WordNodeProcessor(new WordToken("off"))
          ]),
         ("turn ?[OneOf:device{_devices}]:hit off",
          [
              new WordNodeProcessor(new WordToken("turn")),
-             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"])),
+             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
              new WordNodeProcessor(new WordToken("off"))
          ]),
         ("turn ?[[_devices]:device]:hit off",
          [
              new WordNodeProcessor(new WordToken("turn")),
-             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["devices"])),
+             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
              new WordNodeProcessor(new WordToken("off"))
          ]),
         ("rename WildCard:oldName to WildCard:newName",

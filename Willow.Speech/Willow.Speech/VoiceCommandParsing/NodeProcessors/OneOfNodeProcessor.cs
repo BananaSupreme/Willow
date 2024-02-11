@@ -22,13 +22,13 @@ internal sealed record OneOfNodeProcessor(string CaptureName, Token[] ValidWords
         }
 
         var token = tokens.Span[0];
-        var matched = Array.Exists(ValidWords, t => token.Match(t));
-        if (!matched)
+        var matched = Array.Find(ValidWords, t => token.Match(t));
+        if (matched is null)
         {
             return new TokenProcessingResult(false, builder, tokens);
         }
 
-        builder = builder.AddParameter(CaptureName, new WordToken(token.GetString()));
+        builder = builder.AddParameter(CaptureName, new WordToken(matched.GetString()));
         return new TokenProcessingResult(true, builder, tokens[1..]);
     }
 

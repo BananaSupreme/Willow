@@ -17,9 +17,9 @@ public sealed class ActivationModeAttribute : Attribute, IVoiceCommandDescriptor
         ActivationModes = activationMode is not null ? [activationMode] : null;
     }
 
-    public ActivationModeAttribute(params string[] activationModeses)
+    public ActivationModeAttribute(params string[] activationModes)
     {
-        ActivationModes = activationModeses;
+        ActivationModes = activationModes;
     }
 
     /// <summary>

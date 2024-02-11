@@ -1,14 +1,1 @@
-- **Commands that should be built**
-    - zoom zoom [in|out|reset]
-    - move keys [go|move] [left|right|up|down]
-    - copy, paste, cut [copy|paste|cut] that
-    - tags
-    - abbreviating abbreviate [_list]
-    - homophones phone *word
-    - press keys [_specialchars], char *any,
-    - mode changing
-    - repetition and voice command history
-    - write formatted
-    - write text
-    - dictation mode editing
-    - move around text
+

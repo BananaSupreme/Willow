@@ -53,7 +53,7 @@ internal static partial class SpanExtensions
                                                 IDictionary<string, object> capturedValues)
     {
         variables.GuardValidVariableName();
-        if (!capturedValues.TryGetValue(variables[1..].ToString(), out var value))
+        if (!capturedValues.TryGetValue(variables.ToString(), out var value))
         {
             throw new CommandCompilationException($"Unable to find captured list {variables}");
         }

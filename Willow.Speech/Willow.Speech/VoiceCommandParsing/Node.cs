@@ -52,6 +52,12 @@ internal sealed class Node
 
     private int GetMostSpecificTagsMatchedCount(Tag[] tags)
     {
-        return TagRequirements.Where(x => x.IsSatisfied(tags)).Max(static x => x.Tags.Length);
+        var tagCount = TagRequirements.Where(x => x.IsSatisfied(tags)).Max(static x => x.Tags.Length);
+
+        //Basically everyone should have at least one tag defined which is the activation mode unless any activation mode
+        //fits, in which case simply by having an activation mode a command overrides previous commands, which completely
+        //breaks in dictation mode for example (as mode changing has no activation, so we need to make sure everyone has
+        //at least one tag, because if you don't care about activation mode, does not mean the tag shouldn't "exist"
+        return Math.Max(tagCount, 1);
     }
 }

@@ -5,7 +5,6 @@ namespace Willow.DeviceAutomation.InputDevices.Extensions;
 
 internal static class KeyExtensions
 {
-    // ReSharper disable once RedundantNameQualifier
     public static Key ToRobot(this Enums.Key key)
     {
         return key switch

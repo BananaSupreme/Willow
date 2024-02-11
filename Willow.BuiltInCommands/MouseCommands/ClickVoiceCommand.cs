@@ -3,10 +3,12 @@
 using Willow.DeviceAutomation.InputDevices;
 using Willow.DeviceAutomation.InputDevices.Enums;
 using Willow.Speech.ScriptingInterface;
+using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
+[ActivationMode(activationMode: null)]
 internal sealed class ClickVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;

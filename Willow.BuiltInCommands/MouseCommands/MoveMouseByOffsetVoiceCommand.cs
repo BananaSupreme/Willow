@@ -3,10 +3,12 @@ using System.Numerics;
 
 using Willow.DeviceAutomation.InputDevices;
 using Willow.Speech.ScriptingInterface;
+using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
+[ActivationMode(activationMode: null)]
 internal sealed class MoveMouseByOffsetVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
@@ -17,6 +19,7 @@ internal sealed class MoveMouseByOffsetVoiceCommand : IVoiceCommand
     }
 
     public string InvocationPhrase => "move mouse [left|right|up|down]:direction ?[#amount]:_";
+
     public Task ExecuteAsync(VoiceCommandContext context)
     {
         var direction = context.Parameters.GetValueOrDefault("direction")?.GetString()!;

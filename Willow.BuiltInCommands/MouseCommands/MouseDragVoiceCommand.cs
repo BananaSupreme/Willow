@@ -2,10 +2,12 @@
 
 using Willow.DeviceAutomation.InputDevices;
 using Willow.Speech.ScriptingInterface;
+using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
+[ActivationMode(activationMode: null)]
 internal sealed class MouseDragVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;

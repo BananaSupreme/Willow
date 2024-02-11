@@ -14,7 +14,7 @@ public readonly record struct HomophoneSettings(bool ShouldTestHomophones,
                                                 HomophoneType HomophoneType,
                                                 Dictionary<string, string[]> UserDefinedHomophones)
 {
-    public HomophoneSettings() : this(true, HomophoneType.CarnegieMelonDictionaryEquivalents, [])
+    public HomophoneSettings() : this(true, HomophoneType.Metaphone, [])
     {
     }
 }
