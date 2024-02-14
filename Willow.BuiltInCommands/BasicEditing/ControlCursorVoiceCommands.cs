@@ -30,7 +30,7 @@ internal sealed class ControlCursorVoiceCommands
     public Task MoveCursorWordVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetArrowKey(context.Parameters["direction"].GetString());
-        _inputSimulator.PressKey(Key.LeftControl, arrow);
+        _inputSimulator.PressKey(Key.LeftCommandOrControl, arrow);
         return Task.CompletedTask;
     }
 
@@ -48,7 +48,7 @@ internal sealed class ControlCursorVoiceCommands
     public Task MoveCursorEdgeOfPageVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetHomeOrEndKey(context.Parameters["direction"].GetString());
-        _inputSimulator.PressKey(Key.LeftControl, arrow);
+        _inputSimulator.PressKey(Key.LeftCommandOrControl, arrow);
         return Task.CompletedTask;
     }
 
@@ -74,7 +74,7 @@ internal sealed class ControlCursorVoiceCommands
     public Task SelectWordVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetArrowKey(context.Parameters["direction"].GetString());
-        _inputSimulator.PressKey(Key.LeftShift, Key.LeftControl, arrow);
+        _inputSimulator.PressKey(Key.LeftShift, Key.LeftCommandOrControl, arrow);
         return Task.CompletedTask;
     }
 
@@ -92,7 +92,7 @@ internal sealed class ControlCursorVoiceCommands
     public Task SelectEdgeOfPageVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetHomeOrEndKey(context.Parameters["direction"].GetString());
-        _inputSimulator.PressKey(Key.LeftShift, Key.LeftControl, arrow);
+        _inputSimulator.PressKey(Key.LeftShift, Key.LeftCommandOrControl, arrow);
         return Task.CompletedTask;
     }
 

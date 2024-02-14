@@ -15,20 +15,40 @@ public interface IInputSimulator
     Vector2 CursorPosition { get; }
 
     /// <summary>
+    /// Gets the size of the current active monitor.
+    /// </summary>
+    Vector2 CurrentMonitorSize { get; }
+
+    /// <summary>
     /// Triggers the key to be held down, the key is not released automatically.
     /// </summary>
+    /// <remarks>
+    /// Certain keys like <see cref="Key.Ampersand"/> don't have an actual key on the keyboard so they are called on
+    /// windows using a call to the unicode representation which might not work as well when trying to use the key as a
+    /// command.
+    /// </remarks>
     /// <param name="key">The key to hold down.</param>
     IInputSimulator KeyDown(Key key);
 
     /// <summary>
     /// Releases a key that is held down.
     /// </summary>
+    /// <remarks>
+    /// Certain keys like <see cref="Key.Ampersand"/> don't have an actual key on the keyboard so they are called on
+    /// windows using a call to the unicode representation which might not work as well when trying to use the key as a
+    /// command.
+    /// </remarks>
     /// <param name="key">The key to release.</param>
     IInputSimulator KeyUp(Key key);
 
     /// <summary>
     /// Taps a key.
     /// </summary>
+    /// <remarks>
+    /// Certain keys like <see cref="Key.Ampersand"/> don't have an actual key on the keyboard so they are called on
+    /// windows using a call to the unicode representation which might not work as well when trying to use the key as a
+    /// command.
+    /// </remarks>
     /// <param name="key">The key to press.</param>
     IInputSimulator PressKey(Key key);
 
@@ -38,16 +58,30 @@ public interface IInputSimulator
     /// <example>
     /// <c>PressKey(Key.LeftControl, Key.LeftShift, Key.C);</c>
     /// </example>
+    /// <remarks>
+    /// Certain keys like <see cref="Key.Ampersand"/> don't have an actual key on the keyboard so they are called on
+    /// windows using a call to the unicode representation which might not work as well when trying to use the key as a
+    /// command.
+    /// </remarks>
     /// <param name="keys">The keys to press together.</param>
     IInputSimulator PressKey(params Key[] keys);
+
+    /// <summary>
+    /// Taps a character.
+    /// </summary>
+    /// <remarks>
+    /// In windows implemented by sending character as a unicode value
+    /// </remarks>
+    /// <param name="character">The character character to type.</param>
+    IInputSimulator Type(char character);
 
     /// <summary>
     /// Types a string.
     /// </summary>
     /// <remarks>
-    /// Currently implemented by tapping all the relevant keys in succession.
+    /// In windows implemented by copying to clipboard and pasting with Ctrl/Command + V
     /// </remarks>
-    /// <param name="input">The input string to type.</param>
+    /// <param name="input">The character string to type.</param>
     IInputSimulator Type(string input);
 
     /// <summary>
@@ -87,9 +121,4 @@ public interface IInputSimulator
     /// <param name="position">The new mouse position in pixels on the screen.</param>
     /// <returns></returns>
     IInputSimulator MoveCursorToAbsolute(Vector2 position);
-    /*
-     * We cannot implement those function since we cannot get the screen size at the moment
-     * Vector2 CurrentMonitorSize { get; } - something to avoid solar lint
-     * IInputSimulator MoveCursorToPercentage(Vector2 position); - something to avoid solar lint
-     */
 }

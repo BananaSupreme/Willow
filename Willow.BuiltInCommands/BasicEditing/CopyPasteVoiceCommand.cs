@@ -23,7 +23,7 @@ internal sealed class CopyPasteVoiceCommand : IVoiceCommand
     public Task ExecuteAsync(VoiceCommandContext context)
     {
         var actionButton = GetActionButton(context.Parameters["action"].GetString());
-        _inputSimulator.PressKey(Key.LeftControl, actionButton);
+        _inputSimulator.PressKey(Key.LeftCommandOrControl, actionButton);
         return Task.CompletedTask;
     }
 

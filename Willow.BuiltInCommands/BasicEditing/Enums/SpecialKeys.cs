@@ -30,5 +30,17 @@ internal enum SpecialKeys
     Question,
     Multiply,
     Divide,
-    Star
+    Star,
+    Tilde,
+    Exclamation,
+    Bang,
+    At,
+    Hash,
+    Caret,
+    Asterisk,
+    Equal,
+    Underscore,
+    Pipe,
+    Apostrophe,
+    Comma,
 }

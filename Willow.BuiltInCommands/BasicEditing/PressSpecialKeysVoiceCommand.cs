@@ -41,16 +41,16 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         var type = context.Parameters["type"].GetString();
         var key = type switch
         {
-            "square" => "[",
-            "squares" => "[",
-            "object" => "{",
-            "curly" => "{",
-            "regular" => "(",
-            "parenthesis" => "(",
-            "angle" => "<",
+            "square" => Key.OpenBracket,
+            "squares" => Key.OpenBracket,
+            "object" => Key.OpenBrace,
+            "curly" => Key.OpenBrace,
+            "regular" => Key.OpenParenthesis,
+            "parenthesis" => Key.OpenParenthesis,
+            "angle" => Key.LessThan,
             _ => throw new UnreachableException()
         };
-        _inputSimulator.Type(key);
+        _inputSimulator.PressKey(key);
         return Task.CompletedTask;
     }
 
@@ -61,20 +61,20 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         var type = context.Parameters["type"].GetString();
         var key = type switch
         {
-            "square" => "]",
-            "squares" => "]",
-            "object" => "}",
-            "curly" => "}",
-            "regular" => ")",
-            "parenthesis" => ")",
-            "angle" => ">",
+            "square" => Key.CloseBracket,
+            "squares" => Key.CloseBracket,
+            "object" => Key.CloseBrace,
+            "curly" => Key.CloseBrace,
+            "regular" => Key.CloseParenthesis,
+            "parenthesis" => Key.CloseParenthesis,
+            "angle" => Key.GreaterThan,
             _ => throw new UnreachableException()
         };
-        _inputSimulator.Type(key);
+        _inputSimulator.PressKey(key);
         return Task.CompletedTask;
     }
 
-    [VoiceCommand("[shift|ship|control|alt|command]:control", RequiredMethods = [nameof(ConvertControlKey)])]
+    [VoiceCommand("[shift|ship|control|alt|option|command]:control", RequiredMethods = [nameof(ConvertControlKey)])]
     [ActivationMode(activationMode: null)]
     public Task PressControlKeyVoiceCommand(VoiceCommandContext context)
     {
@@ -88,39 +88,51 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         return Task.CompletedTask;
     }
 
-    private static Key[] MatchKey(SpecialKeys key)
+    private static Key MatchKey(SpecialKeys key)
     {
         return key switch
         {
-            SpecialKeys.Tab => [Key.Tab],
-            SpecialKeys.Left => [Key.LeftArrow],
-            SpecialKeys.Right => [Key.RightArrow],
-            SpecialKeys.Up => [Key.UpArrow],
-            SpecialKeys.Down => [Key.DownArrow],
-            SpecialKeys.Home => [Key.Home],
-            SpecialKeys.End => [Key.End],
-            SpecialKeys.Delete => [Key.Delete],
-            SpecialKeys.Enter => [Key.Enter],
-            SpecialKeys.Backspace => [Key.Backspace],
-            SpecialKeys.Insert => [Key.Insert],
-            SpecialKeys.Escape => [Key.Escape],
-            SpecialKeys.Dollar => [Key.Dollar],
-            SpecialKeys.Percent => [Key.Percent],
-            SpecialKeys.Minus => [Key.Minus],
-            SpecialKeys.Plus => [Key.Plus],
-            SpecialKeys.Equals => [Key.Equal],
-            SpecialKeys.Colon => [Key.Colon],
-            SpecialKeys.Semicolon => [Key.Semicolon],
-            SpecialKeys.Quotation => [Key.Quotation],
-            SpecialKeys.Ampersand => [Key.LeftControl, Key.Num7],
-            SpecialKeys.Backslash => [Key.Backslash],
-            SpecialKeys.Slash => [Key.Slash],
-            SpecialKeys.Dot => [Key.Dot],
-            SpecialKeys.Period => [Key.Dot],
-            SpecialKeys.Question => [Key.Question],
-            SpecialKeys.Multiply => [Key.LeftControl, Key.Num8],
-            SpecialKeys.Divide => [Key.Slash],
-            SpecialKeys.Star => [Key.LeftControl, Key.Num8],
+            SpecialKeys.Tab => Key.Tab,
+            SpecialKeys.Left => Key.LeftArrow,
+            SpecialKeys.Right => Key.RightArrow,
+            SpecialKeys.Up => Key.UpArrow,
+            SpecialKeys.Down => Key.DownArrow,
+            SpecialKeys.Home => Key.Home,
+            SpecialKeys.End => Key.End,
+            SpecialKeys.Delete => Key.Delete,
+            SpecialKeys.Enter => Key.Enter,
+            SpecialKeys.Backspace => Key.Backspace,
+            SpecialKeys.Insert => Key.Insert,
+            SpecialKeys.Escape => Key.Escape,
+            SpecialKeys.Dollar => Key.Dollar,
+            SpecialKeys.Percent => Key.Percent,
+            SpecialKeys.Minus => Key.Minus,
+            SpecialKeys.Plus => Key.Plus,
+            SpecialKeys.Equals => Key.Equal,
+            SpecialKeys.Colon => Key.Colon,
+            SpecialKeys.Semicolon => Key.Semicolon,
+            SpecialKeys.Quotation => Key.Quotation,
+            SpecialKeys.Ampersand => Key.Ampersand,
+            SpecialKeys.Backslash => Key.Backslash,
+            SpecialKeys.Slash => Key.Slash,
+            SpecialKeys.Dot => Key.Dot,
+            SpecialKeys.Period => Key.Dot,
+            SpecialKeys.Question => Key.Question,
+            SpecialKeys.Multiply => Key.Asterisk,
+            SpecialKeys.Divide => Key.Slash,
+            SpecialKeys.Star => Key.Asterisk,
+            SpecialKeys.Tilde => Key.Tilde,
+            SpecialKeys.Exclamation => Key.Exclamation,
+            SpecialKeys.Bang => Key.Exclamation,
+            SpecialKeys.At => Key.At,
+            SpecialKeys.Hash => Key.Hash,
+            SpecialKeys.Caret => Key.Caret,
+            SpecialKeys.Asterisk => Key.Asterisk,
+            SpecialKeys.Equal => Key.Equal,
+            SpecialKeys.Underscore => Key.Underscore,
+            SpecialKeys.Pipe => Key.Pipe,
+            SpecialKeys.Apostrophe => Key.Apostrophe,
+            SpecialKeys.Comma => Key.Comma,
             _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
         };
     }
@@ -131,9 +143,10 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         {
             "shift" => Key.LeftShift,
             "ship" => Key.LeftShift,
-            "control" => Key.LeftControl,
-            "command" => Key.LeftControl,
-            "alt" => Key.LeftAlt,
+            "control" => Key.LeftCommandOrControl,
+            "command" => Key.LeftCommandOrControl,
+            "alt" => Key.LeftAltOrOption,
+            "option" => Key.LeftAltOrOption,
             _ => throw new UnreachableException()
         };
     }

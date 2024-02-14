@@ -30,7 +30,7 @@ internal sealed class ZoomVoiceCommand : IVoiceCommand
             _ => throw new UnreachableException()
         };
 
-        _inputSimulator.PressKey(Key.LeftControl, key);
+        _inputSimulator.PressKey(Key.LeftCommandOrControl, key);
         return Task.CompletedTask;
     }
 }

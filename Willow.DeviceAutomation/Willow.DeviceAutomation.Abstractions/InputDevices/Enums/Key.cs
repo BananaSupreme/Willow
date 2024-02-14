@@ -64,15 +64,30 @@ public enum Key
     F9,
     F10,
     F11,
-    F12, //F13, F14, F15, F16, F17, F18, F19, F20, F21, F22, F23, F24,
+    F12,
+    F13,
+    F14,
+    F15,
+    F16,
+    F17,
+    F18,
+    F19,
+    F20,
+    F21,
+    F22,
+    F23,
+    F24,
 
     //Control
     LeftShift,
-    LeftControl,
-    LeftAlt,
-    LeftCommand, //RightShift,  RightControl,  RightAlt,  RightCommand,
-    LeftOption,
-    Tab, //LeftCommandOrControl, RightCommandOrControl,  RightOption, Windows,  Space, Function,
+    RightShift,
+    LeftAltOrOption,
+    RightAltOrOption,
+    LeftCommandOrControl,
+    RightCommandOrControl,
+    Tab,
+    Windows,
+    Space,
 
     //Navigation
     LeftArrow,
@@ -90,32 +105,33 @@ public enum Key
     Insert,
     Delete,
 
-    //Numpad
-    //Numpad0, Numpad1, Numpad2, Numpad3, Numpad4, Numpad5, Numpad6, Numpad7, Numpad8, Numpad9,
-    //NumpadMultiply, NumpadAdd, NumpadEnter, NumpadSubtract, NumpadDecimal, NumpadDivide,
-
     //System
     Escape,
     PrintScreen,
-    PauseBreak,
-
-    //Multimedia
-    //PlayPause, Stop, NextTrack, PreviousTrack,
-    //VolumeUp, VolumeDown, Mute,
 
     //Special
     Dollar,
-    Percent, //Tilde, Exclamation, At, Hash, Caret, Ampersand, Asterisk,
+    Percent,
+    Tilde,
+    Exclamation,
+    At,
+    Hash,
+    Caret,
+    Ampersand,
+    Asterisk,
     OpenParenthesis,
     CloseParenthesis,
     Minus,
     Plus,
-    Equal, //Underscore, 
+    Equal,
+    Underscore,
     OpenBracket,
     CloseBracket,
     OpenBrace,
     CloseBrace,
-    Backslash, //Pipe, Apostrophe,
+    Backslash,
+    Pipe,
+    Apostrophe,
     Semicolon,
     Colon,
     Quotation,
@@ -126,8 +142,8 @@ public enum Key
     Slash,
     Question,
 
-    //Locks    
+    //Locks
     CapsLock,
     NumLock,
-    ScrollLock //, FnLock
+    ScrollLock
 }

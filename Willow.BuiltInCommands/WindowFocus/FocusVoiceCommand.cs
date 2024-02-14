@@ -21,7 +21,7 @@ internal sealed class FocusVoiceCommand : IVoiceCommand
 
     public Task ExecuteAsync(VoiceCommandContext context)
     {
-        _inputSimulator.PressKey(Key.LeftControl, Key.LeftAlt, Key.Tab);
+        _inputSimulator.PressKey(Key.LeftCommandOrControl, Key.LeftAltOrOption, Key.Tab);
         return Task.CompletedTask;
     }
 }
