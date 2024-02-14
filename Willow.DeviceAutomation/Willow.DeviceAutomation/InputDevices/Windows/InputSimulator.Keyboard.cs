@@ -1,8 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text.Json;
-
-using Willow.DeviceAutomation.InputDevices.Enums;
+﻿using Willow.DeviceAutomation.InputDevices.Enums;
 using Willow.DeviceAutomation.InputDevices.Windows.Exceptions;
 using Willow.DeviceAutomation.InputDevices.Windows.Extensions;
 
@@ -12,7 +8,6 @@ internal sealed partial class InputSimulator
 {
     public IInputSimulator KeyDown(Key key)
     {
-        using var locker = _lock.Lock();
         var input = GetKeyInput(key, false);
         SendInputCore(input);
         return this;
@@ -20,7 +15,6 @@ internal sealed partial class InputSimulator
 
     public IInputSimulator KeyUp(Key key)
     {
-        using var locker = _lock.Lock();
         var input = GetKeyInput(key, true);
         SendInputCore(input);
         return this;
@@ -35,7 +29,6 @@ internal sealed partial class InputSimulator
 
     public IInputSimulator PressKey(params Key[] keys)
     {
-        using var locker = _lock.Lock();
         foreach (var key in keys)
         {
             KeyDown(key);
@@ -53,7 +46,6 @@ internal sealed partial class InputSimulator
 
     public IInputSimulator Type(char character)
     {
-        using var locker = _lock.Lock();
         var input = GetInputFromChar(character);
         SendInputCore(input);
         return this;
@@ -63,56 +55,46 @@ internal sealed partial class InputSimulator
     {
         using var locker = _lock.Lock();
         CopyStringToClipboard(input);
-        PressKey(Key.LeftAltOrOption, Key.V);
+        PressKey(Key.LeftCommandOrControl, Key.V);
         return this;
     }
 
-    private static readonly INPUT[] _cachedArray = new INPUT[1];
+    private static readonly Input[] _cachedArray = new Input[1];
 
-    private static void SendInputCore(INPUT input)
+    private static void SendInputCore(Input input)
     {
         _cachedArray[0] = input;
-        var sent = SendInput(1, _cachedArray, Marshal.SizeOf<INPUT>());
+        var sent = SendInput((uint)_cachedArray.Length, _cachedArray, Input.Size);
         if (sent != 1)
         {
             throw new KeyboardPressException();
         }
     }
 
-    private static INPUT GetKeyInput(Key key, bool release)
+    private static Input GetKeyInput(Key key, bool release)
     {
-        const uint ReleaseKeyKeyboardFlag = 2;
         var virtualKeyCode = key.GetVirtualKeyCode();
         var input = virtualKeyCode != 0
                         ? GetInputFromVirtualKey(key, virtualKeyCode)
                         : GetInputFromChar(key.GetAssociatedChar());
         if (release)
         {
-            input.U.ki.dwFlags |= ReleaseKeyKeyboardFlag;
+            input.InputUnion.KeyboardInput.KeyEvents |= KeyEvents.KeyUp;
         }
 
         return input;
     }
 
-    private static INPUT GetInputFromVirtualKey(Key key, ushort virtualKeyCode)
+    private static Input GetInputFromVirtualKey(Key key, ushort virtualKeyCode)
     {
-        const uint UseScanCodeFlag = 8;
-        const uint ExtendedKeyFlag = 1;
-
         var scanCode = GetScanCode(key, virtualKeyCode);
 
-        return new INPUT()
+        return Input.CreateKeyboardInput(new KeyboardInput()
         {
-            type = KeyboardInput,
-            U = new InputUnion()
-            {
-                ki = new KEYBDINPUT()
-                {
-                    wScan = scanCode,
-                    dwFlags = UseScanCodeFlag | (IsExtended(scanCode) ? ExtendedKeyFlag : 0)
-                }
-            }
-        };
+            ScanCode = scanCode,
+            KeyEvents = KeyEvents.Scancode
+                        | (IsExtended(scanCode) ? KeyEvents.ExtendedKey : 0)
+        });
 
         bool IsExtended(ushort scanCodeToCheck)
         {
@@ -136,14 +118,8 @@ internal sealed partial class InputSimulator
         return scanCode;
     }
 
-    private static INPUT GetInputFromChar(char associatedChar)
+    private static Input GetInputFromChar(char associatedChar)
     {
-        const uint UnicodeFlag = 4;
-
-        return new INPUT()
-        {
-            type = KeyboardInput,
-            U = new InputUnion() { ki = new KEYBDINPUT() { wScan = associatedChar, dwFlags = UnicodeFlag } }
-        };
+        return Input.CreateKeyboardInput(new KeyboardInput() { ScanCode = associatedChar, KeyEvents = KeyEvents.Unicode });
     }
 }

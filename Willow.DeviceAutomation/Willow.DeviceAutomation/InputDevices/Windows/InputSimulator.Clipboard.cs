@@ -27,9 +27,10 @@ internal sealed partial class InputSimulator
                     GlobalUnlock(lockPointer);
                 }
             }
-            finally
+            catch
             {
                 GlobalFree(allocationPointer);
+                throw;
             }
         }
         finally

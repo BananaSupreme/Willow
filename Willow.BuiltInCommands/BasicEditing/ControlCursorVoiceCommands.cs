@@ -56,7 +56,7 @@ internal sealed class ControlCursorVoiceCommands
     [ActivationMode(activationMode: null)]
     public Task SelectAllVoiceCommand(VoiceCommandContext context)
     {
-        _inputSimulator.PressKey(Key.LeftShift, Key.A);
+        _inputSimulator.PressKey(Key.LeftCommandOrControl, Key.A);
         return Task.CompletedTask;
     }
 
@@ -144,8 +144,8 @@ internal sealed class ControlCursorVoiceCommands
     {
         return direction switch
         {
-            "start" => Key.Insert,
-            "head" => Key.Insert,
+            "start" => Key.Home,
+            "head" => Key.Home,
             "end" => Key.End,
             "tail" => Key.End,
             _ => throw new UnreachableException()

@@ -16,7 +16,7 @@ internal sealed class UndoRedoVoiceCommand : IVoiceCommand
         _inputSimulator = inputSimulator;
     }
 
-    public string InvocationPhrase => "[undo|redo]:action last";
+    public string InvocationPhrase => "[undo|revert|redo|restore]:action ?[last]:_";
 
     public Task ExecuteAsync(VoiceCommandContext context)
     {
@@ -30,7 +30,9 @@ internal sealed class UndoRedoVoiceCommand : IVoiceCommand
         return direction switch
         {
             "undo" => Key.Z,
+            "revert" => Key.Z,
             "redo" => Key.Y,
+            "restore" => Key.Y,
             _ => throw new UnreachableException()
         };
     }

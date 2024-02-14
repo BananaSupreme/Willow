@@ -1,9 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
 // ReSharper disable UnusedMethodReturnValue.Local
-// ReSharper disable IdentifierTypo
-// ReSharper disable InconsistentNaming
-// Marshalling is a broken naming world.
 
 namespace Willow.DeviceAutomation.InputDevices.Windows;
 
@@ -11,7 +8,7 @@ internal sealed partial class InputSimulator
 {
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool OpenClipboard(nint hWndNewOwner);
+    private static partial bool OpenClipboard(nint newWindowHandleOwner);
 
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -22,18 +19,18 @@ internal sealed partial class InputSimulator
     private static partial bool EmptyClipboard();
 
     [LibraryImport("user32.dll", SetLastError = true)]
-    private static partial nint SetClipboardData(uint uFormat, nint hMem);
+    private static partial nint SetClipboardData(uint format, nint memoryHandle);
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
-    private static partial nint GlobalAlloc(uint uFlags, nuint dwBytes);
+    private static partial nint GlobalAlloc(uint flags, nuint bytes);
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
-    private static partial nint GlobalFree(nint hMem);
+    private static partial nint GlobalFree(nint memoryHandler);
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
-    private static partial nint GlobalLock(nint hMem);
+    private static partial nint GlobalLock(nint memoryHandler);
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool GlobalUnlock(nint hMem);
+    private static partial bool GlobalUnlock(nint memoryHandler);
 }
