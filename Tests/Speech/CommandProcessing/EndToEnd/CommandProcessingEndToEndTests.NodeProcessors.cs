@@ -52,4 +52,15 @@ public sealed partial class CommandProcessingEndToEndTests
                      ],
                      commands);
     }
+
+    [Fact]
+    public void When_OneOfCommandWithMultipleWordsMissingOneWord_FailsToCapture()
+    {
+        RawVoiceCommand[] commands =
+        [
+            _fixture.Create<RawVoiceCommand>() with { InvocationPhrases = ["go [phrase|hello world]:found"] }
+        ];
+
+        TestInternal("go hello", [], [], [], commands);
+    }
 }
