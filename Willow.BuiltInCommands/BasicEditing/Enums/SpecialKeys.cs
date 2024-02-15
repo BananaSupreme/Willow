@@ -11,6 +11,7 @@ internal enum SpecialKeys
     End,
     Delete,
     Enter,
+    Space,
     Backspace,
     Insert,
     Escape,

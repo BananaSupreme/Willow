@@ -1,5 +1,4 @@
-﻿using Willow.Speech.Tokenization.Consts;
-using Willow.Speech.Tokenization.Tokens;
+﻿using Willow.Speech.Tokenization.Tokens;
 using Willow.Speech.Tokenization.Tokens.Abstractions;
 using Willow.Speech.VoiceCommandParsing.Models;
 
@@ -24,10 +23,8 @@ internal sealed record RepeatingWildCardNodeProcessor(string CaptureName, int Re
         }
 
         var repeatCount = RepeatCount < 0 || tokens.Length > RepeatCount ? tokens.Length : RepeatCount;
-        var tokensToProcess = tokens[..repeatCount].ToArray().Select(static x => x.GetString());
-        var mergedTokens = string.Join(Chars.Space, tokensToProcess);
-
-        builder.AddParameter(CaptureName, new WordToken(mergedTokens));
+        var tokensToProcess = tokens[..repeatCount].ToArray();
+        builder.AddParameter(CaptureName, new MergedToken(tokensToProcess));
 
         return repeatCount == tokens.Length
                    ? new TokenProcessingResult(true, builder, ReadOnlyMemory<Token>.Empty)

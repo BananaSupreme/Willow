@@ -66,6 +66,7 @@ public sealed class CommandCompilationTests : IDisposable
         ["?[Number:]"], //invalid inner token
         ["!invalid command format"],
         ["process data #number% error"],
+        ["&[double||pipes]"],
         ["&[Not|~[Enough|Right|Squares]"],
         ["&[No|Space]~[Between|Nodes]"],
         ["&[Not|~[Enough|Left|Squares]]]"],
@@ -220,6 +221,30 @@ public sealed class CommandCompilationTests : IDisposable
              new OneOfNodeProcessor("language",
                                     [new WordToken("Spanish"), new WordToken("French"), new WordToken("German")])
          ]),
+        ("Change [hello world|Option|alternatives and options]:options",
+         [
+             new WordNodeProcessor(new WordToken("Change")),
+             new OneOfNodeProcessor("options",
+                                    [
+                                        new MergedToken([new WordToken("hello"), new WordToken("world")]),
+                                        new WordToken("Option"),
+                                        new MergedToken([
+                                                            new WordToken("alternatives"),
+                                                            new WordToken("and"),
+                                                            new WordToken("options")
+                                                        ])
+                                    ])
+         ]),
+        ("Test [  extra|   space   |is    ignored]:options",
+         [
+             new WordNodeProcessor(new WordToken("Test")),
+             new OneOfNodeProcessor("options",
+                                    [
+                                        new WordToken("extra"),
+                                        new WordToken("space"),
+                                        new MergedToken([new WordToken("is"), new WordToken("ignored")])
+                                    ])
+         ]),
         ("play OneOf:genre{_genres} music",
          [
              new WordNodeProcessor(new WordToken("play")),
@@ -229,19 +254,22 @@ public sealed class CommandCompilationTests : IDisposable
         ("turn Optional[OneOf:device{_devices}]:hit off",
          [
              new WordNodeProcessor(new WordToken("turn")),
-             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
+             new OptionalNodeProcessor("hit",
+                                       new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
              new WordNodeProcessor(new WordToken("off"))
          ]),
         ("turn ?[OneOf:device{_devices}]:hit off",
          [
              new WordNodeProcessor(new WordToken("turn")),
-             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
+             new OptionalNodeProcessor("hit",
+                                       new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
              new WordNodeProcessor(new WordToken("off"))
          ]),
         ("turn ?[[_devices]:device]:hit off",
          [
              new WordNodeProcessor(new WordToken("turn")),
-             new OptionalNodeProcessor("hit", new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
+             new OptionalNodeProcessor("hit",
+                                       new OneOfNodeProcessor("device", (Token[])_capturedValues["_devices"])),
              new WordNodeProcessor(new WordToken("off"))
          ]),
         ("rename WildCard:oldName to WildCard:newName",

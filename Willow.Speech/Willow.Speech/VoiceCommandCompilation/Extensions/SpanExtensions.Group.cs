@@ -14,6 +14,10 @@ internal static partial class SpanExtensions
     /// <param name="compilers">All the compilers available in the system.</param>
     /// <param name="capturedValues">The values captured from the <see cref="IVoiceCommand" /> instance.</param>
     /// <returns>The processors that build the compilation.</returns>
+    /// <exception cref="CommandCompilationException">
+    /// Thrown when inconsistent number of brackets, or multiple sequential pipe symbol or an internal compiler failed
+    /// to compile.
+    /// </exception>
     public static INodeProcessor[] ExtractNodeProcessors(this ReadOnlySpan<char> processors,
                                                          INodeCompiler[] compilers,
                                                          IDictionary<string, object> capturedValues)
@@ -22,16 +26,21 @@ internal static partial class SpanExtensions
         List<INodeProcessor> nodeProcessors = [];
         while (index > -1)
         {
-            index = processors.GetIndexOfNextSeparator();
-            if (index == -1)
+            index = processors.GetIndexOfNextSeparator(Chars.Pipe);
+            switch (index)
             {
-                processors.ParseNodeProcessor(compilers, capturedValues, nodeProcessors);
-            }
-            else
-            {
-                var processor = processors[..index];
-                processor.ParseNodeProcessor(compilers, capturedValues, nodeProcessors);
-                processors = processors[(index + 1)..];
+                case 0:
+                    throw new CommandCompilationException("Detected multiple sequential pipes");
+                case -1:
+                    processors.ParseNodeProcessor(compilers, capturedValues, nodeProcessors);
+                    break;
+                default:
+                {
+                    var processor = processors[..index];
+                    processor.ParseNodeProcessor(compilers, capturedValues, nodeProcessors);
+                    processors = processors[(index + 1)..];
+                    break;
+                }
             }
         }
 
@@ -52,10 +61,17 @@ internal static partial class SpanExtensions
         nodeProcessors.Add(nodeProcessor);
     }
 
-    private static int GetIndexOfNextSeparator(this ReadOnlySpan<char> processors)
+    /// <summary>
+    /// Looks for the next separator after exiting all the inner capture groups
+    /// </summary>
+    /// <param name="processors">the chars the separator is looked inside</param>
+    /// <param name="separator">the character that is looked for</param>
+    /// <returns>The index of the separator we are looking for</returns>
+    /// <exception cref="CommandCompilationException">Thrown when inconsistent number of brackets</exception>
+    public static int GetIndexOfNextSeparator(this ReadOnlySpan<char> processors, char separator)
     {
         var originalLength = processors.Length;
-        var nextPipe = processors.IndexOf(Chars.Pipe);
+        var nextPipe = processors.IndexOf(separator);
         var nextCapturingGroupOpener = processors.IndexOf(Chars.LeftSquare);
         //If this is true the pipe is potentially coming from inside the capturing group
         //for example "&[[one|of]:capturing|another]" - the next pipe variable will be the pipe inside the OneOf node
@@ -67,7 +83,7 @@ internal static partial class SpanExtensions
             //This means its missing a separator "&[..|~[..]~[..]]"
             //Remember that we get here without the outer squares so above is ..|~[..]~[..]
             //We should either be at the end, have a separator or we can be looking at a capture name such as ..|~[..]:..
-            nextPipe = processors.IndexOf(Chars.Pipe);
+            nextPipe = processors.IndexOf(separator);
             nextCapturingGroupOpener = processors.IndexOf(Chars.LeftSquare);
             if (processors.Length != 0 && nextCapturingGroupOpener > -1 && nextPipe > nextCapturingGroupOpener)
             {
@@ -78,7 +94,7 @@ internal static partial class SpanExtensions
         //If we had an inner group we shaved off some characters, so next pipe is not at 0,
         //its at 0 plus how many characters we shaved
         //of course if we are at the end of the line we should be sure to return -1 to signal that there are no more pipes
-        return nextPipe > 0 ? nextPipe + (originalLength - processors.Length) : -1;
+        return nextPipe >= 0 ? nextPipe + (originalLength - processors.Length) : -1;
     }
 
     private static ReadOnlySpan<char> ExitInnerCapturingGroups(this ReadOnlySpan<char> processors,

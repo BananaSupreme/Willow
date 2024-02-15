@@ -28,4 +28,7 @@ public static class CachedSearchValues
 
     public static readonly SearchValues<char> Alphabet
         = SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+    
+    public static readonly SearchValues<char> AlphabetAndSpaces
+        = SearchValues.Create("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ");
 }

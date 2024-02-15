@@ -21,8 +21,7 @@ internal sealed record OneOfNodeProcessor(string CaptureName, Token[] ValidWords
             return new TokenProcessingResult(false, builder, tokens);
         }
 
-        var token = tokens.Span[0];
-        var matched = Array.Find(ValidWords, t => token.Match(t));
+        var matched = Array.Find(ValidWords, t => Match(tokens, t));
         if (matched is null)
         {
             return new TokenProcessingResult(false, builder, tokens);
@@ -30,6 +29,15 @@ internal sealed record OneOfNodeProcessor(string CaptureName, Token[] ValidWords
 
         builder = builder.AddParameter(CaptureName, new WordToken(matched.GetString()));
         return new TokenProcessingResult(true, builder, tokens[1..]);
+    }
+
+    private static bool Match(ReadOnlyMemory<Token> tokens, Token t)
+    {
+        return t switch
+        {
+            MergedToken merged => tokens.Length >= merged.Tokens.Length && merged.Match(tokens[..tokens.Length]),
+            _ => tokens.Span[0].Match(t)
+        };
     }
 
     public bool Equals(OneOfNodeProcessor? other)

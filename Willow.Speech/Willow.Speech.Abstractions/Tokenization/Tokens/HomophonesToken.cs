@@ -23,8 +23,11 @@ public sealed record HomophonesToken(WordToken Internal, string[] Homophones) : 
     {
         return other switch
         {
+            //Some tokens are more complex then others so we need to make sure, that the check is bidirectional,
+            //For example word token to homophone might not match, but the homophone to the word will (because the
+            //word was included as a homophone)
             WordToken word => Internal.Match(word) || Homophones.Contains(word.GetString()),
-            _ => Internal.Match(other)
+            _ => Internal.Match(other) || other.Match(Internal)
         };
     }
 

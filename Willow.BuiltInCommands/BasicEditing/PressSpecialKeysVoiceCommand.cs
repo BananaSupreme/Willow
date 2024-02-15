@@ -34,7 +34,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         return Task.CompletedTask;
     }
 
-    [VoiceCommand("[open|left]:_ [square|squares|object|curly|regular|parenthesis|angle]:type")]
+    [VoiceCommand("[open|left]:_ [square|squares|object|curly|braces|brace|regular|parenthesis|angle]:type")]
     [ActivationMode(activationMode: null)]
     public Task OpenParenthesisVoiceCommand(VoiceCommandContext context)
     {
@@ -45,6 +45,8 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
             "squares" => Key.OpenBracket,
             "object" => Key.OpenBrace,
             "curly" => Key.OpenBrace,
+            "braces" => Key.OpenBrace,
+            "brace" => Key.OpenBrace,
             "regular" => Key.OpenParenthesis,
             "parenthesis" => Key.OpenParenthesis,
             "angle" => Key.LessThan,
@@ -54,7 +56,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         return Task.CompletedTask;
     }
 
-    [VoiceCommand("[close|right]:_ [square|squares|object|curly|regular|parenthesis|angle]:type")]
+    [VoiceCommand("[close|right]:_ [square|squares|object|curly|braces|brace|regular|parenthesis|angle]:type")]
     [ActivationMode(activationMode: null)]
     public Task CloseParenthesisVoiceCommand(VoiceCommandContext context)
     {
@@ -65,6 +67,8 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
             "squares" => Key.CloseBracket,
             "object" => Key.CloseBrace,
             "curly" => Key.CloseBrace,
+            "braces" => Key.CloseBrace,
+            "brace" => Key.CloseBrace,
             "regular" => Key.CloseParenthesis,
             "parenthesis" => Key.CloseParenthesis,
             "angle" => Key.GreaterThan,
@@ -115,6 +119,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
             SpecialKeys.End => Key.End,
             SpecialKeys.Delete => Key.Delete,
             SpecialKeys.Enter => Key.Enter,
+            SpecialKeys.Space => Key.Space,
             SpecialKeys.Backspace => Key.Backspace,
             SpecialKeys.Insert => Key.Insert,
             SpecialKeys.Escape => Key.Escape,

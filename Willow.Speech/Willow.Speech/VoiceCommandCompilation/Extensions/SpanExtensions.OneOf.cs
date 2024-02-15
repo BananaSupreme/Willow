@@ -24,20 +24,60 @@ internal static partial class SpanExtensions
             index = variables.IndexOf(Chars.Pipe);
             if (index == -1)
             {
-                variables.GuardAlphabet();
-                tokens.Add(new WordToken(variables.ToString()));
+                AddToken(variables, tokens);
             }
             else
             {
                 var word = variables[..index];
-                word.GuardAlphabet();
-                tokens.Add(new WordToken(word.ToString()));
+                AddToken(word, tokens);
                 variables = variables[(index + 1)..];
             }
         }
 
         var arrayTokens = tokens.ToArray();
         return arrayTokens;
+    }
+
+    private static void AddToken(ReadOnlySpan<char> words, List<Token> tokens)
+    {
+        if (words.Contains(Chars.Space))
+        {
+            tokens.Add(CreateMergedToken(words));
+        }
+        else
+        {
+            words.GuardAlphabet();
+            tokens.Add(new WordToken(words.ToString()));
+        }
+    }
+
+    private static Token CreateMergedToken(ReadOnlySpan<char> words)
+    {
+        var index = 0;
+        List<WordToken> tokens = [];
+        while (index > -1)
+        {
+            index = words.GetIndexOfNextSeparator(Chars.Space);
+            switch (index)
+            {
+                case -1:
+                    tokens.Add(new WordToken(words.ToString().Trim()));
+                    break;
+                case 0:
+                    words = words[1..];
+                    break;
+                default:
+                {
+                    var word = words[..index];
+                    tokens.Add(new WordToken(word.ToString().Trim()));
+                    words = words[(index + 1)..];
+                    break;
+                }
+            }
+        }
+
+        var finalTokens = tokens.Where(static x => x.Value != string.Empty).Cast<Token>().ToArray();
+        return finalTokens.Length > 1 ? new MergedToken(finalTokens) : finalTokens[0];
     }
 
     /// <summary>

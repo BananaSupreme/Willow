@@ -36,7 +36,7 @@ internal sealed class VoiceCommandCompiler : IVoiceCommandCompiler
         var index = 0;
         while (index > -1)
         {
-            index = commandSpan.IndexOf(Chars.Space);
+            index = commandSpan.GetIndexOfNextSeparator(Chars.Space);
             var wordEnd = index > 0 ? index : commandSpan.Length;
             var word = commandSpan[..wordEnd];
             _log.ParsingWord(word.Length);

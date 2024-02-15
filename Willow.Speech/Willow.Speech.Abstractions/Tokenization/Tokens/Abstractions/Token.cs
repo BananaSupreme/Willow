@@ -8,8 +8,7 @@ public abstract record Token
 {
     public virtual string GetString()
     {
-        ThrowInvalid(typeof(string));
-        return string.Empty;
+        return ToString();
     }
 
     public virtual int GetInt32()

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using Willow.DeviceAutomation.InputDevices.Enums;
+﻿using Willow.DeviceAutomation.InputDevices.Enums;
 using Willow.DeviceAutomation.InputDevices.Exceptions;
 using Willow.DeviceAutomation.InputDevices.Windows.Extensions;
 

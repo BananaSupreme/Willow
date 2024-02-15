@@ -1,7 +1,7 @@
 - We should consider how to let the user know when errors occur in the pipeline, maybe we can capture Error level logs
   for ui displays? can we plug into the ILogger in that way? -- a sink on serilog.
 - GUIDE_REQUIRED Design decisions guides required - why is everything a singleton? The plugins and why are they built
-  like this. Why new settings?
+  like this. Why new settings? The many open questions of plugin store!
 - safe keeping this one when we will consider how to enable smart moving around the text we are in, for example "
   change *word *second" to switch the word for another...
   Windows
