@@ -27,7 +27,7 @@ public readonly record struct WhisperModelSettings(ModelSize ModelSize,
                                                    ComputeType ComputeType,
                                                    int CpuThreads)
 {
-    public WhisperModelSettings() : this(ModelSize.Tiny, true, DeviceType.Auto, [], ComputeType.Default, 4)
+    public WhisperModelSettings() : this(ModelSize.Small, true, DeviceType.Auto, [], ComputeType.Default, 4)
     {
     }
 }

@@ -74,7 +74,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         return Task.CompletedTask;
     }
 
-    [VoiceCommand("[shift|ship|control|alt|option|command]:control", RequiredMethods = [nameof(ConvertControlKey)])]
+    [VoiceCommand("[shift|ship|control|ctrl|alt|option|command]:control", RequiredMethods = [nameof(ConvertControlKey)])]
     [ActivationMode(activationMode: null)]
     public Task PressControlKeyVoiceCommand(VoiceCommandContext context)
     {
@@ -85,6 +85,20 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
             await Task.Delay(300);
             _inputSimulator.KeyUp(control);
         });
+        return Task.CompletedTask;
+    }
+
+    [VoiceCommand("#number")]
+    [ActivationMode(activationMode: null)]
+    public Task PressNumberVoiceCommand(VoiceCommandContext context)
+    {
+        var number = context.Parameters["number"].GetInt32();
+        if (number is >= 0 and <= 9)
+        {
+            var key = Enum.Parse<Key>($"Num{number}");
+            _inputSimulator.PressKey(key);
+        }
+
         return Task.CompletedTask;
     }
 
@@ -133,6 +147,18 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
             SpecialKeys.Pipe => Key.Pipe,
             SpecialKeys.Apostrophe => Key.Apostrophe,
             SpecialKeys.Comma => Key.Comma,
+            SpecialKeys.F1 => Key.F1,
+            SpecialKeys.F2 => Key.F2,
+            SpecialKeys.F3 => Key.F3,
+            SpecialKeys.F4 => Key.F4,
+            SpecialKeys.F5 => Key.F5,
+            SpecialKeys.F6 => Key.F6,
+            SpecialKeys.F7 => Key.F7,
+            SpecialKeys.F8 => Key.F8,
+            SpecialKeys.F9 => Key.F9,
+            SpecialKeys.F10 => Key.F10,
+            SpecialKeys.F11 => Key.F11,
+            SpecialKeys.F12 => Key.F12,
             _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
         };
     }
@@ -143,6 +169,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
         {
             "shift" => Key.LeftShift,
             "ship" => Key.LeftShift,
+            "ctrl" => Key.LeftCommandOrControl,
             "control" => Key.LeftCommandOrControl,
             "command" => Key.LeftCommandOrControl,
             "alt" => Key.LeftAltOrOption,

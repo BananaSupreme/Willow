@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-using Willow.DeviceAutomation.InputDevices.Windows.Exceptions;
+using Willow.DeviceAutomation.InputDevices.Exceptions;
 
 namespace Willow.DeviceAutomation.InputDevices.Windows;
 
@@ -9,7 +9,6 @@ internal sealed partial class InputSimulator
     private static void CopyStringToClipboard(string input)
     {
         TryOpenClipboard();
-
         try
         {
             TryEmptyClipboard();

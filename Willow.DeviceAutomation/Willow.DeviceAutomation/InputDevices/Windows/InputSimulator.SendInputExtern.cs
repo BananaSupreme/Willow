@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
+using Willow.DeviceAutomation.InputDevices.Exceptions;
+
 namespace Willow.DeviceAutomation.InputDevices.Windows;
 
 internal sealed partial class InputSimulator
@@ -11,9 +13,25 @@ internal sealed partial class InputSimulator
     private static partial uint MapVirtualKeyExW(uint code, uint mapType, nint keyboardHandle);
 
     [LibraryImport("user32.dll", SetLastError = true)]
-    private static partial uint SendInput(uint nInputs,
-                                          [MarshalAs(UnmanagedType.LPArray)] [In] Input[] pInputs,
-                                          int cbSize);
+    private static partial uint SendInput(uint numberOfInputs,
+                                          [MarshalAs(UnmanagedType.LPArray)] [In] Input[] inputs,
+                                          int sizeOfInput);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool GetCursorPos(ref Win32Point win32Point);
+
+    private static readonly Input[] _cachedInputArray = new Input[1];
+
+    private static void SendInputCore(Input input)
+    {
+        _cachedInputArray[0] = input;
+        var sent = SendInput((uint)_cachedInputArray.Length, _cachedInputArray, Input.Size);
+        if (sent != 1)
+        {
+            throw new SendInputException();
+        }
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Input
@@ -58,7 +76,7 @@ internal sealed partial class InputSimulator
         public uint MouseData;
         public MouseEvents MouseEvents;
         public uint Time;
-        public IntPtr ExtraInfo;
+        public nint ExtraInfo;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -68,7 +86,7 @@ internal sealed partial class InputSimulator
         public ushort ScanCode;
         public KeyEvents KeyEvents;
         public uint Time;
-        public IntPtr ExtraInfo;
+        public nint ExtraInfo;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -98,7 +116,7 @@ internal sealed partial class InputSimulator
         XDown = 0x0080,
         XUp = 0x0100,
         Wheel = 0x0800,
-        HWheel = 0x1000, // >= Win Vista only
+        HorizontalWheel = 0x1000, // >= Win Vista only
         MoveNoCoalesce = 0x2000,
         VirtualDesk = 0x4000,
         Absolute = 0x8000
@@ -111,5 +129,12 @@ internal sealed partial class InputSimulator
         KeyUp = 0x0002,
         Unicode = 0x0004,
         Scancode = 0x0008
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Win32Point
+    {
+        public int X;
+        public int Y;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Willow.DeviceAutomation.InputDevices.Enums;
-using Willow.DeviceAutomation.InputDevices.Windows.Exceptions;
+using Willow.DeviceAutomation.InputDevices.Exceptions;
 
 namespace Willow.DeviceAutomation.InputDevices.Windows.Extensions;
 
@@ -78,7 +78,7 @@ internal static class KeyExtensions
             Key.Dot => '.',
             Key.Slash => '/',
             Key.Question => '?',
-            _ => throw new InvalidVirtualKeyException(key)
+            _ => throw new InvalidOsKeyException(key)
         };
     }
 

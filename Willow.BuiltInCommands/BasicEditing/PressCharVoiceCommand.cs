@@ -29,7 +29,7 @@ internal sealed class PressCharVoiceCommand : IVoiceCommand
     public Task ExecuteAsync(VoiceCommandContext context)
     {
         var keyWord = context.Parameters["word"].GetString();
-        if (!Enum.TryParse<Key>(keyWord, true, out var key))
+        if (!Enum.TryParse<Key>(keyWord.First().ToString(), true, out var key))
         {
             return Task.CompletedTask;
         }

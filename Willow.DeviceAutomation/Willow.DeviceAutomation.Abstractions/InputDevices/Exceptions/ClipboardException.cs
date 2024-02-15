@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace Willow.DeviceAutomation.InputDevices.Windows.Exceptions;
+namespace Willow.DeviceAutomation.InputDevices.Exceptions;
 
 public sealed class ClipboardException : Exception
 {

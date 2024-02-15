@@ -1,5 +1,5 @@
 ﻿using Willow.DeviceAutomation.InputDevices.Enums;
-using Willow.DeviceAutomation.InputDevices.Windows.Exceptions;
+using Willow.DeviceAutomation.InputDevices.Exceptions;
 using Willow.DeviceAutomation.InputDevices.Windows.Extensions;
 
 namespace Willow.DeviceAutomation.InputDevices.Windows;
@@ -46,7 +46,7 @@ internal sealed partial class InputSimulator
 
     public IInputSimulator Type(char character)
     {
-        var input = GetInputFromChar(character);
+        var input = GetInputAsUnicode(character);
         SendInputCore(input);
         return this;
     }
@@ -59,24 +59,23 @@ internal sealed partial class InputSimulator
         return this;
     }
 
-    private static readonly Input[] _cachedArray = new Input[1];
-
-    private static void SendInputCore(Input input)
-    {
-        _cachedArray[0] = input;
-        var sent = SendInput((uint)_cachedArray.Length, _cachedArray, Input.Size);
-        if (sent != 1)
-        {
-            throw new KeyboardPressException();
-        }
-    }
-
     private static Input GetKeyInput(Key key, bool release)
     {
         var virtualKeyCode = key.GetVirtualKeyCode();
-        var input = virtualKeyCode != 0
-                        ? GetInputFromVirtualKey(key, virtualKeyCode)
-                        : GetInputFromChar(key.GetAssociatedChar());
+        Input input;
+        if (virtualKeyCode == 0)
+        {
+            input = GetInputAsUnicode(key.GetAssociatedChar());
+        }
+        else if (IsTypicallyExtended(key))
+        {
+            input = GetInputAsVirtualKey(virtualKeyCode);
+        }
+        else
+        {
+            input = GetInputAsScanCode(key, virtualKeyCode);
+        }
+
         if (release)
         {
             input.InputUnion.KeyboardInput.KeyEvents |= KeyEvents.KeyUp;
@@ -85,7 +84,39 @@ internal sealed partial class InputSimulator
         return input;
     }
 
-    private static Input GetInputFromVirtualKey(Key key, ushort virtualKeyCode)
+    //MapVirtualKeyExW appears to be broken and does not actually return the extended key flag, there is a limit subset
+    //of keys that are typically extended, going to try to send them as the virtualKeyCode instead of mapping to scan
+    //another class of keys that tend to fail is modifer keys, so they also get special treatment
+    private static bool IsTypicallyExtended(Key key)
+    {
+        return key switch
+        {
+            Key.DownArrow
+                or Key.UpArrow
+                or Key.LeftArrow
+                or Key.RightArrow
+                or Key.Insert
+                or Key.Home
+                or Key.PageDown
+                or Key.PageUp
+                or Key.End
+                or Key.Delete
+                or Key.LeftCommandOrControl
+                or Key.RightCommandOrControl
+                or Key.LeftShift
+                or Key.RightShift
+                or Key.LeftAltOrOption
+                or Key.RightAltOrOption => true,
+            _ => false
+        };
+    }
+
+    private static Input GetInputAsVirtualKey(ushort key)
+    {
+        return Input.CreateKeyboardInput(new KeyboardInput() { VirtualKeyCode = key });
+    }
+
+    private static Input GetInputAsScanCode(Key key, ushort virtualKeyCode)
     {
         var scanCode = GetScanCode(key, virtualKeyCode);
 
@@ -96,6 +127,7 @@ internal sealed partial class InputSimulator
                         | (IsExtended(scanCode) ? KeyEvents.ExtendedKey : 0)
         });
 
+        //I'm leaving the function in but MapVirtualKeyExW is broken
         bool IsExtended(ushort scanCodeToCheck)
         {
             var upperByte = scanCodeToCheck >> 8;
@@ -108,18 +140,19 @@ internal sealed partial class InputSimulator
         const uint VirtualKeyToScanCodeExtendedMappingCode = 4;
 
         var keyboardHandle = GetKeyboardLayout(0);
-        var scanCode = (ushort)MapVirtualKeyExW(virtualKeyCode, VirtualKeyToScanCodeExtendedMappingCode, keyboardHandle);
+        var scanCode = MapVirtualKeyExW(virtualKeyCode, VirtualKeyToScanCodeExtendedMappingCode, keyboardHandle);
 
         if (scanCode == 0)
         {
-            throw new InvalidVirtualKeyException(key);
+            throw new InvalidOsKeyException(key);
         }
 
-        return scanCode;
+        return (ushort)scanCode;
     }
 
-    private static Input GetInputFromChar(char associatedChar)
+    private static Input GetInputAsUnicode(char associatedChar)
     {
-        return Input.CreateKeyboardInput(new KeyboardInput() { ScanCode = associatedChar, KeyEvents = KeyEvents.Unicode });
+        return Input.CreateKeyboardInput(
+            new KeyboardInput() { ScanCode = associatedChar, KeyEvents = KeyEvents.Unicode });
     }
 }
