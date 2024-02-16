@@ -30,10 +30,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Willow.Core\Willow.Core\Willow.Core.csproj" />
-        <ProjectReference Include="..\Willow.SourceGenerators\Willow.SourceGenerators.csproj" OutputItemType="Analyzer"/>
+        <ProjectReference Include="..\Willow.Speech\Willow.SourceGenerators\Willow.SourceGenerators.csproj" OutputItemType="Analyzer"/>
         <ProjectReference Include="..\Willow.Speech\Willow.Speech\Willow.Speech.csproj" />
-        <ProjectReference Include="..\Willow.Vosk\Willow.Vosk.csproj"/>
-        <ProjectReference Include="..\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
+        <ProjectReference Include="..\Willow.Speech\Willow.Vosk\Willow.Vosk.csproj"/>
+        <ProjectReference Include="..\Willow.Speech\Willow.WhisperServer\Willow.WhisperServer.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
