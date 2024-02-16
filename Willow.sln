@@ -27,15 +27,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Speech", "Willow.Spe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Speech.Abstractions", "Willow.Speech\Willow.Speech.Abstractions\Willow.Speech.Abstractions.csproj", "{33080A4B-29D0-48E0-98BC-0A6F44E7F16B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.BuiltInCommands", "Willow.BuiltInCommands\Willow.BuiltInCommands.csproj", "{A7A84E29-7C84-49A3-93FD-CC0A28D8E388}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.BuiltInCommands", "Willow.Speech\Willow.BuiltInCommands\Willow.BuiltInCommands.csproj", "{A7A84E29-7C84-49A3-93FD-CC0A28D8E388}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Vosk", "Willow.Speech\Willow.Vosk\Willow.Vosk.csproj", "{CE5017B0-B030-4197-9539-BB652972FB3F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Willow.WhisperServer", "Willow.Speech\Willow.WhisperServer\Willow.WhisperServer.csproj", "{E0DEB9DE-CB0C-4353-ABF9-3558A8BCE3C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.SourceGenerators", "Willow.Speech\Willow.SourceGenerators\Willow.SourceGenerators.csproj", "{4AEF0451-9172-4D4E-BEBF-7507359CA6C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Helpers", "Willow.Helpers\Willow.Helpers.csproj", "{93222A04-C04C-49E1-A9FD-092598F8FA5E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.Vosk", "Willow.Vosk\Willow.Vosk.csproj", "{CE5017B0-B030-4197-9539-BB652972FB3F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Willow.WhisperServer", "Willow.WhisperServer\Willow.WhisperServer.csproj", "{E0DEB9DE-CB0C-4353-ABF9-3558A8BCE3C2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Willow.SourceGenerators", "Willow.SourceGenerators\Willow.SourceGenerators.csproj", "{4AEF0451-9172-4D4E-BEBF-7507359CA6C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{B6F94F99-63E9-493D-9552-376A3D407EC7}"
 EndProject
@@ -125,6 +125,10 @@ Global
 		{599B38C8-301A-4B10-B11F-1AB1A0E2E944} = {72DAC6B6-1DC1-4F17-B55E-DF370B01CACE}
 		{7FC20A8E-1CFB-4377-B6F4-B5E1F34AB260} = {49BB85CE-F732-4C4D-AAF8-7FBC1B550340}
 		{33080A4B-29D0-48E0-98BC-0A6F44E7F16B} = {49BB85CE-F732-4C4D-AAF8-7FBC1B550340}
+		{E0DEB9DE-CB0C-4353-ABF9-3558A8BCE3C2} = {49BB85CE-F732-4C4D-AAF8-7FBC1B550340}
+		{CE5017B0-B030-4197-9539-BB652972FB3F} = {49BB85CE-F732-4C4D-AAF8-7FBC1B550340}
+		{4AEF0451-9172-4D4E-BEBF-7507359CA6C9} = {49BB85CE-F732-4C4D-AAF8-7FBC1B550340}
+		{A7A84E29-7C84-49A3-93FD-CC0A28D8E388} = {49BB85CE-F732-4C4D-AAF8-7FBC1B550340}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EEA186D-C3DC-4350-ADD7-E9EE7C0BCD47}

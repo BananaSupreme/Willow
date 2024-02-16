@@ -15,9 +15,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Willow.Core\Willow.Core.Abstractions\Willow.Core.Abstractions.csproj" />
-      <ProjectReference Include="..\Willow.Helpers\Willow.Helpers.csproj" />
-      <ProjectReference Include="..\Willow.Speech\Willow.Speech.Abstractions\Willow.Speech.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Willow.Core\Willow.Core.Abstractions\Willow.Core.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Willow.Helpers\Willow.Helpers.csproj" />
+      <ProjectReference Include="..\Willow.Speech.Abstractions\Willow.Speech.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

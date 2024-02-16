@@ -34,9 +34,10 @@
 
 - **One Of**:
     - Alias: `OneOf`
-    - Special Syntax: `[Option1|Option2|Option3]:VariableName`
+    - Special Syntax: `[Option1|Option2|Option3|Multi word option]:VariableName`
     - Special Syntax: `[_capturedListName]:VariableName`
-    - Description: Allows selection from a list of predefined options.
+    - Description: Allows selection from a list of predefined options, when encountering a multi word option all words,
+      must be said in order for the capture to work.
     - **Note**: captured lists are enumerated when the command is created and not when it is executed.
 
 - **Optional**:

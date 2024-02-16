@@ -34,10 +34,13 @@ public class VadBenchmarks
         sileroSettings.CurrentValue.Returns(static _ => new SileroSettings());
         var bufferSettings = Substitute.For<ISettings<AudioBufferSettings>>();
         bufferSettings.CurrentValue.Returns(static _ => new AudioBufferSettings());
+        var bufferingSettings = Substitute.For<ISettings<BufferingSettings>>();
+        bufferingSettings.CurrentValue.Returns(static _ => new BufferingSettings());
         _middleware = new VoiceActivityDetectionMiddleware(
             new SileroVoiceActivityDetectionFacade(sileroSettings,
                                                    Substitute.For<ILogger<SileroVoiceActivityDetectionFacade>>()),
             new AudioBuffer(bufferSettings),
+            bufferingSettings,
             Substitute.For<ILogger<VoiceActivityDetectionMiddleware>>());
     }
 
