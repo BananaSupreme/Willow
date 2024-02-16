@@ -1,9 +1,11 @@
-﻿using Willow.Middleware;
-using Willow.Speech.AudioBuffering.Abstractions;
+﻿using Willow.Helpers.DataStructures;
+using Willow.Middleware;
+using Willow.Settings;
 using Willow.Speech.Microphone.Events;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.VAD.Abstractions;
 using Willow.Speech.VAD.Models;
+using Willow.Speech.VAD.Settings;
 
 namespace Willow.Speech.VAD.Middleware;
 
@@ -12,65 +14,145 @@ namespace Willow.Speech.VAD.Middleware;
 /// </summary>
 internal sealed class VoiceActivityDetectionMiddleware : IMiddleware<AudioCapturedEvent>
 {
-    private readonly IAudioBuffer _audioBuffer;
+    private readonly CircularBuffer<short> _audioBuffer;
+    private readonly ISettings<BufferingSettings> _settings;
     private readonly ILogger<VoiceActivityDetectionMiddleware> _log;
     private readonly IVoiceActivityDetection _vad;
-    private AudioData _emptyAudioData;
-    private AudioData _lastData;
+    private AudioData _emptyAudioData = AudioData.Empty;
+    private AudioData _lastData = AudioData.Empty;
+    private int _failedAudioTranscriptions;
 
     public VoiceActivityDetectionMiddleware(IVoiceActivityDetection vad,
-                                            IAudioBuffer audioBuffer,
+                                            ISettings<BufferingSettings> settings,
                                             ILogger<VoiceActivityDetectionMiddleware> log)
     {
         _vad = vad;
-        _audioBuffer = audioBuffer;
+        _settings = settings;
         _log = log;
+        _audioBuffer = new CircularBuffer<short>(settings.CurrentValue.AcceptedSamplingRate
+                                                 * settings.CurrentValue.MaxSeconds);
     }
 
     public async Task ExecuteAsync(AudioCapturedEvent input, Func<AudioCapturedEvent, Task> next)
     {
-        _emptyAudioData = _emptyAudioData == default ? input.AudioData with { RawData = [] } : _emptyAudioData;
+        if (!IsSameAudioFeatures(input.AudioData))
+        {
+            await EnsureSameFeatures(input, next);
+        }
+
         var audioData = input.AudioData;
         var result = _vad.Detect(audioData);
-        if (result.IsSpeechDetected && _audioBuffer.HasSpace(audioData.RawData.Length))
-        {
-            if (_audioBuffer.IsEmpty)
-            {
-                LoadDataLogged(_lastData, VoiceActivityResult.Failed());
-                _lastData = _emptyAudioData;
-            }
 
-            LoadDataLogged(audioData, result);
+        if (TryBufferingData(result, audioData))
+        {
             return;
-        }
-
-        if (_audioBuffer.IsEmpty)
-        {
-            _log.NoSpeechDetected();
-            _lastData = audioData;
-            return;
-        }
-
-        _lastData = _emptyAudioData;
-
-        //If that's the case we didn't detect any sound but we did before, so we should add this last bit because
-        //most of the time it contains the last bits of speech.
-        if (_audioBuffer.HasSpace(audioData.RawData.Length))
-        {
-            LoadDataLogged(audioData, result);
         }
 
         var bufferedData = _audioBuffer.UnloadAllData();
-        _log.UnloadedDataFromBuffer(bufferedData);
+        _log.UnloadedDataFromBuffer(CreateAudioData(bufferedData));
 
-        //If this is true, so we ended here because the buffer ran out of space, we want to make sure we're not
-        //losing samples here
+        //If this is true, so we ended here because the buffer ran out of space (we're testing for both in
+        //TryBufferingData), we want to make sure we're not losing samples here
         if (result.IsSpeechDetected)
         {
             LoadDataLogged(audioData, result);
         }
 
-        await next(new AudioCapturedEvent(bufferedData));
+        _failedAudioTranscriptions = 0;
+        await next(new AudioCapturedEvent(CreateAudioData(bufferedData)));
+    }
+
+    //The order really matters here, since we are checking things that were checked before in later cases, but not in the
+    //same combination
+    private bool TryBufferingData(VoiceActivityResult result, AudioData audioData)
+    {
+        if (TryCaseDetectionSucceededAndBufferHasSpace(result, audioData))
+        {
+            return true;
+        }
+
+        if (TryCaseBufferIsEmpty(audioData))
+        {
+            return true;
+        }
+
+        _lastData = _emptyAudioData;
+
+        if (TryCaseBufferHasSpaceAndWithinLimitOfFaultTolerance(result, audioData))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryCaseBufferHasSpaceAndWithinLimitOfFaultTolerance(VoiceActivityResult result, AudioData audioData)
+    {
+        //If that's the case we didn't detect any sound but we did before, so we should add this last bit because
+        //most of the time it contains the last bits of speech.
+        if (_audioBuffer.HasSpace(audioData.RawData.Length))
+        {
+            LoadDataLogged(audioData, result);
+            if (_settings.CurrentValue.VadFalseTolerance > _failedAudioTranscriptions)
+            {
+                _failedAudioTranscriptions++;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryCaseBufferIsEmpty(AudioData audioData)
+    {
+        if (_audioBuffer.IsEmpty)
+        {
+            _log.NoSpeechDetected();
+            _lastData = audioData;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryCaseDetectionSucceededAndBufferHasSpace(VoiceActivityResult result, AudioData audioData)
+    {
+        if (result.IsSpeechDetected && _audioBuffer.HasSpace(audioData.RawData.Length))
+        {
+            if (_audioBuffer.IsEmpty && _lastData != default)
+            {
+                LoadDataLogged(_lastData, VoiceActivityResult.Failed());
+                _lastData = _emptyAudioData;
+            }
+
+            _failedAudioTranscriptions = 0;
+            LoadDataLogged(audioData, result);
+            return true;
+        }
+
+        return false;
+    }
+
+    private async Task EnsureSameFeatures(AudioCapturedEvent input, Func<AudioCapturedEvent, Task> next)
+    {
+        _log.FeaturesChanged(_emptyAudioData, input.AudioData);
+        _emptyAudioData = input.AudioData with { RawData = [] };
+        if (!_audioBuffer.IsEmpty)
+        {
+            var buffer = _audioBuffer.UnloadAllData();
+            var dataInBuffer = CreateAudioData(buffer);
+            _log.FeaturesChangedBufferUnloaded(dataInBuffer);
+            await next(new AudioCapturedEvent(dataInBuffer));
+        }
+    }
+
+    /// <summary>
+    /// Used for testing.
+    /// </summary>
+    /// <returns>The contents of the audio buffer held inside.</returns>
+    internal AudioData Dump()
+    {
+        return CreateAudioData(_audioBuffer.UnloadAllData());
     }
 
     private void LoadDataLogged(AudioData audioData, VoiceActivityResult result)
@@ -81,10 +163,22 @@ internal sealed class VoiceActivityDetectionMiddleware : IMiddleware<AudioCaptur
 
         _log.LoadingDataIntoBuffer(audioData);
         //Load all the data so there won't be any weird cuts in the audio
-        if (_audioBuffer.TryLoadData(audioData))
+        if (_audioBuffer.TryLoadData(audioData.RawData))
         {
             _log.DataLoadedIntoBuffer();
         }
+    }
+
+    private bool IsSameAudioFeatures(AudioData audioData)
+    {
+        return audioData.ChannelCount == _emptyAudioData.ChannelCount
+               && audioData.SamplingRate == _emptyAudioData.SamplingRate
+               && audioData.BitDepth == _emptyAudioData.BitDepth;
+    }
+
+    private AudioData CreateAudioData(short[] data)
+    {
+        return _emptyAudioData with { RawData = data };
     }
 }
 
@@ -112,4 +206,15 @@ internal static partial class VoiceActivityDetectionMiddlewareLoggingExtensions
                    Level = LogLevel.Information,
                    Message = "Unloaded data from buffer for further processing. AudioData: {audioData}.")]
     public static partial void UnloadedDataFromBuffer(this ILogger logger, AudioData audioData);
+
+    [LoggerMessage(EventId = 6,
+                   Level = LogLevel.Warning,
+                   Message = "Features were changed, resetting state. from ({oldAudioData}) to ({newAudioData})")]
+    public static partial void FeaturesChanged(this ILogger logger, AudioData oldAudioData, AudioData newAudioData);
+
+    [LoggerMessage(EventId = 7,
+                   Level = LogLevel.Warning,
+                   Message
+                       = "Features were changed, with data in the buffer, sending the data that was already in the buffer. ({dataInBuffer})")]
+    public static partial void FeaturesChangedBufferUnloaded(this ILogger logger, AudioData dataInBuffer);
 }

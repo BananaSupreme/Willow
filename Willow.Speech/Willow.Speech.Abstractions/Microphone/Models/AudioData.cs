@@ -12,6 +12,8 @@ public readonly record struct AudioData(short[] RawData,
                                         ushort ChannelCount,
                                         ushort BitDepth)
 {
+    public static AudioData Empty { get; } = new([], 0, 0, 0);
+
     /// <summary>
     /// Gets the length of time in this audio sample.
     /// </summary>
@@ -29,7 +31,7 @@ public readonly record struct AudioData(short[] RawData,
     /// <returns>The time at the position.</returns>
     public TimeSpan FromSamplePosition(int position)
     {
-        return TimeSpan.FromSeconds((double)position / SamplingRate);
+        return this != Empty ? TimeSpan.FromSeconds((double)position / SamplingRate) : TimeSpan.Zero;
     }
 
     /// <summary>
@@ -37,7 +39,7 @@ public readonly record struct AudioData(short[] RawData,
     /// </summary>
     /// <param name="time">The requested time.</param>
     /// <returns>The position at this time.</returns>
-    public readonly int FromTimeSpan(TimeSpan time)
+    public int FromTimeSpan(TimeSpan time)
     {
         return (int)(SamplingRate * time.TotalSeconds);
     }

@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 using Willow.Settings;
-using Willow.Speech.AudioBuffering;
-using Willow.Speech.AudioBuffering.Settings;
 using Willow.Speech.Microphone.Events;
 using Willow.Speech.Microphone.Models;
 using Willow.Speech.VAD;
@@ -32,14 +30,11 @@ public class VadBenchmarks
         _audioDataEvent = new AudioCapturedEvent(audioData);
         var sileroSettings = Substitute.For<ISettings<SileroSettings>>();
         sileroSettings.CurrentValue.Returns(static _ => new SileroSettings());
-        var bufferSettings = Substitute.For<ISettings<AudioBufferSettings>>();
-        bufferSettings.CurrentValue.Returns(static _ => new AudioBufferSettings());
         var bufferingSettings = Substitute.For<ISettings<BufferingSettings>>();
         bufferingSettings.CurrentValue.Returns(static _ => new BufferingSettings());
         _middleware = new VoiceActivityDetectionMiddleware(
             new SileroVoiceActivityDetectionFacade(sileroSettings,
                                                    Substitute.For<ILogger<SileroVoiceActivityDetectionFacade>>()),
-            new AudioBuffer(bufferSettings),
             bufferingSettings,
             Substitute.For<ILogger<VoiceActivityDetectionMiddleware>>());
     }

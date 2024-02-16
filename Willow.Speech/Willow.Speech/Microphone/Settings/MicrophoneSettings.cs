@@ -8,7 +8,7 @@
 public readonly record struct MicrophoneSettings(int RecordingWindowTimeInMilliseconds, int MicrophoneIndex)
 {
     /// <inheritdoc cref="MicrophoneSettings" />
-    public MicrophoneSettings() : this(300, -1)
+    public MicrophoneSettings() : this(200, -1)
     {
     }
 }

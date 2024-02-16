@@ -20,7 +20,7 @@ public readonly record struct SileroSettings(float Threshold,
                                              int SpeechPadMilliseconds)
 {
     /// <inheritdoc cref="SileroSettings" />
-    public SileroSettings() : this(0.5f, 10, 100)
+    public SileroSettings() : this(0.4f, 10, 10)
     {
     }
 }
