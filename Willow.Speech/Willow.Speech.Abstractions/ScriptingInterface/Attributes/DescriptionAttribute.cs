@@ -12,6 +12,7 @@ public sealed class DescriptionAttribute : Attribute, IVoiceCommandDescriptor
 {
     public DescriptionAttribute(string tag)
     {
+        ArgumentNullException.ThrowIfNull(tag);
         Description = tag;
     }
 

@@ -17,6 +17,7 @@ public sealed class NameAttribute : Attribute, IVoiceCommandDescriptor
 {
     public NameAttribute(string name)
     {
+        ArgumentNullException.ThrowIfNull(name);
         Name = name;
     }
 

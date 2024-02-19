@@ -7,7 +7,7 @@ using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-[ActivationMode(activationMode: null)]
+[ActivationMode(["command", "dictation"])]
 internal sealed class MouseDragVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;

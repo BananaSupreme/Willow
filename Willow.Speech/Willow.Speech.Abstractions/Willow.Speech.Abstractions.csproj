@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Willow.Core\Willow.Core.Abstractions\Willow.Core.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Willow.Helpers\Willow.Helpers.csproj" />
     </ItemGroup>
 
 </Project>

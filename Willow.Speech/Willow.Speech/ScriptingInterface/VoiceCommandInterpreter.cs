@@ -31,6 +31,8 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
         var capturedValues = CaptureValues(voiceCommand);
         capturedValues.Add("_command", () => (IVoiceCommand)_serviceProvider.GetRequiredService(voiceCommand.GetType()));
 
+        ArgumentNullException.ThrowIfNull(voiceCommand.InvocationPhrase);
+
         RawVoiceCommand command = new(Guid.NewGuid(),
                                       [voiceCommand.InvocationPhrase, ..GetAliases(voiceCommandType)],
                                       GetTags(voiceCommandType),
@@ -82,14 +84,6 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
     private static TagRequirement[] GetTags(Type type)
     {
         var validActivationModes = GetActivationMode(type);
-        if (validActivationModes is null || validActivationModes.Length == 0)
-        {
-            var tagAttribute = type.GetCustomAttributes(false).OfType<TagAttribute>().ToArray();
-            return tagAttribute.Length != 0
-                       ? tagAttribute.Select(static x => new TagRequirement(x.Tags)).ToArray()
-                       : [TagRequirement.Empty];
-        }
-
         return validActivationModes.SelectMany(GetTagsWithActivation).ToArray();
 
         TagRequirement[] GetTagsWithActivation(string activationMode)
@@ -102,7 +96,7 @@ internal sealed class VoiceCommandInterpreter : IVoiceCommandInterpreter
         }
     }
 
-    private static string[]? GetActivationMode(Type type)
+    private static string[] GetActivationMode(Type type)
     {
         var activationModeAttribute = type.GetCustomAttributes(false).OfType<ActivationModeAttribute>().FirstOrDefault();
         return activationModeAttribute is null

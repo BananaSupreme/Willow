@@ -128,32 +128,6 @@ public sealed class CommandInterpretationTests : IDisposable
     }
 
     [Fact]
-    public void When_VoiceCommandHasNoTagsAndNullActivation_InterpretCommandIncludesEmptyTag()
-    {
-        var voiceCommand = new NullActivationModeTestVoiceCommand();
-
-        var result1 = _sut.InterpretCommand(voiceCommand);
-
-        result1.TagRequirements.Should().ContainSingle();
-        result1.TagRequirements.First().Should().Be(new TagRequirement([]));
-    }
-
-    [Fact]
-    public void When_VoiceCommandHasMultipleTagsAndNullActivation_InterpretCommandIncludesAllTagsAndNoMode()
-    {
-        var voiceCommand = new NullActivationModeWithTagsTestVoiceCommand();
-
-        var result1 = _sut.InterpretCommand(voiceCommand);
-
-        result1.TagRequirements.Should()
-               .BeEquivalentTo(new TagRequirement[]
-                               {
-                                   new([new Tag(TestTag), new Tag(TestTag2)]), new([new Tag(TestTag3)])
-                               },
-                               static options => options.ComparingByValue<TagRequirement>().WithoutStrictOrdering());
-    }
-
-    [Fact]
     public void When_VoiceCommandHasNoTagsAndMultipleActivations_InterpretCommandIncludesTagsPerActivation()
     {
         var voiceCommand = new MultipleActivationModeTestVoiceCommand();
@@ -366,30 +340,6 @@ public sealed class CommandInterpretationTests : IDisposable
     [Tag(TestTag, TestTag2)]
     [Tag(TestTag3)]
     private sealed class MultipleActivationModeWithTagsTestVoiceCommand : IVoiceCommand
-    {
-        public string InvocationPhrase => TestInvocationPhrase;
-
-        public Task ExecuteAsync(VoiceCommandContext context)
-        {
-            throw new NotSupportedException();
-        }
-    }
-
-    [ActivationMode(activationMode: null)]
-    private sealed class NullActivationModeTestVoiceCommand : IVoiceCommand
-    {
-        public string InvocationPhrase => TestInvocationPhrase;
-
-        public Task ExecuteAsync(VoiceCommandContext context)
-        {
-            throw new NotSupportedException();
-        }
-    }
-
-    [ActivationMode(activationMode: null)]
-    [Tag(TestTag, TestTag2)]
-    [Tag(TestTag3)]
-    private sealed class NullActivationModeWithTagsTestVoiceCommand : IVoiceCommand
     {
         public string InvocationPhrase => TestInvocationPhrase;
 

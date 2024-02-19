@@ -1,4 +1,6 @@
-﻿namespace Willow.Speech.ScriptingInterface.Attributes;
+﻿using Willow.Helpers.Extensions;
+
+namespace Willow.Speech.ScriptingInterface.Attributes;
 
 /// <summary>
 /// Defines alternative invocation phrases for a <see cref="IVoiceCommand" />.
@@ -8,11 +10,13 @@ public sealed class AliasAttribute : Attribute, IVoiceCommandDescriptor
 {
     public AliasAttribute(string tag)
     {
+        ArgumentNullException.ThrowIfNull(tag);
         Aliases = [tag];
     }
 
     public AliasAttribute(params string[] tags)
     {
+        tags.ThrowIfAnyNull();
         Aliases = tags;
     }
 

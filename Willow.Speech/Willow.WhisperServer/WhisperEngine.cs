@@ -111,9 +111,7 @@ internal sealed class WhisperEngine
         }
 
         using var gil = Py.GIL();
-        _scope?.Exec("""
-                     model = None
-                     """);
+        _scope?.Exec("model = None");
         _scope?.Dispose();
         RuntimeData.ClearStash();
         _ = Runtime.TryCollectingGarbage(5);
@@ -185,10 +183,7 @@ internal sealed class WhisperEngine
 
     private void EnsureNotDisposed()
     {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(nameof(WhisperEngine));
-        }
+        ObjectDisposedException.ThrowIf(_disposed, GetType());
     }
 }
 

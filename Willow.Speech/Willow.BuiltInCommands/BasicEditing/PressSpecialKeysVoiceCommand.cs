@@ -9,7 +9,7 @@ using Willow.BuiltInCommands.BasicEditing.Enums;
 
 namespace Willow.BuiltInCommands.BasicEditing;
 
-[ActivationMode(activationMode: null)]
+[ActivationMode(["command", "dictation"])]
 internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
@@ -35,7 +35,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("[open|left]:_ [square|squares|object|curly|braces|brace|regular|parenthesis|angle]:type")]
-    [ActivationMode(activationMode: null)]
+    [ActivationMode(["command", "dictation"])]
     public Task OpenParenthesisVoiceCommand(VoiceCommandContext context)
     {
         var type = context.Parameters["type"].GetString();
@@ -57,7 +57,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("[close|right]:_ [square|squares|object|curly|braces|brace|regular|parenthesis|angle]:type")]
-    [ActivationMode(activationMode: null)]
+    [ActivationMode(["command", "dictation"])]
     public Task CloseParenthesisVoiceCommand(VoiceCommandContext context)
     {
         var type = context.Parameters["type"].GetString();
@@ -79,7 +79,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("[shift|ship|control|ctrl|alt|option|command]:control", RequiredMethods = [nameof(ConvertControlKey)])]
-    [ActivationMode(activationMode: null)]
+    [ActivationMode(["command", "dictation"])]
     public Task PressControlKeyVoiceCommand(VoiceCommandContext context)
     {
         var control = ConvertControlKey(context.Parameters["control"].GetString());
@@ -93,7 +93,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("#number")]
-    [ActivationMode(activationMode: null)]
+    [ActivationMode(["command", "dictation"])]
     public Task PressNumberVoiceCommand(VoiceCommandContext context)
     {
         var number = context.Parameters["number"].GetInt32();

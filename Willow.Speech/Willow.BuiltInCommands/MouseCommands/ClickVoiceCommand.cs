@@ -8,7 +8,7 @@ using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-[ActivationMode(activationMode: null)]
+[ActivationMode(["command", "dictation"])]
 internal sealed class ClickVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;

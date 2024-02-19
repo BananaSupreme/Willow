@@ -1,4 +1,6 @@
-﻿namespace Willow.Speech.ScriptingInterface.Attributes;
+﻿using Willow.Helpers.Extensions;
+
+namespace Willow.Speech.ScriptingInterface.Attributes;
 
 /// <summary>
 /// Defines the relevant activation method for the <see cref="IVoiceCommand" />
@@ -12,18 +14,20 @@
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class ActivationModeAttribute : Attribute, IVoiceCommandDescriptor
 {
-    public ActivationModeAttribute(string? activationMode)
+    public ActivationModeAttribute(string activationMode)
     {
-        ActivationModes = activationMode is not null ? [activationMode] : null;
+        ArgumentNullException.ThrowIfNull(activationMode);
+        ActivationModes = [activationMode];
     }
 
     public ActivationModeAttribute(params string[] activationModes)
     {
+        activationModes.ThrowIfAnyNull();
         ActivationModes = activationModes;
     }
 
     /// <summary>
     /// Selected activation mode.
     /// </summary>
-    public string[]? ActivationModes { get; }
+    public string[] ActivationModes { get; }
 }

@@ -8,7 +8,7 @@ using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.BasicEditing;
 
-[ActivationMode(activationMode: null)]
+[ActivationMode(["command", "dictation"])]
 internal sealed class ZoomVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;

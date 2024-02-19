@@ -1,4 +1,5 @@
 ﻿using Willow.Environment.Models;
+using Willow.Helpers.Extensions;
 
 namespace Willow.Speech.ScriptingInterface.Attributes;
 
@@ -20,6 +21,7 @@ public sealed class VoiceCommandAttribute : Attribute, IVoiceCommandDescriptor
 
     public VoiceCommandAttribute(string invocationPhrase)
     {
+        invocationPhrase.ThrowIfAnyNull();
         InvocationPhrase = invocationPhrase;
     }
 }

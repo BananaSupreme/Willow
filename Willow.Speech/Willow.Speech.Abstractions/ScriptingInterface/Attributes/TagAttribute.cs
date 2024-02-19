@@ -1,4 +1,5 @@
 ﻿using Willow.Environment.Models;
+using Willow.Helpers.Extensions;
 
 namespace Willow.Speech.ScriptingInterface.Attributes;
 
@@ -21,12 +22,14 @@ public sealed class TagAttribute : Attribute, IVoiceCommandDescriptor
 
     public TagAttribute(string tag)
     {
+        ArgumentNullException.ThrowIfNull(tag);
         Tags = [new Tag(tag)];
     }
 
     public TagAttribute(params string[] tags)
     {
-        Tags = tags.Select(x => new Tag(x)).ToArray();
+        tags.ThrowIfAnyNull();
+        Tags = tags.Select(static x => new Tag(x)).ToArray();
     }
 
     /// <summary>
