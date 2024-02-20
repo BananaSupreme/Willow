@@ -30,12 +30,10 @@ internal sealed class MicrophoneWorker : IBackgroundWorker
     {
         foreach (var recording in _microphoneAccess.StartRecording())
         {
-            if (cancellationToken.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested)
             {
-                break;
+                _eventDispatcher.Dispatch(new AudioCapturedEvent(recording));
             }
-
-            _eventDispatcher.Dispatch(new AudioCapturedEvent(recording));
         }
 
         _microphoneAccess.StopRecording();

@@ -12,10 +12,10 @@ namespace Willow.Speech.SpeechToText.Registration;
 
 internal sealed class SpeechToTextEngineAssemblyRegistrar : IAssemblyRegistrar
 {
-    private readonly ISettings<SelectedSpeechEngineSettings> _setting;
+    private readonly ISettings<SpeechEngineSettings> _setting;
     private readonly IServiceProvider _systemServiceProvider;
 
-    public SpeechToTextEngineAssemblyRegistrar(ISettings<SelectedSpeechEngineSettings> setting,
+    public SpeechToTextEngineAssemblyRegistrar(ISettings<SpeechEngineSettings> setting,
                                                IServiceProvider systemServiceProvider)
     {
         _setting = setting;
@@ -45,7 +45,7 @@ internal sealed class SpeechToTextEngineAssemblyRegistrar : IAssemblyRegistrar
         }
 
         var engineName = engines.Select(static x => x.Name).FirstOrDefault();
-        _setting.Update(new SelectedSpeechEngineSettings(engineName));
+        _setting.Update(new SpeechEngineSettings(engineName));
 
         return Task.CompletedTask;
     }
@@ -64,7 +64,7 @@ internal sealed class SpeechToTextEngineAssemblyRegistrar : IAssemblyRegistrar
         var engineToRun = allEngines.Select(static x => x.Name)
                                     .Except(assemblyEngines.Select(static x => x.Name))
                                     .FirstOrDefault();
-        _setting.Update(new SelectedSpeechEngineSettings(engineToRun));
+        _setting.Update(new SpeechEngineSettings(engineToRun));
         return Task.CompletedTask;
     }
 }

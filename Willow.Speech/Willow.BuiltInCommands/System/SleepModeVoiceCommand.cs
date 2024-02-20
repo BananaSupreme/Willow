@@ -22,14 +22,14 @@ internal sealed class SleepModeVoiceCommand : IVoiceCommand
 
     public Task ExecuteAsync(VoiceCommandContext context)
     {
-        _environmentStateProvider.SetActivationMode("sleep");
+        _environmentStateProvider.SetActivationMode(ActivationModeNames.Sleep);
         return Task.CompletedTask;
     }
 
     [Alias("wakeup")]
     [Alias("willow on")]
     [Alias("start listening")]
-    [ActivationMode("sleep")]
+    [ActivationMode(ActivationModeNames.Sleep)]
     [VoiceCommand("mode command")]
     public Task WakeUpVoiceCommand(VoiceCommandContext context)
     {

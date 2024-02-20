@@ -9,15 +9,15 @@ using Willow.Speech.SpeechToText.Settings;
 namespace Willow.Speech.SpeechToText;
 
 internal sealed class SpeechEngineSelectorWorker
-    : IBackgroundWorker, IEventHandler<SettingsUpdatedEvent<SelectedSpeechEngineSettings>>
+    : IBackgroundWorker, IEventHandler<SettingsUpdatedEvent<SpeechEngineSettings>>
 {
     private readonly ILogger<SpeechEngineSelectorWorker> _log;
-    private readonly ISettings<SelectedSpeechEngineSettings> _settings;
+    private readonly ISettings<SpeechEngineSettings> _settings;
     private readonly IEnvironmentStateProvider _environmentStateProvider;
     private readonly ICollectionProvider<ISpeechToTextEngine> _speechEngines;
 
     public SpeechEngineSelectorWorker(ICollectionProvider<ISpeechToTextEngine> speechEngines,
-                                      ISettings<SelectedSpeechEngineSettings> settings,
+                                      ISettings<SpeechEngineSettings> settings,
                                       IEnvironmentStateProvider environmentStateProvider,
                                       ILogger<SpeechEngineSelectorWorker> log)
     {
@@ -27,7 +27,7 @@ internal sealed class SpeechEngineSelectorWorker
         _log = log;
     }
 
-    public async Task HandleAsync(SettingsUpdatedEvent<SelectedSpeechEngineSettings> @event)
+    public async Task HandleAsync(SettingsUpdatedEvent<SpeechEngineSettings> @event)
     {
         var localEngines = _speechEngines.GetLocal(_environmentStateProvider).Where(static x => x.IsRunning);
         foreach (var engine in localEngines)

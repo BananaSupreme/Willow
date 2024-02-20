@@ -121,11 +121,12 @@ internal sealed class WhisperEngine
 
     public async Task<string> TranscribeAudioAsync(AudioData audioData)
     {
-        EnsureNotDisposed();
         if (!IsRunning)
         {
             return string.Empty;
         }
+
+        EnsureNotDisposed();
 
         var result = await Task.Run(() => Transcribe(new TranscriptionParameters(audioData)));
         return result;
