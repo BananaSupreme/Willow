@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 
+using Willow.BuiltInCommands.Helpers;
 using Willow.DeviceAutomation.InputDevices;
 using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
@@ -8,7 +9,7 @@ using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.MouseCommands;
 
-[ActivationMode(["command", "dictation"])]
+[ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
 internal sealed class MoveMouseByOffsetVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;

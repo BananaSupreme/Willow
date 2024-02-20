@@ -1,11 +1,12 @@
-﻿using Willow.Environment;
+﻿using Willow.BuiltInCommands.Helpers;
+using Willow.Environment;
 using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.System;
 
-[ActivationMode(["command", "dictation"])]
+[ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
 internal sealed class ChangeModeVoiceCommand : IVoiceCommand
 {
     private readonly IEnvironmentStateProvider _environmentStateProvider;

@@ -6,10 +6,11 @@ using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 using Willow.BuiltInCommands.BasicEditing.Enums;
+using Willow.BuiltInCommands.Helpers;
 
 namespace Willow.BuiltInCommands.BasicEditing;
 
-[ActivationMode(["command", "dictation"])]
+[ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
 internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
@@ -35,7 +36,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("[open|left]:_ [square|squares|object|curly|braces|brace|regular|parenthesis|angle]:type")]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task OpenParenthesisVoiceCommand(VoiceCommandContext context)
     {
         var type = context.Parameters["type"].GetString();
@@ -57,7 +58,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("[close|right]:_ [square|squares|object|curly|braces|brace|regular|parenthesis|angle]:type")]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task CloseParenthesisVoiceCommand(VoiceCommandContext context)
     {
         var type = context.Parameters["type"].GetString();
@@ -79,7 +80,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("[shift|ship|control|ctrl|alt|option|command]:control", RequiredMethods = [nameof(ConvertControlKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task PressControlKeyVoiceCommand(VoiceCommandContext context)
     {
         var control = ConvertControlKey(context.Parameters["control"].GetString());
@@ -93,7 +94,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
     }
 
     [VoiceCommand("#number")]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task PressNumberVoiceCommand(VoiceCommandContext context)
     {
         var number = context.Parameters["number"].GetInt32();
@@ -176,7 +177,7 @@ internal sealed class PressSpecialKeysVoiceCommand : IVoiceCommand
             "ship" => Key.LeftShift,
             "ctrl" => Key.LeftCommandOrControl,
             "control" => Key.LeftCommandOrControl,
-            "command" => Key.LeftCommandOrControl,
+            ActivationModeNames.Command => Key.LeftCommandOrControl,
             "alt" => Key.LeftAltOrOption,
             "option" => Key.LeftAltOrOption,
             _ => throw new UnreachableException()

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using Willow.BuiltInCommands.Helpers;
 using Willow.DeviceAutomation.InputDevices;
 using Willow.DeviceAutomation.InputDevices.Enums;
 using Willow.Speech.ScriptingInterface.Attributes;
@@ -17,7 +18,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("[go|move]:_ [left|right|up|down]:direction", RequiredMethods = [nameof(GetArrowKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task MoveCursorOneStepVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetArrowKey(context.Parameters["direction"].GetString());
@@ -26,7 +27,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("[go|move]:_ word [left|right]:direction", RequiredMethods = [nameof(GetArrowKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task MoveCursorWordVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetArrowKey(context.Parameters["direction"].GetString());
@@ -35,7 +36,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("[go|move]:_ line [start|head|end|tail]:direction", RequiredMethods = [nameof(GetHomeOrEndKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task MoveCursorEdgeOfLineVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetHomeOrEndKey(context.Parameters["direction"].GetString());
@@ -44,7 +45,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("[go|move]:_ file [start|head|end|tail]:direction", RequiredMethods = [nameof(GetHomeOrEndKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task MoveCursorEdgeOfPageVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetHomeOrEndKey(context.Parameters["direction"].GetString());
@@ -53,7 +54,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("select all")]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task SelectAllVoiceCommand(VoiceCommandContext context)
     {
         _inputSimulator.PressKey(Key.LeftCommandOrControl, Key.A);
@@ -61,7 +62,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("select [left|right|up|down]:direction", RequiredMethods = [nameof(GetArrowKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task SelectOneStepVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetArrowKey(context.Parameters["direction"].GetString());
@@ -70,7 +71,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("select word [left|right]:direction", RequiredMethods = [nameof(GetArrowKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task SelectWordVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetArrowKey(context.Parameters["direction"].GetString());
@@ -79,7 +80,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("select line [start|head|end|tail]:direction", RequiredMethods = [nameof(GetHomeOrEndKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task SelectEdgeOfLineVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetHomeOrEndKey(context.Parameters["direction"].GetString());
@@ -88,7 +89,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("select file [start|head|end|tail]:direction", RequiredMethods = [nameof(GetHomeOrEndKey)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public Task SelectEdgeOfPageVoiceCommand(VoiceCommandContext context)
     {
         var arrow = GetHomeOrEndKey(context.Parameters["direction"].GetString());
@@ -97,7 +98,7 @@ internal sealed class ControlCursorVoiceCommands
     }
 
     [VoiceCommand("[clear|delete]:_ all", RequiredMethods = [nameof(SelectAllVoiceCommand)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public async Task DeleteAllVoiceCommand(VoiceCommandContext context)
     {
         await SelectAllVoiceCommand(context);
@@ -106,7 +107,7 @@ internal sealed class ControlCursorVoiceCommands
 
     [VoiceCommand("[clear|delete]:_ [left|right|up|down]:direction",
                   RequiredMethods = [nameof(GetArrowKey), nameof(SelectOneStepVoiceCommand)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public async Task DeleteOneStepVoiceCommand(VoiceCommandContext context)
     {
         await SelectOneStepVoiceCommand(context);
@@ -115,7 +116,7 @@ internal sealed class ControlCursorVoiceCommands
 
     [VoiceCommand("[clear|delete]:_ word [left|right]:direction",
                   RequiredMethods = [nameof(GetArrowKey), nameof(SelectWordVoiceCommand)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public async Task DeleteWordVoiceCommand(VoiceCommandContext context)
     {
         await SelectWordVoiceCommand(context);
@@ -124,7 +125,7 @@ internal sealed class ControlCursorVoiceCommands
 
     [VoiceCommand("[clear|delete]:_ line [start|head|end|tail]:direction",
                   RequiredMethods = [nameof(GetHomeOrEndKey), nameof(SelectEdgeOfLineVoiceCommand)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public async Task DeleteEdgeOfLineVoiceCommand(VoiceCommandContext context)
     {
         await SelectEdgeOfLineVoiceCommand(context);
@@ -133,7 +134,7 @@ internal sealed class ControlCursorVoiceCommands
 
     [VoiceCommand("[clear|delete]:_ file [start|head|end|tail]:direction",
                   RequiredMethods = [nameof(GetHomeOrEndKey), nameof(SelectEdgeOfPageVoiceCommand)])]
-    [ActivationMode(["command", "dictation"])]
+    [ActivationMode([ActivationModeNames.Command, ActivationModeNames.Dictation])]
     public async Task DeleteEdgeOfPageVoiceCommand(VoiceCommandContext context)
     {
         await SelectEdgeOfPageVoiceCommand(context);

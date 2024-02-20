@@ -1,11 +1,12 @@
-﻿using Willow.DeviceAutomation.InputDevices;
+﻿using Willow.BuiltInCommands.Helpers;
+using Willow.DeviceAutomation.InputDevices;
 using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
 
 namespace Willow.BuiltInCommands.BasicEditing;
 
-[ActivationMode("dictation")]
+[ActivationMode(ActivationModeNames.Dictation)]
 internal sealed class DictateVoiceCommand : IVoiceCommand
 {
     private readonly IInputSimulator _inputSimulator;
