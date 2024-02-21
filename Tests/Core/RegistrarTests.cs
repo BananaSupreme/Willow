@@ -10,6 +10,9 @@ using Willow.Registration.Exceptions;
 
 using Xunit.Abstractions;
 
+// ReSharper disable UnusedTypeParameter
+// ReSharper disable ClassNeverInstantiated.Local
+
 namespace Tests.Core;
 
 public sealed class RegistrarTests : IDisposable
@@ -23,25 +26,49 @@ public sealed class RegistrarTests : IDisposable
         var services = new ServiceCollection();
         services.AddTestLogger(outputHelper);
         services.AddSingleton(typeof(ICollectionProvider<>), typeof(CollectionProvider<>));
+        services.AddSingleton<IServiceRegistrar, ServiceRegistrarTestDouble>();
         services.AddSingleton<IAssemblyRegistrar, AssemblyRegistrarTestDouble>();
         services.AddSingleton<IAssemblyRegistrationEntry, AssemblyRegistrationEntry>();
         _provider = services.CreateServiceProvider();
         _registrar = (AssemblyRegistrarTestDouble)_provider.GetRequiredService<IAssemblyRegistrar>();
         _sut = _provider.GetRequiredService<IAssemblyRegistrationEntry>();
+        ServiceRegistrarTestDouble.RegisterAction = null; //Will break tests otherwise
     }
 
     [Fact]
     public async Task When_AssemblyRegistersService_IsCallable()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<TestClass>();
         await RunRegistration();
         _provider.GetService<TestClass>().Should().NotBeNull();
     }
 
     [Fact]
+    public async Task When_AssemblyRegistrarDefinesExtensionTypes_AllResultsCallable()
+    {
+        _registrar.ExtensionTypes = [typeof(ITestInterface1)];
+        await RunRegistration();
+        var interfaces = _provider.GetServices<ITestInterface1>().ToArray();
+        interfaces.Should().HaveCount(2);
+        interfaces.OfType<TestClass>().Should().HaveCount(1);
+        interfaces.OfType<TestClass2>().Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task When_AssemblyRegistrarDefinesOpenGenericExtensionTypes_AllResultsCallable()
+    {
+        _registrar.ExtensionTypes = [typeof(IGenericTestInterface<>)];
+        await RunRegistration();
+        _provider.GetService<IGenericTestInterface<string>>().Should().NotBeNull();
+        _provider.GetService<IGenericTestInterface<int>>().Should().NotBeNull();
+        _provider.GetService<GenericTestClass>().Should().NotBeNull();
+        _provider.GetService<GenericTestClass2>().Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task When_RegisterNoneSingletonServices_Exception()
     {
-        _registrar.RegisterAction = static s => s.AddTransient<TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddTransient<TestClass>();
         await this.Invoking(async _ => await RunRegistration())
                   .Should()
                   .ThrowAsync<AssemblyLoadingException>()
@@ -51,7 +78,7 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_RegistersServiceWithMultipleInterfaces_ItIsReachableByAllAndTheSameServiceIsReturned()
     {
-        _registrar.RegisterAction = static s =>
+        ServiceRegistrarTestDouble.RegisterAction = static s =>
         {
             s.AddSingleton<ITestInterface1, TestClass>();
             s.AddSingleton<ITestInterface2, TestClass>();
@@ -65,7 +92,7 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_RegistersService_ReachableByConcreteAndInterfaceType()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
         await RunRegistration();
         var out1 = _provider.GetRequiredService<ITestInterface1>();
         var out2 = _provider.GetRequiredService<TestClass>();
@@ -75,20 +102,20 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_RegistersServiceAfterConcrete_ReachableByConcreteAndInterfaceType()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<TestClass>();
         await RunRegistration();
-        _registrar.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
-        var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
+        _registrar.ExtensionTypes = [typeof(ITestInterface1)];
+        var (dynamicAssembly, newType) = BuildDynamicAssembly();
         await _sut.RegisterAssemblyAsync(dynamicAssembly);
         var out1 = _provider.GetRequiredService<ITestInterface1>();
-        var out2 = _provider.GetRequiredService<TestClass>();
+        var out2 = _provider.GetRequiredService(newType);
         out1.Should().BeSameAs(out2);
     }
 
     [Fact]
     public async Task When_AssemblyUnregisters_ServiceNoLongerCallable()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<TestClass>();
         var guid = await RunRegistration();
         _provider.GetService<TestClass>().Should().NotBeNull();
         await _sut.UnregisterAssemblyAsync(guid);
@@ -98,7 +125,7 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_AssemblyUnregistersInterface_ServiceNoLongerCallable()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
         var guid = await RunRegistration();
         _provider.GetService<TestClass>().Should().NotBeNull();
         _provider.GetService<ITestInterface1>().Should().NotBeNull();
@@ -107,28 +134,27 @@ public sealed class RegistrarTests : IDisposable
         _provider.GetService<ITestInterface1>().Should().BeNull();
     }
 
-
     [Fact]
     public async Task When_AssemblyUnregisters_CollectionServicesLoseOnlyAssemblyDefinedServices()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
         await RunRegistration();
-        _registrar.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass2>();
-        var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
+        _registrar.ExtensionTypes = [typeof(ITestInterface1)];
+        var (dynamicAssembly, _) = BuildDynamicAssembly();
         var guid = await _sut.RegisterAssemblyAsync(dynamicAssembly);
         _provider.GetServices<ITestInterface1>().Should().HaveCount(2);
         await _sut.UnregisterAssemblyAsync(guid);
         _provider.GetServices<ITestInterface1>().Should().ContainSingle();
         _provider.GetServices<ITestInterface1>().First().Should().BeOfType<TestClass>();
     }
-    
+
     [Fact]
     public async Task When_AssemblyUnregisters_CollectionProviderUpdates()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass>();
         await RunRegistration();
-        _registrar.RegisterAction = static s => s.AddSingleton<ITestInterface1, TestClass2>();
-        var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
+        _registrar.ExtensionTypes = [typeof(ITestInterface1)];
+        var (dynamicAssembly, _) = BuildDynamicAssembly();
         var guid = await _sut.RegisterAssemblyAsync(dynamicAssembly);
         var provider = _provider.GetRequiredService<ICollectionProvider<ITestInterface1>>();
         provider.Get().Should().HaveCount(2);
@@ -140,7 +166,7 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_AssemblyUnregisters_ServiceDisposed()
     {
-        _registrar.RegisterAction = static s =>
+        ServiceRegistrarTestDouble.RegisterAction = static s =>
         {
             s.AddSingleton<TestClassDisposable>();
             s.AddSingleton<TestClassAsyncDisposable>();
@@ -160,7 +186,7 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_AssemblyUnregistersAndRegisters_ServiceReturnsFresh()
     {
-        _registrar.RegisterAction = static s => s.AddSingleton<TestClassDisposable>();
+        ServiceRegistrarTestDouble.RegisterAction = static s => s.AddSingleton<TestClassDisposable>();
         var guid = await RunRegistration();
         _provider.GetRequiredService<TestClassDisposable>().Should().NotBeNull();
         await _sut.UnregisterAssemblyAsync(guid);
@@ -172,7 +198,7 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_ServiceRegistrationFails_NoServicesLoaded()
     {
-        _registrar.RegisterAction = static s =>
+        ServiceRegistrarTestDouble.RegisterAction = static s =>
         {
             s.AddSingleton<TestClass>();
             throw new Exception();
@@ -213,13 +239,13 @@ public sealed class RegistrarTests : IDisposable
     public async Task When_StartIsCalled_ServicesFromOtherRegistrationCyclesAreNotAvailable()
     {
         IServiceProvider innerProvider = null!;
-        _registrar.RegisterAction = static s => { s.AddSingleton<TestClass>(); };
+        ServiceRegistrarTestDouble.RegisterAction = static s => { s.AddSingleton<TestClass>(); };
         _registrar.StartAction = provider => innerProvider = provider;
         await RunRegistration();
         innerProvider.GetService<TestClass>().Should().NotBeNull();
         var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
 
-        _registrar.RegisterAction = null;
+        ServiceRegistrarTestDouble.RegisterAction = null;
         await _sut.RegisterAssemblyAsync(dynamicAssembly);
         innerProvider.GetService<TestClass>().Should().BeNull();
         _provider.GetService<TestClass>().Should().NotBeNull();
@@ -229,28 +255,34 @@ public sealed class RegistrarTests : IDisposable
     public async Task When_StartRequestsAllTypesOfCertainType_UnableToReachTypesOutsideItsOwnAssembly()
     {
         IServiceProvider innerProvider = null!;
-        _registrar.RegisterAction = static s => { s.AddSingleton<ITestInterface1, TestClass>(); };
+        ServiceRegistrarTestDouble.RegisterAction = static s => { s.AddSingleton<ITestInterface1, TestClass>(); };
         _registrar.StartAction = provider => innerProvider = provider;
         await RunRegistration();
         innerProvider.GetService<TestClass>().Should().NotBeNull();
 
-        var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
-        var moduleBuilder = dynamicAssembly.DefineDynamicModule("test");
-        var typeBuilder = moduleBuilder.DefineType("TestClass2");
-        typeBuilder.AddInterfaceImplementation(typeof(ITestInterface1));
-        var newType = typeBuilder.CreateType();
+        var (dynamicAssembly, newType) = BuildDynamicAssembly();
 
-        _registrar.RegisterAction = s => { s.AddSingleton(typeof(ITestInterface1), newType); };
+        _registrar.ExtensionTypes = [typeof(ITestInterface1)];
         await _sut.RegisterAssemblyAsync(dynamicAssembly);
         _provider.GetServices<ITestInterface1>().Should().HaveCount(2);
         innerProvider.GetServices<ITestInterface1>().Should().ContainSingle();
         innerProvider.GetServices<ITestInterface1>().First().Should().BeOfType(newType);
     }
 
+    private static (AssemblyBuilder dynamicAssembly, Type newType) BuildDynamicAssembly()
+    {
+        var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.Run);
+        var moduleBuilder = dynamicAssembly.DefineDynamicModule("test");
+        var typeBuilder = moduleBuilder.DefineType("TestClass2");
+        typeBuilder.AddInterfaceImplementation(typeof(ITestInterface1));
+        var newType = typeBuilder.CreateType();
+        return (dynamicAssembly, newType);
+    }
+
     [Fact]
     public async Task When_StartFunctionFails_ServicesAreRemoved()
     {
-        _registrar.RegisterAction = static s => { s.AddSingleton<TestClass>(); };
+        ServiceRegistrarTestDouble.RegisterAction = static s => { s.AddSingleton<TestClass>(); };
         _registrar.StartAction = static _ => throw new Exception();
         await this.Invoking(async _ => await RunRegistration()).Should().ThrowAsync<AssemblyLoadingException>();
 
@@ -270,7 +302,7 @@ public sealed class RegistrarTests : IDisposable
     [Fact]
     public async Task When_StartAndStopFails_ServicesStillRemoved()
     {
-        _registrar.RegisterAction = static s => { s.AddSingleton<TestClass>(); };
+        ServiceRegistrarTestDouble.RegisterAction = static s => { s.AddSingleton<TestClass>(); };
         _registrar.StartAction = static _ => throw new Exception();
         _registrar.StopAction = static _ => throw new Exception();
         await this.Invoking(async _ => await RunRegistration()).Should().ThrowAsync<AssemblyLoadingException>();
@@ -311,11 +343,17 @@ public sealed class RegistrarTests : IDisposable
 
     private interface ITestInterface2;
 
-    private sealed class TestClass : ITestInterface1, ITestInterface2;
+    public sealed class TestClass : ITestInterface1, ITestInterface2;
 
-    private sealed class TestClass2 : ITestInterface1, ITestInterface2;
+    public sealed class TestClass2 : ITestInterface1, ITestInterface2;
 
-    private sealed class TestClassDisposable : IDisposable
+    private interface IGenericTestInterface<T>;
+
+    public sealed class GenericTestClass : IGenericTestInterface<int>;
+
+    public sealed class GenericTestClass2 : IGenericTestInterface<string>;
+
+    public sealed class TestClassDisposable : IDisposable
     {
         public bool Disposed { get; private set; }
 
@@ -325,7 +363,7 @@ public sealed class RegistrarTests : IDisposable
         }
     }
 
-    private sealed class TestClassAsyncDisposable : IAsyncDisposable
+    public sealed class TestClassAsyncDisposable : IAsyncDisposable
     {
         public bool Disposed { get; private set; }
 
@@ -336,7 +374,7 @@ public sealed class RegistrarTests : IDisposable
         }
     }
 
-    private sealed class TestClassAllDisposable : IDisposable, IAsyncDisposable
+    public sealed class TestClassAllDisposable : IDisposable, IAsyncDisposable
     {
         public int DisposedCount { get; private set; }
 
@@ -352,16 +390,12 @@ public sealed class RegistrarTests : IDisposable
         }
     }
 
-    private sealed class AssemblyRegistrarTestDouble : IAssemblyRegistrar
+    public sealed class AssemblyRegistrarTestDouble : IAssemblyRegistrar
     {
-        public Action<IServiceCollection>? RegisterAction { get; set; }
         public Action<IServiceProvider>? StartAction { get; set; }
         public Action<IServiceProvider>? StopAction { get; set; }
 
-        public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-        {
-            RegisterAction?.Invoke(services);
-        }
+        public Type[] ExtensionTypes { get; set; } = [];
 
         public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
         {
@@ -379,12 +413,7 @@ public sealed class RegistrarTests : IDisposable
     public sealed class CountingAssemblyRegistrarTestDouble : IAssemblyRegistrar
     {
         private int _callers;
-        public bool Called => _callers >= 2;
-
-        public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-        {
-            _callers++;
-        }
+        public bool Called => _callers >= 1;
 
         public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
         {
@@ -396,6 +425,16 @@ public sealed class RegistrarTests : IDisposable
         {
             _callers++;
             return Task.CompletedTask;
+        }
+    }
+
+    public sealed class ServiceRegistrarTestDouble : IServiceRegistrar
+    {
+        public static Action<IServiceCollection>? RegisterAction { get; set; }
+
+        public void RegisterServices(IServiceCollection services)
+        {
+            RegisterAction?.Invoke(services);
         }
     }
 

@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Willow.Eventing.Abstractions;
 using Willow.Helpers.Extensions;
@@ -15,6 +14,8 @@ internal sealed class EventingAssemblyRegistrar : IAssemblyRegistrar
     private readonly ILogger<EventingAssemblyRegistrar> _log;
     private IUnsafeEventRegistrar? _unsafeEventRegistrar;
 
+    public Type[] ExtensionTypes => [typeof(IEventHandler<>)];
+
     public EventingAssemblyRegistrar(ILogger<EventingAssemblyRegistrar> log)
     {
         _log = log;
@@ -24,17 +25,6 @@ internal sealed class EventingAssemblyRegistrar : IAssemblyRegistrar
     {
         _unsafeEventRegistrar = unsafeEventRegistrar;
         _log = log;
-    }
-
-    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-    {
-        var types = assembly.GetAllDerivingOpenGeneric(typeof(IEventHandler<>));
-        _log.EventHandlersDetected(GetTypeNamesLogger(types));
-
-        foreach (var type in types)
-        {
-            services.TryAddSingleton(type);
-        }
     }
 
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)

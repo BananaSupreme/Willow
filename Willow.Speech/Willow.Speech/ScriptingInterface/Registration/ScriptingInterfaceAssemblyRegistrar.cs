@@ -3,7 +3,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using Willow.Eventing;
-using Willow.Helpers.Extensions;
 using Willow.Registration;
 using Willow.Speech.ScriptingInterface.Abstractions;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
@@ -18,16 +17,13 @@ internal sealed class ScriptingInterfaceAssemblyRegistrar : IAssemblyRegistrar
     private readonly IEventDispatcher _eventDispatcher;
     private readonly IVoiceCommandInterpreter _voiceCommandInterpreter;
 
+    public Type[] ExtensionTypes => [typeof(IVoiceCommand)];
+
     public ScriptingInterfaceAssemblyRegistrar(IVoiceCommandInterpreter voiceCommandInterpreter,
                                                IEventDispatcher eventDispatcher)
     {
         _voiceCommandInterpreter = voiceCommandInterpreter;
         _eventDispatcher = eventDispatcher;
-    }
-
-    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-    {
-        services.AddAllTypesDeriving<IVoiceCommand>(assembly);
     }
 
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)

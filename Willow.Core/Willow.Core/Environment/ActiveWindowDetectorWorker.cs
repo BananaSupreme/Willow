@@ -57,7 +57,7 @@ internal sealed class ActiveWindowDetectorWorker : IBackgroundWorker
                 _eventDispatcher.Dispatch(new ActiveWindowChangedEvent(window));
             }
 
-            await Task.Delay(300, cancellationToken);
+            await Task.Delay(300, CancellationToken.None);
         }
     }
 }

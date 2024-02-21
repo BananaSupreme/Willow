@@ -1,9 +1,6 @@
 ﻿using System.Reflection;
 
-using Microsoft.Extensions.DependencyInjection;
-
 using Willow.Eventing;
-using Willow.Helpers.Extensions;
 using Willow.Registration;
 using Willow.Speech.ScriptingInterface.Eventing.Events;
 
@@ -15,15 +12,11 @@ namespace Willow.Speech.VoiceCommandCompilation.Registration;
 internal sealed class VoiceCommandCompilationAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly IEventDispatcher _eventDispatcher;
+    public Type[] ExtensionTypes => [typeof(INodeCompiler)];
 
     public VoiceCommandCompilationAssemblyRegistrar(IEventDispatcher eventDispatcher)
     {
         _eventDispatcher = eventDispatcher;
-    }
-
-    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-    {
-        services.AddAllTypesDeriving<INodeCompiler>(assembly);
     }
 
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)

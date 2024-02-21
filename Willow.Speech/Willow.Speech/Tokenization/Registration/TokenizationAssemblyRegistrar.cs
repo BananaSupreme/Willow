@@ -1,8 +1,5 @@
 ﻿using System.Reflection;
 
-using Microsoft.Extensions.DependencyInjection;
-
-using Willow.Helpers.Extensions;
 using Willow.Registration;
 
 namespace Willow.Speech.Tokenization.Registration;
@@ -12,10 +9,7 @@ namespace Willow.Speech.Tokenization.Registration;
 /// </summary>
 internal sealed class TokenizationAssemblyRegistrar : IAssemblyRegistrar
 {
-    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-    {
-        services.AddAllTypesDeriving<ITranscriptionTokenizer>(assembly);
-    }
+    public Type[] ExtensionTypes => [typeof(ITranscriptionTokenizer)];
 
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {

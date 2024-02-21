@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+using Willow.Registration.Exceptions;
+
 namespace Willow.Registration;
 
 //GUIDE_REQUIRED SERVICE REGISTRATION
@@ -17,6 +19,11 @@ namespace Willow.Registration;
 /// there is not deduplication happening, so if attempting to register a type defined in another system check if it is
 /// implemented by a <see cref="IAssemblyRegistrar"/> to read it. Types should also contain this information of their docs.
 /// </remarks>
+/// <exception cref="RegistrationMustBeSingletonException">
+/// All the registrations with the system should be singletons, this is mainly due to the fact the system heavily
+/// relies on services that must be singletons and adding other levels of dependencies heavily complicates the
+/// dependency model.
+/// </exception>
 public interface IServiceRegistrar
 {
     /// <inheritdoc cref="IServiceRegistrar" />

@@ -66,6 +66,11 @@ internal sealed partial class AssemblyRegistrationEntry : IAssemblyRegistrationE
             await UnregisterAssemblyAsync(id);
         }
     }
+
+    private static EnumeratorLogger<string> GetTypeNamesLogger(Type[] types)
+    {
+        return new EnumeratorLogger<string>(types.Select(static x => x.ToString()));
+    }
 }
 
 internal static partial class AssemblyRegistrationEntryLoggingExtensions
@@ -104,7 +109,9 @@ internal static partial class AssemblyRegistrationEntryLoggingExtensions
     [LoggerMessage(EventId = 9, Level = LogLevel.Information, Message = "Registering the services")]
     public static partial void RegisteringServices(this ILogger logger);
 
-    [LoggerMessage(EventId = 10, Level = LogLevel.Debug, Message = "Registering the services into the container ({descriptors})")]
+    [LoggerMessage(EventId = 10,
+                   Level = LogLevel.Debug,
+                   Message = "Registering the services into the container ({descriptors})")]
     public static partial void RegisteringIntoContainer(this ILogger logger,
                                                         EnumeratorLogger<PreparedDescriptor> descriptors);
 
@@ -121,4 +128,10 @@ internal static partial class AssemblyRegistrationEntryLoggingExtensions
 
     [LoggerMessage(EventId = 14, Level = LogLevel.Error, Message = "Tried to remove assembly that doesnt exist ({id})")]
     public static partial void AssemblyNotFound(this ILogger logger, Guid id);
+
+    [LoggerMessage(EventId = 15, Level = LogLevel.Debug, Message = "Located open generic types: {types}")]
+    public static partial void OpenGenericTypesDetected(this ILogger logger, EnumeratorLogger<string> types);
+
+    [LoggerMessage(EventId = 16, Level = LogLevel.Debug, Message = "Located types: {types}")]
+    public static partial void TypesDetected(this ILogger logger, EnumeratorLogger<string> types);
 }

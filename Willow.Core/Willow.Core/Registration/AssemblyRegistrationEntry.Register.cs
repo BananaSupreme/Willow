@@ -34,10 +34,10 @@ internal sealed partial class AssemblyRegistrationEntry
             }
 
             var registrars = _registrars.Get().ToArray();
-            var orderedServices = RegisterServices(registrars, assembly, assemblyId, true);
+            var orderedServices = RegisterServices(registrars, assembly, true);
 
             //We want to make sure we also register the assembly with the Registrars defined within it.
-            orderedServices = RegisterFromNewRegistrars(assembly, assemblyId, registrars, orderedServices);
+            orderedServices = RegisterFromNewRegistrars(assembly, registrars, orderedServices);
             var record = new AssemblyRecord(assemblyId, assembly, orderedServices);
 
             _log.CreatedRecord(record.Id, record.Assembly, record.ServiceRegistrationRecord);
@@ -52,7 +52,6 @@ internal sealed partial class AssemblyRegistrationEntry
     }
 
     private ServiceRegistrationRecord[] RegisterFromNewRegistrars(Assembly assembly,
-                                                                  Guid assemblyId,
                                                                   IAssemblyRegistrar[] registrars,
                                                                   ServiceRegistrationRecord[] orderedServices)
     {
@@ -60,7 +59,7 @@ internal sealed partial class AssemblyRegistrationEntry
         if (extraRegistrars.Length != 0)
         {
             _log.NewRegistrarsFromAssembly(new EnumeratorLogger<IAssemblyRegistrar>(extraRegistrars));
-            orderedServices = orderedServices.Union(RegisterServices(extraRegistrars, assembly, assemblyId)).ToArray();
+            orderedServices = orderedServices.Union(RegisterServices(extraRegistrars, assembly)).ToArray();
         }
 
         return orderedServices;

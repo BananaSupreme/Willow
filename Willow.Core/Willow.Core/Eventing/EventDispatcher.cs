@@ -80,14 +80,21 @@ internal sealed partial class EventDispatcher : IBackgroundWorker, IEventDispatc
 
     private async Task RunQueue(CancellationToken cancellationToken)
     {
-        await foreach (var task in _runningTasks.Reader.ReadAllAsync(cancellationToken))
+        try
         {
-            if (cancellationToken.IsCancellationRequested)
+            await foreach (var task in _runningTasks.Reader.ReadAllAsync(cancellationToken))
             {
-                break;
-            }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
 
-            await RunAndIgnoreErrorsAsync(task);
+                await RunAndIgnoreErrorsAsync(task);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            //nothing to do here
         }
     }
 
@@ -126,7 +133,7 @@ internal static partial class EventDispatcherLoggingExtensions
                    Level = LogLevel.Debug,
                    Message = "Registering handler of type ({handlerType}) for event ({eventType}).")]
     public static partial void HandlerRegistering(this ILogger logger, string handlerType, string eventType);
-    
+
     [LoggerMessage(EventId = 5,
                    Level = LogLevel.Debug,
                    Message = "Unregistering handler of type ({handlerType}) for event ({eventType}).")]

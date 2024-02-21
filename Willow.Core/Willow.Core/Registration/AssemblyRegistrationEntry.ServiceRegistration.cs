@@ -14,10 +14,9 @@ internal sealed partial class AssemblyRegistrationEntry
 {
     private ServiceRegistrationRecord[] RegisterServices(IEnumerable<IAssemblyRegistrar> registrars,
                                                          Assembly assembly,
-                                                         Guid assemblyId,
                                                          bool registerAssemblyRegistrars = false)
     {
-        var services = BuildServiceCollection(registrars, assembly, assemblyId, registerAssemblyRegistrars);
+        var services = BuildServiceCollection(registrars, assembly, registerAssemblyRegistrars);
         EnsureAllSingletons(services);
         var preparedDescriptors = PrepareDescriptorsForProcessing(services);
         _log.RegisteringServices();
@@ -29,26 +28,77 @@ internal sealed partial class AssemblyRegistrationEntry
         return orderedRegistrations.ToArray();
     }
 
-    private static ServiceCollection BuildServiceCollection(IEnumerable<IAssemblyRegistrar> registrars,
-                                                            Assembly assembly,
-                                                            Guid assemblyId,
-                                                            bool registerAssemblyRegistrars)
+    private ServiceCollection BuildServiceCollection(IEnumerable<IAssemblyRegistrar> registrars,
+                                                     Assembly assembly,
+                                                     bool firstRun)
     {
         var services = new ServiceCollection();
 
-        if (registerAssemblyRegistrars)
+        if (firstRun)
         {
             //We're running twice here, and registering a second time, because the registrar might depend on something
             //That is defined already within the system
             services.AddAllTypesDeriving<IAssemblyRegistrar>(assembly);
+            CallServiceRegistrars(assembly, services);
         }
 
-        foreach (var registrar in registrars)
-        {
-            registrar.Register(assembly, assemblyId, services);
-        }
+        RegisterExtensionTypes(registrars, assembly, services);
+
 
         return services;
+    }
+
+    private void RegisterExtensionTypes(IEnumerable<IAssemblyRegistrar> registrars,
+                                        Assembly assembly,
+                                        ServiceCollection services)
+    {
+        foreach (var type in registrars.SelectMany(static x => x.ExtensionTypes))
+        {
+            if (type.IsGenericTypeDefinition)
+            {
+                RegisterOpenGenericExtensionType(assembly, services, type);
+            }
+            else
+            {
+                RegisterExtensionType(assembly, services, type);
+            }
+        }
+    }
+
+    private void RegisterExtensionType(Assembly assembly, ServiceCollection services, Type type)
+    {
+        var types = assembly.GetAllDeriving(type);
+        _log.TypesDetected(GetTypeNamesLogger(types));
+
+        foreach (var concreteType in types)
+        {
+            services.AddSingleton(type, concreteType);
+        }
+    }
+
+    private void RegisterOpenGenericExtensionType(Assembly assembly, ServiceCollection services, Type type)
+    {
+        var types = assembly.GetAllDerivingOpenGeneric(type);
+        _log.OpenGenericTypesDetected(GetTypeNamesLogger(types));
+
+        foreach (var concreteType in types)
+        {
+            var definition = concreteType.GetInterfaces()
+                                         .Where(static x => x.IsGenericType)
+                                         .First(x => x.GetGenericTypeDefinition() == type);
+
+            services.AddSingleton(definition, concreteType);
+        }
+    }
+
+    private static void CallServiceRegistrars(Assembly assembly, ServiceCollection services)
+    {
+        var serviceRegistrars = assembly.GetAllDeriving<IServiceRegistrar>();
+        var activatedServiceRegistrar = serviceRegistrars.Select(Activator.CreateInstance).Cast<IServiceRegistrar>();
+        foreach (var serviceRegistrar in activatedServiceRegistrar)
+        {
+            serviceRegistrar.RegisterServices(services);
+        }
     }
 
     private static void EnsureAllSingletons(ServiceCollection services)

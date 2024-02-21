@@ -10,10 +10,7 @@ internal sealed class BackgroundWorkerAssemblyRegistrar : IAssemblyRegistrar, ID
 {
     private readonly Dictionary<Guid, TaskRunningInfo> _taskRunningInfos = [];
 
-    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-    {
-        services.AddAllTypesDeriving<IBackgroundWorker>(assembly);
-    }
+    public Type[] ExtensionTypes => [typeof(IBackgroundWorker)];
 
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {
@@ -46,7 +43,8 @@ internal sealed class BackgroundWorkerAssemblyRegistrar : IAssemblyRegistrar, ID
         var taskRunningInfo = _taskRunningInfos[assemblyId];
         try
         {
-            await taskRunningInfo.CancellationTokenSource.CancelAsync();
+            await taskRunningInfo.CancellationTokenSource.CancelAsync()
+                                 .ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
         }
         finally
         {
@@ -67,18 +65,28 @@ internal sealed class BackgroundWorkerAssemblyRegistrar : IAssemblyRegistrar, ID
 
     public async ValueTask DisposeAsync()
     {
-        await _taskRunningInfos.Select(async static x =>
+        await _taskRunningInfos.Select(async static x => await CancelAndClearTasksAsync(x))
+                               .WhenAll();
+    }
+
+    private static async Task CancelAndClearTasksAsync(KeyValuePair<Guid, TaskRunningInfo> x)
+    {
+        try
+        {
+            await x.Value.CancellationTokenSource.CancelAsync()
+                   .ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+        }
+        finally
         {
             try
             {
-                await x.Value.CancellationTokenSource.CancelAsync()
-                       .ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+                await Task.WhenAll(x.Value.RunningTasks).WaitAsync(TimeSpan.FromSeconds(1));
             }
-            finally
+            catch
             {
-                await Task.WhenAll(x.Value.RunningTasks);
+                //nothing to do about it...
             }
-        }).WhenAll();
+        }
     }
 
     private readonly record struct TaskRunningInfo(Task[] RunningTasks, CancellationTokenSource CancellationTokenSource);

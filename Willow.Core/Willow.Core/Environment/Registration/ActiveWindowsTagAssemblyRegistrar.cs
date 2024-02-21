@@ -30,11 +30,6 @@ internal sealed class ActiveWindowsTagAssemblyRegistrar : IAssemblyRegistrar
         _log = log;
     }
 
-    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-    {
-        //No registration needed here.
-    }
-
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
     {
         _activeWindowTagStorage ??= serviceProvider.GetRequiredService<IActiveWindowTagStorage>();

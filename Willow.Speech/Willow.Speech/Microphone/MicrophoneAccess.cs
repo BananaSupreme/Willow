@@ -32,7 +32,11 @@ internal sealed class MicrophoneAccess
 
     public void Dispose()
     {
-        StopRecording();
+        if (_recorder is not null)
+        {
+            StopRecording();
+        }
+
         _lock.Dispose();
     }
 
@@ -73,6 +77,7 @@ internal sealed class MicrophoneAccess
     {
         _recorder?.Stop();
         _recorder?.Dispose();
+        _recorder = null;
         _log.RecordingStopped();
     }
 

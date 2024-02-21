@@ -3,7 +3,9 @@
 using Willow;
 using Willow.Eventing;
 using Willow.Registration;
+using Willow.Settings;
 using Willow.Speech;
+using Willow.Speech.Microphone.Settings;
 using Willow.Speech.ScriptingInterface;
 using Willow.Speech.ScriptingInterface.Attributes;
 using Willow.Speech.ScriptingInterface.Models;
@@ -14,7 +16,7 @@ using Xunit.Abstractions;
 
 namespace Tests.Speech;
 
-public sealed class VoiceCommandsEndToEnd
+public sealed class VoiceCommandsEndToEnd : IDisposable
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -31,9 +33,18 @@ public sealed class VoiceCommandsEndToEnd
                                         .GetAwaiter()
                                         .GetResult();
         var registrar = _serviceProvider.GetRequiredService<IAssemblyRegistrationEntry>();
+        TurnMicrophoneOff();
         registrar.RegisterAssembliesAsync([typeof(ISpeechAssemblyMarker).Assembly, GetType().Assembly])
                  .GetAwaiter()
                  .GetResult();
+    }
+
+    //This just breaks tests, microphone being on doesn't really mean anything in a test environment.
+    private void TurnMicrophoneOff()
+    {
+        var settings = _serviceProvider.GetRequiredService<ISettings<MicrophoneSettings>>();
+        settings.Update(settings.CurrentValue with { ShouldRecordAudio = false });
+        (settings as IDisposable)?.Dispose();
     }
 
     [Fact]
@@ -49,6 +60,12 @@ public sealed class VoiceCommandsEndToEnd
 
         testVoiceCommand.Called.Should().BeTrue();
         counter.Counted.Should().Be(2);
+    }
+
+    public void Dispose()
+    {
+        (_serviceProvider as IDisposable)?.Dispose();
+        Directory.Delete(ISettings<MicrophoneSettings>.SettingsFolderPath, true);
     }
 }
 
@@ -67,7 +84,7 @@ public class TestVoiceCommand : IVoiceCommand
     {
         if (context.Parameters.TryGetValue("capture", out var token)
             && context.Parameters.TryGetValue("hit", out _)
-            && token == new WordToken("mario"))
+            && token.Match(new WordToken("mario")))
         {
             Called = true;
         }

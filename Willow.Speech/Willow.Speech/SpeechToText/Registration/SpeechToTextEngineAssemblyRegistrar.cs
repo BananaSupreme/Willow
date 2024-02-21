@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-using Willow.Helpers.Extensions;
 using Willow.Registration;
 using Willow.Settings;
 using Willow.Speech.SpeechToText.Exceptions;
@@ -14,17 +13,14 @@ internal sealed class SpeechToTextEngineAssemblyRegistrar : IAssemblyRegistrar
 {
     private readonly ISettings<SpeechEngineSettings> _setting;
     private readonly IServiceProvider _systemServiceProvider;
+    
+    public Type[] ExtensionTypes => [typeof(ISpeechToTextEngine)];
 
     public SpeechToTextEngineAssemblyRegistrar(ISettings<SpeechEngineSettings> setting,
                                                IServiceProvider systemServiceProvider)
     {
         _setting = setting;
         _systemServiceProvider = systemServiceProvider;
-    }
-
-    public void Register(Assembly assembly, Guid assemblyId, IServiceCollection services)
-    {
-        services.AddAllTypesDeriving<ISpeechToTextEngine>(assembly);
     }
 
     public Task StartAsync(Assembly assembly, Guid assemblyId, IServiceProvider serviceProvider)
