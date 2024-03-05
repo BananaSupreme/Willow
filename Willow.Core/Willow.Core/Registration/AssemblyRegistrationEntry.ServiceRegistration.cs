@@ -14,9 +14,9 @@ internal sealed partial class AssemblyRegistrationEntry
 {
     private ServiceRegistrationRecord[] RegisterServices(IEnumerable<IAssemblyRegistrar> registrars,
                                                          Assembly assembly,
-                                                         bool registerAssemblyRegistrars = false)
+                                                         bool firstRegistration = false)
     {
-        var services = BuildServiceCollection(registrars, assembly, registerAssemblyRegistrars);
+        var services = BuildServiceCollection(registrars, assembly, firstRegistration);
         EnsureAllSingletons(services);
         var preparedDescriptors = PrepareDescriptorsForProcessing(services);
         _log.RegisteringServices();

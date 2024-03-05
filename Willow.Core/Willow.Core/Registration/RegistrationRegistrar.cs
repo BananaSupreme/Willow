@@ -8,5 +8,6 @@ internal static class RegistrationRegistrar
     {
         services.AddSingleton(typeof(ICollectionProvider<>), typeof(CollectionProvider<>));
         services.AddSingleton<IAssemblyRegistrationEntry, AssemblyRegistrationEntry>();
+        services.AddSingleton<IPluginLoader, PluginLoader>();
     }
 }

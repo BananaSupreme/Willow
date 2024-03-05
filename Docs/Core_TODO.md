@@ -1,7 +1,10 @@
 - We should consider how to let the user know when errors occur in the pipeline, maybe we can capture Error level logs
   for ui displays? can we plug into the ILogger in that way? -- a sink on serilog.
+- The plugin unloading fails at the moment which means in the mean while we should recommend users to restart willow after
+  removing plugins. At the moment I traced the references to DryIoC it comes down to references that are still being 
+  kept (or even created) after destruction internally and we should work with creator of the package to solve this
 - GUIDE_REQUIRED Design decisions guides required - why is everything a singleton? The plugins and why are they built
-  like this. Why new settings? The many open questions of plugin store!
+  like this. Why new settings? The many open questions of plugin store! Why extensions types - shared types in assemblies.
 - safe keeping this one when we will consider how to enable smart moving around the text we are in, for example "
   change *word *second" to switch the word for another...
   Windows

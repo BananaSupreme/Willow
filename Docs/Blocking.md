@@ -2,8 +2,6 @@
 public with the project
 
 - Whisper mode -- dictation mode powered by whisper that supports its ability to punctuate and uses the prompt...
-- Attempt a POC on plugins, create a test case where 2 plugins are loaded and check no exceptions and everything is
-  registered correctly
 - DOCS! The XML docs part is done, we should add documentations explaining how the system ties together.
   How the speech system works together, how the eventing works, how settings works, a guide to building voice commands.
 - UI

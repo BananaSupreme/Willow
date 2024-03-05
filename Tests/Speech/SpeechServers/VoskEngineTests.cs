@@ -79,7 +79,7 @@ public sealed class VoskEngineTests : IAsyncLifetime
         return new AudioData(data, samplingRate, channelCount, bitDepth);
     }
 
-    private void EnsureDeletedFolder()
+    private static void EnsureDeletedFolder()
     {
         if (Directory.Exists(VoskSettings.VoskFolder))
         {

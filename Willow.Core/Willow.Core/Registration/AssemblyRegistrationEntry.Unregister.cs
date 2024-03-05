@@ -37,6 +37,8 @@ internal sealed partial class AssemblyRegistrationEntry
         {
             _container.Unregister(implementationType);
             _container.Unregister(serviceType, condition: factory => factory.ImplementationType == implementationType);
+            _container.ClearCache(implementationType);
+            _container.ClearCache(serviceType);
             _container.ClearCache(typeof(IEnumerable<>).MakeGenericType(serviceType));
         }
     }
