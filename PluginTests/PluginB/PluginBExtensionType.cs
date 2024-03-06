@@ -2,6 +2,4 @@
 
 namespace PluginB;
 
-public class PluginBExtensionType : ITestExtensionType
-{
-}
+public class PluginBExtensionType : ITestExtensionType;

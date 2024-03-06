@@ -35,7 +35,8 @@ internal sealed partial class AssemblyRegistrationEntry : IAssemblyRegistrationE
 
     private readonly record struct AssemblyRecord(Guid Id,
                                                   Assembly Assembly,
-                                                  ServiceRegistrationRecord[] ServiceRegistrationRecord);
+                                                  ServiceRegistrationRecord[] ServiceRegistrationRecord,
+                                                  DateTime CreationTime);
 
     internal readonly record struct ServiceRegistrationRecord(Type ServiceType, Type ImplementationType);
 
@@ -46,7 +47,7 @@ internal sealed partial class AssemblyRegistrationEntry : IAssemblyRegistrationE
 
     public async ValueTask DisposeAsync()
     {
-        foreach (var (id, record) in _assemblyRecords)
+        foreach (var (id, record) in _assemblyRecords.OrderBy(static x => x.Value.CreationTime))
         {
             if (_container.IsDisposed)
             {

@@ -38,7 +38,7 @@ internal sealed partial class AssemblyRegistrationEntry
 
             //We want to make sure we also register the assembly with the Registrars defined within it.
             orderedServices = RegisterFromNewRegistrars(assembly, registrars, orderedServices);
-            var record = new AssemblyRecord(assemblyId, assembly, orderedServices);
+            var record = new AssemblyRecord(assemblyId, assembly, orderedServices, DateTime.Now);
 
             _log.CreatedRecord(record.Id, record.Assembly, record.ServiceRegistrationRecord);
 

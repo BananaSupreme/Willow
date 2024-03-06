@@ -28,7 +28,7 @@ internal sealed class FileWritingWorker : IBackgroundWorker, IQueuedFileWriter
     {
         while (_channel.Reader.TryRead(out var request))
         {
-            ProcessUpdateAsync(request, CancellationToken.None).GetAwaiter().GetResult();
+            ProcessUpdateAsync(request).GetAwaiter().GetResult();
         }
     }
 
@@ -54,7 +54,7 @@ internal sealed class FileWritingWorker : IBackgroundWorker, IQueuedFileWriter
                     break;
                 }
 
-                await ProcessUpdateAsync(request, cancellationToken);
+                await ProcessUpdateAsync(request);
             }
         }
         catch (OperationCanceledException)
@@ -63,7 +63,7 @@ internal sealed class FileWritingWorker : IBackgroundWorker, IQueuedFileWriter
         }
     }
 
-    private async Task ProcessUpdateAsync(FileUpdateRequest request, CancellationToken cancellationToken)
+    private async Task ProcessUpdateAsync(FileUpdateRequest request)
     {
         var attempt = 0;
         while (attempt < 10)
@@ -71,7 +71,7 @@ internal sealed class FileWritingWorker : IBackgroundWorker, IQueuedFileWriter
             _log.ProcessingRequest(request);
             try
             {
-                await ProcessUpdateAttemptAsync(request, cancellationToken);
+                await ProcessUpdateAttemptAsync(request);
                 break;
             }
             catch (Exception ex)
@@ -84,7 +84,7 @@ internal sealed class FileWritingWorker : IBackgroundWorker, IQueuedFileWriter
         }
     }
 
-    private async Task ProcessUpdateAttemptAsync(FileUpdateRequest request, CancellationToken cancellationToken)
+    private async Task ProcessUpdateAttemptAsync(FileUpdateRequest request)
     {
         request.File.Seek(0, SeekOrigin.Begin);
         if (request.Value.Length < _buffer.Length)

@@ -1,5 +1,3 @@
 ﻿namespace PluginA;
 
-public interface ITestExtensionType
-{
-}
+public interface ITestExtensionType;
